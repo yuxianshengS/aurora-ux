@@ -1,0 +1,51 @@
+.au-pdf-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1;
+  color: #fff;
+  background: var(--au-primary);
+  border: 1px solid var(--au-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s var(--au-ease), transform 0.08s var(--au-ease);
+  user-select: none;
+}
+.au-pdf-download:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--au-primary) 88%, black);
+}
+.au-pdf-download:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.au-pdf-download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.au-pdf-download__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: au-pdf-spin 0.7s linear infinite;
+}
+@keyframes au-pdf-spin {
+  to { transform: rotate(360deg); }
+}
+
+.au-pdf-trigger {
+  display: inline-block;
+  cursor: pointer;
+}
+.au-pdf-trigger--loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.au-pdf-trigger--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

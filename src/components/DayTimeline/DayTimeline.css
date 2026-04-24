@@ -1,0 +1,74 @@
+.au-daytimeline {
+  display: block;
+  font-family: inherit;
+  user-select: none;
+  overflow: visible;
+}
+
+.au-daytimeline__axis,
+.au-daytimeline__tick {
+  stroke: var(--au-border-strong);
+  stroke-width: 1;
+}
+
+.au-daytimeline__tick-label {
+  fill: var(--au-text-3);
+  font-size: 10px;
+}
+
+.au-daytimeline__data-fill {
+  fill: var(--au-primary);
+  opacity: 0.12;
+}
+
+.au-daytimeline__data-seg {
+  opacity: 0.8;
+  cursor: pointer;
+  transition: opacity 0.15s var(--au-ease);
+}
+.au-daytimeline__data-seg:hover {
+  opacity: 1;
+}
+
+.au-daytimeline__data-edge {
+  stroke: var(--au-primary);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.55;
+}
+
+.au-daytimeline__status {
+  stroke-width: 2;
+  cursor: pointer;
+  transition: stroke-width 0.15s var(--au-ease);
+}
+.au-daytimeline__status:hover {
+  stroke-width: 3;
+}
+
+.au-daytimeline__marker {
+  fill: var(--au-primary);
+  cursor: grab;
+  filter: drop-shadow(0 2px 4px rgba(91, 141, 239, 0.4));
+  transition: r 0.15s var(--au-ease);
+}
+.au-daytimeline__marker:active {
+  cursor: grabbing;
+}
+
+.au-daytimeline__marker-label {
+  fill: var(--au-primary);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.au-daytimeline__arrow {
+  fill: var(--au-primary);
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.15s var(--au-ease);
+}
+.au-daytimeline__arrow:hover {
+  opacity: 1;
+}

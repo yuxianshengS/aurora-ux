@@ -1,0 +1,158 @@
+.au-table {
+  width: 100%;
+  color: var(--au-text-1);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.au-table__scroll {
+  position: relative;
+  border-radius: var(--au-radius);
+  overflow: hidden;
+}
+.au-table.is-bordered .au-table__scroll {
+  border: 1px solid var(--au-border);
+}
+
+.au-table__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+}
+
+/* ---- thead ---- */
+.au-table__thead .au-table__th {
+  /* 亮色固定 gray-200 级别, 暗色用文字色 14% 混底 — 都跟内容行 (bg) 有明显对比 */
+  background: #e5e7eb;
+  color: #111827;
+  font-weight: 600;
+  text-align: left;
+  /* 底部粗一点的主色细线, 拉开表头跟内容 */
+  border-bottom: 2px solid color-mix(in srgb, var(--au-primary) 30%, var(--au-border));
+  padding: 12px 16px;
+  white-space: nowrap;
+  user-select: none;
+  transition: background 0.15s var(--au-ease);
+  position: relative;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 13px;
+}
+[data-theme="dark"] .au-table__thead .au-table__th {
+  background: #2a3241;
+  color: #f3f4f6;
+  border-bottom-color: color-mix(in srgb, var(--au-primary) 45%, #475569);
+}
+.au-table.is-sticky .au-table__thead .au-table__th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.au-table__th.has-sorter {
+  cursor: pointer;
+}
+.au-table__th.has-sorter:hover {
+  background: color-mix(in srgb, var(--au-primary) 10%, var(--au-bg-mute));
+  color: var(--au-primary);
+}
+.au-table__th.is-sorted {
+  color: var(--au-text-1);
+}
+.au-table__th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.au-table__sort-icon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.au-table--small .au-table__th  { padding: 8px 12px; font-size: 13px; }
+.au-table--large .au-table__th  { padding: 14px 20px; font-size: 14.5px; }
+
+/* ---- body ---- */
+.au-table__tbody .au-table__row {
+  transition: background 0.12s var(--au-ease);
+}
+.au-table__tbody .au-table__row:hover {
+  background: var(--au-bg-soft);
+}
+.au-table.is-striped .au-table__tbody .au-table__row:nth-child(even):not(.is-selected) {
+  background: var(--au-bg-soft);
+}
+.au-table.is-striped .au-table__tbody .au-table__row:nth-child(even):not(.is-selected):hover {
+  background: var(--au-bg-mute);
+}
+.au-table__row.is-selected {
+  background: var(--au-primary-soft);
+}
+.au-table__row.is-selected:hover {
+  background: color-mix(in srgb, var(--au-primary-soft) 80%, var(--au-bg-mute));
+}
+
+.au-table__cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--au-border);
+  vertical-align: middle;
+}
+.au-table--small .au-table__cell  { padding: 8px 12px; font-size: 13px; }
+.au-table--large .au-table__cell  { padding: 14px 20px; font-size: 14.5px; }
+
+.au-table__tbody .au-table__row:last-child .au-table__cell {
+  border-bottom: 0;
+}
+
+.au-table__cell.is-ellipsis {
+  max-width: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.au-table__cell--left   { text-align: left; }
+.au-table__cell--center { text-align: center; }
+.au-table__cell--right  { text-align: right; }
+
+.au-table__cell--selection,
+.au-table__th--selection {
+  padding-left: 16px;
+  padding-right: 0;
+  width: 48px;
+  text-align: center;
+}
+.au-table__cell--selection {
+  color: var(--au-text-3);
+}
+
+/* bordered */
+.au-table.is-bordered .au-table__th,
+.au-table.is-bordered .au-table__cell {
+  border-right: 1px solid var(--au-border);
+}
+.au-table.is-bordered .au-table__th:last-child,
+.au-table.is-bordered .au-table__cell:last-child {
+  border-right: 0;
+}
+
+/* empty state cell */
+.au-table__row--empty:hover {
+  background: transparent !important;
+}
+.au-table__row--empty .au-table__cell {
+  padding: 40px 16px;
+  text-align: center;
+  border-bottom: 0;
+}
+
+/* pagination wrapper */
+.au-table__pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 0 4px;
+}
+.au-table__pagination:has(+ .au-table__scroll) {
+  padding: 0 0 12px;
+}

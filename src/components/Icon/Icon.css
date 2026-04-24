@@ -1,0 +1,28 @@
+.au-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: -0.125em;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.au-icon::before {
+  font-family: 'iconfont' !important;
+  font-size: inherit;
+  font-style: normal;
+  font-weight: normal;
+  speak: never;
+}
+
+.au-icon--spin::before {
+  display: inline-block;
+  animation: au-icon-spin 1s linear infinite;
+}
+
+@keyframes au-icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

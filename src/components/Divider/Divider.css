@@ -1,0 +1,61 @@
+.au-divider--horizontal {
+  display: block;
+  width: 100%;
+  height: 0;
+  margin: 20px 0;
+  border-top: 1px solid var(--au-border);
+  clear: both;
+}
+
+.au-divider--horizontal.is-dashed {
+  border-top-style: dashed;
+}
+
+.au-divider--horizontal.au-divider--with-text {
+  display: flex;
+  align-items: center;
+  border-top: 0;
+  white-space: nowrap;
+  color: var(--au-text-1);
+  font-weight: 500;
+  font-size: 14px;
+}
+.au-divider--horizontal.au-divider--with-text.is-plain {
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--au-text-2);
+}
+
+.au-divider--horizontal.au-divider--with-text::before,
+.au-divider--horizontal.au-divider--with-text::after {
+  content: '';
+  display: block;
+  flex: 1;
+  border-top: 1px solid var(--au-border);
+}
+.au-divider--horizontal.au-divider--with-text.is-dashed::before,
+.au-divider--horizontal.au-divider--with-text.is-dashed::after {
+  border-top-style: dashed;
+}
+
+.au-divider--horizontal.au-divider--text-left::before    { flex: 0 0 5%; }
+.au-divider--horizontal.au-divider--text-right::after    { flex: 0 0 5%; }
+
+.au-divider__text {
+  padding: 0 16px;
+}
+
+/* ---- vertical ---- */
+.au-divider--vertical {
+  display: inline-block;
+  width: 0;
+  height: 0.9em;
+  margin: 0 8px;
+  vertical-align: middle;
+  border-left: 1px solid var(--au-border);
+  position: relative;
+  top: -0.06em;
+}
+.au-divider--vertical.is-dashed {
+  border-left-style: dashed;
+}

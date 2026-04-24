@@ -1,0 +1,76 @@
+.au-heatmap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+  color: var(--au-text-2);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.au-heatmap__scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.au-heatmap__grid {
+  position: relative;
+}
+
+.au-heatmap__months {
+  position: absolute;
+  height: 16px;
+}
+.au-heatmap__month {
+  position: absolute;
+  top: 0;
+  font-size: 11px;
+  color: var(--au-text-3);
+  white-space: nowrap;
+}
+
+.au-heatmap__weekdays {
+  position: absolute;
+  height: 100%;
+}
+.au-heatmap__weekday {
+  position: absolute;
+  left: 0;
+  font-size: 10px;
+  color: var(--au-text-3);
+  line-height: 1;
+}
+
+.au-heatmap__cell {
+  transition: outline 0.1s var(--au-ease);
+  outline: 0 solid transparent;
+}
+.au-heatmap__cell:hover {
+  outline: 1px solid var(--au-primary);
+}
+
+.au-heatmap__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--au-text-3);
+  align-self: flex-end;
+  padding-right: 6px;
+}
+.au-heatmap__legend-cell {
+  display: inline-block;
+  outline: 1px solid color-mix(in srgb, var(--au-border) 50%, transparent);
+}
+
+.au-heatmap__tooltip {
+  background: var(--au-text-1);
+  color: var(--au-bg);
+  padding: 4px 10px;
+  border-radius: var(--au-radius-sm);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  box-shadow: var(--au-shadow-sm);
+}

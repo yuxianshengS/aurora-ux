@@ -1,0 +1,208 @@
+.au-pg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--au-text-1);
+}
+
+.au-pg__total {
+  color: var(--au-text-2);
+  margin-right: 6px;
+  font-size: 13px;
+}
+
+.au-pg__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--au-border);
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  border-radius: var(--au-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s var(--au-ease);
+  font-size: 13.5px;
+  font-family: inherit;
+}
+.au-pg--small .au-pg__btn {
+  min-width: 26px;
+  height: 26px;
+  font-size: 12.5px;
+  padding: 0 6px;
+}
+
+.au-pg__btn:hover:not(:disabled):not(.is-active) {
+  color: var(--au-primary);
+  border-color: var(--au-primary);
+}
+.au-pg__btn:disabled {
+  cursor: not-allowed;
+  color: var(--au-text-3);
+  background: var(--au-bg-mute);
+}
+.au-pg__btn.is-active {
+  color: var(--au-primary);
+  border-color: var(--au-primary);
+  background: var(--au-bg);
+  font-weight: 600;
+}
+
+.au-pg__btn--jump {
+  border-color: transparent;
+  background: transparent;
+}
+.au-pg__btn--jump:hover:not(:disabled) {
+  border-color: transparent;
+}
+.au-pg__btn--jump:hover:not(:disabled) .au-pg__more {
+  color: var(--au-primary);
+}
+.au-pg__more {
+  letter-spacing: 0.5px;
+  color: var(--au-text-3);
+  transition: color 0.15s var(--au-ease);
+  font-size: 11px;
+}
+
+/* ---- simple ---- */
+.au-pg--simple {
+  gap: 8px;
+}
+.au-pg__simple-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.5px;
+}
+.au-pg__simple-input input {
+  width: 42px;
+  height: 28px;
+  text-align: center;
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius-sm);
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.15s var(--au-ease);
+}
+.au-pg__simple-input input:focus {
+  border-color: var(--au-primary);
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+.au-pg__simple-sep {
+  color: var(--au-text-3);
+}
+
+/* ---- size changer ---- */
+.au-pg__sizer {
+  position: relative;
+  margin-left: 4px;
+}
+.au-pg__sizer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--au-border);
+  background: var(--au-bg);
+  border-radius: var(--au-radius-sm);
+  color: var(--au-text-1);
+  cursor: pointer;
+  font: inherit;
+  transition: all 0.15s var(--au-ease);
+}
+.au-pg--small .au-pg__sizer-btn {
+  height: 26px;
+  font-size: 12.5px;
+  padding: 0 8px;
+}
+.au-pg__sizer-btn:hover:not(:disabled) {
+  color: var(--au-primary);
+  border-color: var(--au-primary);
+}
+.au-pg__sizer-btn:disabled {
+  cursor: not-allowed;
+  color: var(--au-text-3);
+  background: var(--au-bg-mute);
+}
+.au-pg__sizer.is-open .au-pg__sizer-btn svg {
+  transform: rotate(180deg);
+}
+.au-pg__sizer-btn svg {
+  transition: transform 0.2s var(--au-ease);
+  color: var(--au-text-3);
+}
+
+.au-pg__sizer-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-height: 240px;
+  overflow: auto;
+  background: var(--au-bg);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  box-shadow: var(--au-shadow);
+  padding: 4px;
+  margin: 0;
+  list-style: none;
+  z-index: 100;
+  animation: au-pg-pop 0.14s var(--au-ease);
+}
+@keyframes au-pg-pop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.au-pg__sizer-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: var(--au-radius-sm);
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 0.12s var(--au-ease);
+}
+.au-pg__sizer-item:hover {
+  background: var(--au-bg-mute);
+}
+.au-pg__sizer-item.is-selected {
+  color: var(--au-primary);
+  background: var(--au-primary-soft);
+}
+
+/* ---- jumper ---- */
+.au-pg__jumper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  color: var(--au-text-2);
+  font-size: 13px;
+}
+.au-pg__jumper input {
+  width: 48px;
+  height: 32px;
+  text-align: center;
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius-sm);
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.15s var(--au-ease);
+}
+.au-pg--small .au-pg__jumper input {
+  height: 26px;
+  width: 40px;
+}
+.au-pg__jumper input:focus {
+  border-color: var(--au-primary);
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}

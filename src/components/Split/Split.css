@@ -1,0 +1,64 @@
+.au-split {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.au-split--horizontal { flex-direction: row; }
+.au-split--vertical   { flex-direction: column; }
+
+.au-split__pane {
+  overflow: auto;
+  min-width: 0;
+  min-height: 0;
+}
+.au-split__pane--flex {
+  flex: 1 1 auto;
+}
+
+.au-split__resizer {
+  flex: 0 0 auto;
+  position: relative;
+  background: var(--au-bg-2);
+  border: 0;
+  transition: background 0.15s var(--au-ease);
+  touch-action: none;
+}
+.au-split--horizontal .au-split__resizer { cursor: col-resize; }
+.au-split--vertical   .au-split__resizer { cursor: row-resize; }
+
+.au-split__resizer:hover,
+.au-split.is-dragging .au-split__resizer {
+  background: color-mix(in srgb, var(--au-primary) 45%, transparent);
+}
+
+.au-split__grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--au-text-3);
+  border-radius: 2px;
+  opacity: 0.5;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: background 0.15s var(--au-ease), opacity 0.15s var(--au-ease);
+}
+.au-split--horizontal .au-split__grip {
+  width: 2px;
+  height: 28px;
+}
+.au-split--vertical .au-split__grip {
+  height: 2px;
+  width: 28px;
+}
+.au-split__resizer:hover .au-split__grip,
+.au-split.is-dragging .au-split__grip {
+  background: #fff;
+  opacity: 0.95;
+}
+
+.au-split.is-disabled .au-split__resizer {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}

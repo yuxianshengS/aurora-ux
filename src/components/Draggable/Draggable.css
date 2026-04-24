@@ -1,0 +1,16 @@
+.au-draggable {
+  display: inline-block;
+  will-change: transform;
+  user-select: none;
+}
+
+.au-draggable--whole {
+  cursor: grab;
+}
+.au-draggable--whole.is-dragging {
+  cursor: grabbing;
+}
+
+.au-draggable.is-disabled {
+  cursor: default;
+}

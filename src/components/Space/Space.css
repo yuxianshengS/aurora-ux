@@ -1,0 +1,38 @@
+.au-space {
+  display: inline-flex;
+}
+.au-space.is-block {
+  display: flex;
+  width: 100%;
+}
+
+.au-space--horizontal {
+  flex-direction: row;
+}
+.au-space--vertical {
+  flex-direction: column;
+}
+.au-space.is-wrap {
+  flex-wrap: wrap;
+}
+
+/* alignment — different axis meaning per direction */
+.au-space--horizontal.au-space--align-start     { align-items: flex-start; }
+.au-space--horizontal.au-space--align-end       { align-items: flex-end; }
+.au-space--horizontal.au-space--align-center    { align-items: center; }
+.au-space--horizontal.au-space--align-baseline  { align-items: baseline; }
+
+.au-space--vertical.au-space--align-start     { align-items: flex-start; }
+.au-space--vertical.au-space--align-end       { align-items: flex-end; }
+.au-space--vertical.au-space--align-center    { align-items: center; }
+.au-space--vertical.au-space--align-baseline  { align-items: baseline; }
+
+.au-space__item {
+  min-width: 0;
+}
+
+.au-space__split {
+  display: inline-flex;
+  align-items: center;
+  color: var(--au-text-3);
+}

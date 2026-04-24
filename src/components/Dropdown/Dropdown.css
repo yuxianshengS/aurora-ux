@@ -1,0 +1,106 @@
+.au-dropdown {
+  z-index: 1050;
+  animation: au-dd-in 0.14s var(--au-ease);
+}
+
+@keyframes au-dd-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.au-dropdown__list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  box-shadow: var(--au-shadow);
+  min-width: 140px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.au-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: var(--au-radius-sm);
+  white-space: nowrap;
+  user-select: none;
+  transition: background 0.12s var(--au-ease), color 0.12s var(--au-ease);
+}
+.au-dropdown__item:hover:not(.is-disabled) {
+  background: var(--au-bg-mute);
+}
+.au-dropdown__item.is-danger {
+  color: var(--au-danger);
+}
+.au-dropdown__item.is-danger:hover:not(.is-disabled) {
+  background: color-mix(in srgb, var(--au-danger) 10%, var(--au-bg));
+}
+.au-dropdown__item.is-disabled {
+  color: var(--au-text-3);
+  cursor: not-allowed;
+  background: transparent !important;
+}
+
+.au-dropdown__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--au-text-2);
+  flex-shrink: 0;
+}
+
+.au-dropdown__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.au-dropdown__divider {
+  height: 1px;
+  background: var(--au-border);
+  margin: 4px 0;
+}
+
+/* arrow */
+.au-dropdown__arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--au-bg);
+  border: 1px solid var(--au-border);
+  transform: rotate(45deg);
+  top: -5px;
+  left: 16px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.au-dropdown--top .au-dropdown__arrow,
+.au-dropdown--topLeft .au-dropdown__arrow,
+.au-dropdown--topRight .au-dropdown__arrow {
+  top: auto;
+  bottom: -5px;
+  border-left: 0;
+  border-top: 0;
+  border-right: 1px solid var(--au-border);
+  border-bottom: 1px solid var(--au-border);
+}
+.au-dropdown--bottom .au-dropdown__arrow,
+.au-dropdown--top .au-dropdown__arrow {
+  left: 50%;
+  margin-left: -5px;
+}
+.au-dropdown--bottomRight .au-dropdown__arrow,
+.au-dropdown--topRight .au-dropdown__arrow {
+  left: auto;
+  right: 16px;
+}

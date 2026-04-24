@@ -26,8 +26,13 @@ const Home: React.FC = () => {
                 开始使用 →
               </Button>
             </Link>
+            <Link to="/examples/dashboard">
+              <Button size="large">看看样板 Dashboard →</Button>
+            </Link>
             <Link to="/docs/button">
-              <Button size="large">浏览组件</Button>
+              <Button type="ghost" size="large">
+                浏览组件
+              </Button>
             </Link>
           </div>
         </div>

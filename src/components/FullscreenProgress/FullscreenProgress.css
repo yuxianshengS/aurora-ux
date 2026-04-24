@@ -1,0 +1,122 @@
+.au-fs-progress {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, var(--au-fs-mask, 0.55));
+  opacity: 0;
+  transition: opacity var(--au-fs-duration, 260ms) var(--au-ease);
+}
+.au-fs-progress.is-open { opacity: 1; }
+
+.au-fs-progress__panel {
+  min-width: 280px;
+  max-width: 420px;
+  padding: 28px 32px;
+  background: var(--au-bg-1);
+  border-radius: 14px;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.25);
+  color: var(--au-text-1);
+  text-align: center;
+  transform: scale(0.94);
+  transition: transform var(--au-fs-duration, 260ms) var(--au-ease);
+}
+.au-fs-progress.is-open .au-fs-progress__panel {
+  transform: scale(1);
+}
+
+.au-fs-progress__title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.au-fs-progress__desc {
+  font-size: 13px;
+  color: var(--au-text-2);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+/* ---------- linear ---------- */
+
+.au-fs-progress__bar {
+  position: relative;
+  height: 8px;
+  background: var(--au-bg-2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.au-fs-progress__bar-fill {
+  height: 100%;
+  background: var(--au-fs-color, var(--au-primary));
+  border-radius: 99px;
+  transition: width 0.3s var(--au-ease);
+}
+.au-fs-progress__bar-indeterminate {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--au-fs-color, var(--au-primary)) 40%,
+    var(--au-fs-color, var(--au-primary)) 60%,
+    transparent 100%
+  );
+  animation: au-fs-slide 1.3s ease-in-out infinite;
+}
+@keyframes au-fs-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.au-fs-progress__bar-text {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--au-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- circular ---------- */
+
+.au-fs-progress__ring {
+  position: relative;
+  display: inline-block;
+}
+.au-fs-progress__ring svg {
+  transform: rotate(-90deg);
+  display: block;
+}
+.au-fs-progress__ring-track { stroke: var(--au-bg-2); }
+.au-fs-progress__ring-fill {
+  stroke: var(--au-fs-color, var(--au-primary));
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s var(--au-ease);
+}
+.au-fs-progress__ring.is-indeterminate svg {
+  animation: au-fs-spin 1.4s linear infinite;
+}
+.au-fs-progress__ring.is-indeterminate .au-fs-progress__ring-fill {
+  animation: au-fs-dash 1.4s ease-in-out infinite;
+  stroke-dasharray: 90, 200;
+}
+@keyframes au-fs-spin {
+  to { transform: rotate(270deg); }
+}
+@keyframes au-fs-dash {
+  0%   { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+}
+
+.au-fs-progress__ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--au-text-1);
+  font-variant-numeric: tabular-nums;
+}

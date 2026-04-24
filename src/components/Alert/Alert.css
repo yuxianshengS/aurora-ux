@@ -1,0 +1,89 @@
+.au-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--au-radius);
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  background: var(--au-bg-soft);
+  color: var(--au-text-1);
+}
+.au-alert.has-title {
+  padding: 14px 18px;
+  align-items: flex-start;
+}
+.au-alert.is-banner {
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+}
+
+.au-alert--info {
+  background: color-mix(in srgb, var(--au-primary) 8%, var(--au-bg));
+  border-color: color-mix(in srgb, var(--au-primary) 24%, transparent);
+}
+.au-alert--success {
+  background: color-mix(in srgb, var(--au-success) 10%, var(--au-bg));
+  border-color: color-mix(in srgb, var(--au-success) 28%, transparent);
+}
+.au-alert--warning {
+  background: color-mix(in srgb, var(--au-warning) 12%, var(--au-bg));
+  border-color: color-mix(in srgb, var(--au-warning) 32%, transparent);
+}
+.au-alert--error {
+  background: color-mix(in srgb, var(--au-danger) 10%, var(--au-bg));
+  border-color: color-mix(in srgb, var(--au-danger) 28%, transparent);
+}
+
+.au-alert__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.au-alert.has-title .au-alert__icon {
+  padding-top: 1px;
+}
+
+.au-alert__content {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+.au-alert__title {
+  font-weight: 600;
+  color: var(--au-text-1);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.au-alert__desc {
+  color: var(--au-text-2);
+  line-height: 1.55;
+  font-size: 13.5px;
+}
+
+.au-alert__action {
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.au-alert__close {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-text-3);
+  cursor: pointer;
+  border-radius: var(--au-radius-sm);
+  flex-shrink: 0;
+  transition: all 0.15s var(--au-ease);
+}
+.au-alert__close:hover {
+  color: var(--au-text-1);
+  background: var(--au-bg-mute);
+}

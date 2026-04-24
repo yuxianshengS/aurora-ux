@@ -1,0 +1,97 @@
+.au-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--au-text-1);
+  user-select: none;
+  line-height: 1.4;
+}
+.au-checkbox--small  { font-size: 12px; }
+.au-checkbox--medium { font-size: 14px; }
+.au-checkbox--large  { font-size: 16px; }
+
+.au-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.au-checkbox__box {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--au-border-strong);
+  background: var(--au-bg);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition:
+    background 0.15s var(--au-ease),
+    border-color 0.15s var(--au-ease),
+    box-shadow 0.15s var(--au-ease);
+}
+.au-checkbox--small .au-checkbox__box  { width: 14px; height: 14px; border-radius: 3px; }
+.au-checkbox--large .au-checkbox__box  { width: 18px; height: 18px; border-radius: 5px; }
+
+.au-checkbox:hover:not(.is-disabled) .au-checkbox__box {
+  border-color: var(--au-primary);
+}
+
+.au-checkbox.is-checked .au-checkbox__box {
+  background: var(--au-primary);
+  border-color: var(--au-primary);
+}
+.au-checkbox.is-indeterminate .au-checkbox__box {
+  background: var(--au-primary);
+  border-color: var(--au-primary);
+}
+.au-checkbox__input:focus-visible + .au-checkbox__box {
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+
+.au-checkbox__tick {
+  width: 12px;
+  height: 12px;
+  animation: au-cb-tick 0.18s var(--au-ease);
+}
+@keyframes au-cb-tick {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.au-checkbox__dash {
+  width: 8px;
+  height: 2px;
+  background: #fff;
+  border-radius: 1px;
+}
+
+.au-checkbox.is-disabled {
+  cursor: not-allowed;
+  color: var(--au-text-3);
+}
+.au-checkbox.is-disabled .au-checkbox__box {
+  background: var(--au-bg-mute);
+  border-color: var(--au-border);
+}
+.au-checkbox.is-disabled.is-checked .au-checkbox__box,
+.au-checkbox.is-disabled.is-indeterminate .au-checkbox__box {
+  background: var(--au-border);
+  border-color: var(--au-border);
+}
+
+.au-checkbox-group {
+  display: inline-flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.au-checkbox-group--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}

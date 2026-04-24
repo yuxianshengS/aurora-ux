@@ -1,0 +1,8 @@
+.au-grid {
+  /* 核心布局在 inline style 里生成以支持动态 cols/rows */
+  min-width: 0;
+}
+
+.au-grid > * {
+  min-width: 0;
+}

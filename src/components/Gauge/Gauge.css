@@ -1,0 +1,48 @@
+.au-gauge {
+  position: relative;
+  display: inline-block;
+  aspect-ratio: 1;
+}
+
+.au-gauge svg {
+  display: block;
+  overflow: visible;
+}
+
+.au-gauge.is-animated .au-gauge__arc {
+  transition:
+    stroke 0.25s var(--au-ease),
+    d 0.6s var(--au-ease);
+}
+
+.au-gauge__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  gap: 2px;
+}
+
+.au-gauge__value {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--au-text-1);
+  line-height: 1;
+}
+
+.au-gauge__suffix {
+  font-size: 0.55em;
+  font-weight: 500;
+  color: var(--au-text-2);
+  margin-left: 1px;
+}
+
+.au-gauge__label {
+  font-size: 12px;
+  color: var(--au-text-3);
+  letter-spacing: 0.04em;
+}

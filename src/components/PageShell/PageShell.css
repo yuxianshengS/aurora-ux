@@ -1,0 +1,102 @@
+.au-shell {
+  display: flex;
+  width: 100%;
+  background: var(--au-bg-soft);
+  color: var(--au-text-1);
+  overflow: hidden;
+}
+.au-shell.is-fill {
+  min-height: 100%;
+  height: 100%;
+}
+
+/* side (默认): 侧栏通高 */
+.au-shell--layout-side.au-shell--sider-left  { flex-direction: row; }
+.au-shell--layout-side.au-shell--sider-right { flex-direction: row-reverse; }
+
+/* top-side / top / clean: 竖向, 顶栏在上 */
+.au-shell--layout-top-side,
+.au-shell--layout-top,
+.au-shell--layout-clean {
+  flex-direction: column;
+}
+
+/* top-side 下的 body: 水平 flex, 侧栏 + 主区 */
+.au-shell__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.au-shell--sider-left .au-shell__body  { flex-direction: row; }
+.au-shell--sider-right .au-shell__body { flex-direction: row-reverse; }
+
+/* 通宽顶栏 */
+.au-shell__header--full {
+  width: 100%;
+}
+
+/* clean 布局: 内容居中, 两侧留白 */
+.au-shell__content--center {
+  display: flex;
+  justify-content: center;
+  padding: 32px 24px;
+}
+.au-shell__footer--center {
+  display: flex;
+  justify-content: center;
+}
+.au-shell__center {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.au-shell__sider {
+  flex-shrink: 0;
+  background: #161d28;
+  color: #e5e7eb;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.au-shell--sider-light .au-shell__sider {
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  border-right: 1px solid var(--au-border);
+}
+.au-shell--sider-right.au-shell--sider-light .au-shell__sider {
+  border-right: 0;
+  border-left: 1px solid var(--au-border);
+}
+
+.au-shell__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--au-bg-soft);
+}
+
+.au-shell__header {
+  background: var(--au-bg);
+  border-bottom: 1px solid var(--au-border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.au-shell__content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow: auto;
+  min-width: 0;
+}
+
+.au-shell__footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--au-border);
+  color: var(--au-text-3);
+  font-size: 13px;
+  background: var(--au-bg);
+  flex-shrink: 0;
+}

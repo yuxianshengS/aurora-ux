@@ -1,0 +1,27 @@
+.au-row {
+  display: grid;
+  grid-template-columns: repeat(var(--au-row-cols, 2), minmax(0, 1fr));
+  width: 100%;
+}
+
+.au-row--align-start    { align-items: start; }
+.au-row--align-center   { align-items: center; }
+.au-row--align-end      { align-items: end; }
+.au-row--align-stretch  { align-items: stretch; }
+
+/* 当 responsive 时, 窄屏自动降到 2 列再到 1 列 */
+@media (max-width: 900px) {
+  .au-row.is-responsive {
+    grid-template-columns: repeat(min(2, var(--au-row-cols, 2)), minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .au-row.is-responsive {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 每个直接子元素自然占一列; 如果子元素本身是 inline-flex / inline-block 会撑不满, 这里兜底 */
+.au-row > * {
+  min-width: 0;
+}

@@ -4,16 +4,22 @@
   position: relative;
   display: inline-block;
   font-family: inherit;
+  /* 默认宽度放在根节点, 让内部 input 跟随 — 外部传 style.width 可直接覆盖 */
+  width: 220px;
+  max-width: 100%;
+}
+.au-dp--range {
+  width: 320px;
 }
 
 /* input ------------------------------------------------------------- */
 .au-dp__input {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   padding: 0 10px;
   height: 34px;
-  width: 220px;
+  width: 100%;
   background: var(--au-bg);
   border: 1px solid var(--au-border-strong);
   border-radius: var(--au-radius-sm);
@@ -22,9 +28,6 @@
   transition:
     border-color 0.15s var(--au-ease),
     box-shadow 0.15s var(--au-ease);
-}
-.au-dp--range .au-dp__input {
-  width: 320px;
 }
 .au-dp--small .au-dp__input {
   height: 28px;

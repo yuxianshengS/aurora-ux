@@ -1,0 +1,193 @@
+.au-slider {
+  --au-slider-rail: var(--au-border);
+  --au-slider-fill: var(--au-primary);
+  --au-slider-handle: var(--au-primary);
+  position: relative;
+  padding: 10px 0;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
+.au-slider--horizontal {
+  width: 100%;
+  padding: 10px 0;
+}
+
+.au-slider--vertical {
+  display: inline-block;
+  height: 200px;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.au-slider.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.au-slider__rail {
+  position: relative;
+  background: var(--au-slider-rail);
+  border-radius: 4px;
+}
+.au-slider--horizontal .au-slider__rail {
+  height: 6px;
+  width: 100%;
+}
+.au-slider--vertical .au-slider__rail {
+  width: 6px;
+  height: 100%;
+}
+
+.au-slider__fill {
+  position: absolute;
+  background: var(--au-slider-fill);
+  border-radius: 4px;
+  transition: background 0.15s var(--au-ease);
+}
+.au-slider--horizontal .au-slider__fill {
+  top: 0;
+  height: 100%;
+}
+.au-slider--vertical .au-slider__fill {
+  left: 0;
+  width: 100%;
+}
+.au-slider.is-disabled .au-slider__fill {
+  background: var(--au-border-strong);
+}
+
+.au-slider__handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--au-bg);
+  border: 2px solid var(--au-slider-handle);
+  border-radius: 50%;
+  box-shadow: var(--au-shadow-sm);
+  transition:
+    transform 0.15s var(--au-ease),
+    box-shadow 0.15s var(--au-ease),
+    border-color 0.15s var(--au-ease);
+  outline: none;
+}
+.au-slider--horizontal .au-slider__handle {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.au-slider--horizontal.is-reverse .au-slider__handle {
+  transform: translate(50%, -50%);
+}
+.au-slider--vertical .au-slider__handle {
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+.au-slider__handle:hover:not(.is-disabled),
+.au-slider__handle:focus-visible,
+.au-slider__handle.is-active {
+  box-shadow: 0 0 0 4px var(--au-primary-soft), var(--au-shadow-sm);
+  border-color: var(--au-slider-handle);
+}
+.au-slider__handle.is-active {
+  cursor: grabbing;
+}
+.au-slider.is-disabled .au-slider__handle {
+  background: var(--au-bg-mute);
+  border-color: var(--au-border-strong);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---- tooltip ---- */
+.au-slider__tooltip {
+  position: absolute;
+  padding: 2px 8px;
+  background: var(--au-text-1);
+  color: var(--au-bg);
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: var(--au-radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--au-shadow-sm);
+  animation: au-slider-tip-in 0.12s var(--au-ease);
+}
+@keyframes au-slider-tip-in {
+  from { opacity: 0; transform: var(--au-tip-from, translate(-50%, -4px)); }
+  to   { opacity: 1; transform: var(--au-tip-to, translate(-50%, 0)); }
+}
+
+.au-slider__tooltip--top {
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+}
+.au-slider__tooltip--bottom {
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+}
+.au-slider__tooltip--left {
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.au-slider__tooltip--right {
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ---- marks ---- */
+.au-slider__marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.au-slider__mark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--au-bg);
+  border: 2px solid var(--au-border-strong);
+  border-radius: 50%;
+}
+.au-slider--horizontal .au-slider__mark {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.au-slider--vertical .au-slider__mark {
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+.au-slider__mark.is-active {
+  border-color: var(--au-slider-handle);
+}
+
+.au-slider__mark-labels {
+  position: relative;
+  margin-top: 8px;
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--au-text-2);
+}
+.au-slider--vertical .au-slider__mark-labels {
+  margin-top: 0;
+  margin-left: 16px;
+  height: 100%;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+}
+.au-slider__mark-label {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.au-slider--vertical .au-slider__mark-label {
+  transform: translateY(50%);
+  left: 0;
+}

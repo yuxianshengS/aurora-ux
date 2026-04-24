@@ -1,0 +1,19 @@
+.au-text {
+  font-family: inherit;
+  color: var(--au-text-1);
+  margin: 0;
+}
+
+/* variant 默认字号 / 字重 (可被 prop 覆盖) */
+.au-text--h1      { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+.au-text--h2      { font-size: 22px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+.au-text--h3      { font-size: 18px; font-weight: 600; line-height: 1.35; }
+.au-text--h4      { font-size: 16px; font-weight: 600; line-height: 1.4; }
+.au-text--body    { font-size: 14px; font-weight: 400; line-height: 1.6; }
+.au-text--caption { font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--au-text-3); }
+
+/* weight 覆盖 (比 variant 权重高) */
+.au-text--w-normal   { font-weight: 400; }
+.au-text--w-medium   { font-weight: 500; }
+.au-text--w-semibold { font-weight: 600; }
+.au-text--w-bold     { font-weight: 700; }

@@ -1,0 +1,91 @@
+.au-spin {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--au-primary);
+}
+
+.au-spin__tip {
+  font-size: 13px;
+  color: var(--au-text-2);
+}
+
+/* ---- default dot indicator ---- */
+.au-spin__dot {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+}
+.au-spin__dot--small  { width: 16px; height: 16px; }
+.au-spin__dot--medium { width: 22px; height: 22px; }
+.au-spin__dot--large  { width: 32px; height: 32px; }
+
+.au-spin__dot i {
+  position: absolute;
+  width: 45%;
+  height: 45%;
+  background: currentColor;
+  border-radius: 50%;
+  opacity: 0.3;
+  transform: scale(0.75);
+  animation: au-spin-dot 1s linear infinite;
+  transform-origin: 50% 50%;
+}
+.au-spin__dot i:nth-child(1) { top: 0; left: 0; }
+.au-spin__dot i:nth-child(2) { top: 0; right: 0; animation-delay: 0.4s; }
+.au-spin__dot i:nth-child(3) { right: 0; bottom: 0; animation-delay: 0.8s; }
+.au-spin__dot i:nth-child(4) { left: 0; bottom: 0; animation-delay: 1.2s; }
+
+.au-spin.is-spinning .au-spin__dot {
+  animation: au-spin-rotate 1.2s linear infinite;
+}
+
+@keyframes au-spin-dot {
+  0%, 100% { opacity: 0.3; transform: scale(0.75); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+@keyframes au-spin-rotate {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- container (wrapped children) ---- */
+.au-spin-container {
+  position: relative;
+}
+.au-spin-container__mask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--au-bg) 60%, transparent);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  z-index: 1;
+  border-radius: inherit;
+  animation: au-spin-fade 0.18s var(--au-ease);
+}
+@keyframes au-spin-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.au-spin-container__content.is-blurred {
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.18s var(--au-ease);
+}
+
+/* ---- fullscreen ---- */
+.au-spin-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--au-bg) 70%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}

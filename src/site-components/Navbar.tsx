@@ -21,6 +21,8 @@ const Navbar: React.FC = () => {
           </NavLink>
           <NavLink to="/docs/getting-started">指南</NavLink>
           <NavLink to="/docs/button">组件</NavLink>
+          <NavLink to="/builder">搭建器</NavLink>
+          <NavLink to="/examples/dashboard">样板</NavLink>
         </nav>
         <div className="site-actions">
           <ThemeSwitch

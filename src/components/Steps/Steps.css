@@ -1,0 +1,248 @@
+.au-steps {
+  display: flex;
+  width: 100%;
+  font-size: 14px;
+  color: var(--au-text-1);
+  --au-steps-node-size: 28px;
+  --au-steps-finish: var(--au-primary);
+  --au-steps-process: var(--au-primary);
+  --au-steps-wait: var(--au-border-strong);
+  --au-steps-error: var(--au-danger);
+}
+.au-steps--small { --au-steps-node-size: 22px; font-size: 13px; }
+
+/* direction ---------------------------------------------------------- */
+.au-steps--horizontal {
+  flex-direction: row;
+  align-items: flex-start;
+}
+.au-steps--vertical {
+  flex-direction: column;
+  gap: 0;
+}
+
+.au-steps__item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  position: relative;
+  transition: color 0.15s var(--au-ease);
+  outline: none;
+}
+.au-steps--vertical .au-steps__item {
+  flex: 0 0 auto;
+  flex-direction: row;
+  padding-bottom: 20px;
+}
+.au-steps--horizontal .au-steps__item {
+  flex-direction: row;
+  padding-right: 16px;
+}
+.au-steps--horizontal .au-steps__item.is-last {
+  flex: 0;
+  padding-right: 0;
+}
+.au-steps--horizontal.label-vertical .au-steps__item {
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  padding: 0 16px 0 0;
+}
+
+.au-steps__item.is-clickable {
+  cursor: pointer;
+}
+.au-steps__item.is-clickable:hover .au-steps__title {
+  color: var(--au-primary);
+}
+.au-steps__item.is-clickable:focus-visible .au-steps__node {
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+
+/* indicator ---------------------------------------------------------- */
+.au-steps__indicator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--au-steps-node-size);
+  height: var(--au-steps-node-size);
+}
+.au-steps--horizontal.label-vertical .au-steps__indicator {
+  width: 100%;
+  height: var(--au-steps-node-size);
+}
+
+.au-steps__node {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--au-steps-node-size);
+  height: var(--au-steps-node-size);
+  background: var(--au-bg);
+  border: 1.5px solid var(--au-steps-wait);
+  border-radius: 50%;
+  color: var(--au-text-3);
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background 0.2s var(--au-ease),
+    border-color 0.2s var(--au-ease),
+    color 0.2s var(--au-ease);
+}
+.au-steps__num { line-height: 1; }
+
+.au-steps__tail {
+  position: absolute;
+  background: var(--au-steps-wait);
+  transition: background 0.2s var(--au-ease);
+  z-index: 0;
+}
+
+/* horizontal tail */
+.au-steps--horizontal .au-steps__tail {
+  top: 50%;
+  left: var(--au-steps-node-size);
+  right: 0;
+  height: 1px;
+  transform: translateY(-50%);
+  width: calc(100% - var(--au-steps-node-size));
+}
+.au-steps--horizontal.label-vertical .au-steps__tail {
+  left: calc(50% + var(--au-steps-node-size) / 2);
+  right: auto;
+  width: calc(100% - var(--au-steps-node-size));
+}
+.au-steps--horizontal .au-steps__item.is-last .au-steps__tail { display: none; }
+
+/* vertical tail */
+.au-steps--vertical .au-steps__tail {
+  left: 50%;
+  top: var(--au-steps-node-size);
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  height: calc(100% + 20px - var(--au-steps-node-size));
+}
+.au-steps--vertical .au-steps__item.is-last .au-steps__tail { display: none; }
+
+/* status ------------------------------------------------------------- */
+.au-steps__item.is-finish .au-steps__node {
+  background: var(--au-steps-finish);
+  border-color: var(--au-steps-finish);
+  color: #fff;
+}
+.au-steps__item.is-finish .au-steps__tail {
+  background: var(--au-steps-finish);
+}
+.au-steps__item.is-process .au-steps__node {
+  background: var(--au-steps-process);
+  border-color: var(--au-steps-process);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+.au-steps__item.is-error .au-steps__node {
+  border-color: var(--au-steps-error);
+  color: var(--au-steps-error);
+  background: var(--au-bg);
+}
+
+/* dot variant */
+.au-steps--dot .au-steps__node {
+  width: 10px;
+  height: 10px;
+  border-width: 0;
+  background: var(--au-steps-wait);
+}
+.au-steps--dot .au-steps__indicator {
+  width: 10px;
+  height: 10px;
+  align-self: center;
+  margin: 6px 0;
+}
+.au-steps--dot .au-steps__item.is-finish .au-steps__node,
+.au-steps--dot .au-steps__item.is-process .au-steps__node {
+  background: var(--au-steps-finish);
+}
+.au-steps--dot .au-steps__item.is-process .au-steps__node {
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+.au-steps--dot .au-steps__item.is-error .au-steps__node {
+  background: var(--au-steps-error);
+}
+.au-steps--dot.au-steps--horizontal .au-steps__tail {
+  left: 10px;
+  width: calc(100% - 10px);
+}
+.au-steps--dot.au-steps--vertical .au-steps__tail {
+  top: 10px;
+  height: calc(100% + 20px - 10px);
+}
+
+.au-steps__dot {
+  display: none;
+}
+
+/* content ----------------------------------------------------------- */
+.au-steps__content {
+  flex: 1;
+  min-width: 0;
+  padding-top: calc((var(--au-steps-node-size) - 22px) / 2);
+}
+.au-steps--horizontal.label-vertical .au-steps__content {
+  padding-top: 10px;
+}
+.au-steps--dot .au-steps__content {
+  padding-top: 0;
+}
+.au-steps__title {
+  font-weight: 500;
+  color: var(--au-text-1);
+  line-height: 1.4;
+  transition: color 0.15s var(--au-ease);
+}
+.au-steps__item.is-wait .au-steps__title {
+  color: var(--au-text-3);
+}
+.au-steps__item.is-process .au-steps__title {
+  color: var(--au-primary);
+  font-weight: 600;
+}
+.au-steps__item.is-error .au-steps__title {
+  color: var(--au-danger);
+}
+.au-steps__description {
+  color: var(--au-text-3);
+  font-size: 0.92em;
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.au-steps__item.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.au-steps__item.is-disabled:hover .au-steps__title {
+  color: inherit;
+}
+
+/* navigation variant */
+.au-steps--navigation .au-steps__item {
+  padding: 6px 16px 6px 0;
+  background: transparent;
+}
+.au-steps--navigation .au-steps__item.is-process::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 16px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--au-primary);
+}
+.au-steps--navigation .au-steps__item.is-last::after {
+  right: 0;
+}

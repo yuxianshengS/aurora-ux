@@ -1,0 +1,100 @@
+.au-noti {
+  position: fixed;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 384px;
+  pointer-events: none;
+}
+
+.au-noti--topRight    { top: 24px; right: 24px; }
+.au-noti--topLeft     { top: 24px; left: 24px; }
+.au-noti--bottomRight { bottom: 24px; right: 24px; flex-direction: column-reverse; }
+.au-noti--bottomLeft  { bottom: 24px; left: 24px; flex-direction: column-reverse; }
+
+.au-noti__item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  box-shadow: var(--au-shadow);
+  opacity: 0;
+  transform: translateX(110%);
+  transition:
+    opacity 0.26s var(--au-ease),
+    transform 0.26s var(--au-ease);
+  pointer-events: auto;
+  cursor: default;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.au-noti--topLeft .au-noti__item,
+.au-noti--bottomLeft .au-noti__item {
+  transform: translateX(-110%);
+}
+.au-noti--bottomRight .au-noti__item,
+.au-noti--bottomLeft .au-noti__item {
+  /* same */
+}
+
+.au-noti__item.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.au-noti__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.au-noti__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.au-noti__title {
+  font-weight: 600;
+  color: var(--au-text-1);
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.au-noti__desc {
+  color: var(--au-text-2);
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.au-noti__btn {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.au-noti__close {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-text-3);
+  cursor: pointer;
+  border-radius: var(--au-radius-sm);
+  flex-shrink: 0;
+  transition: all 0.15s var(--au-ease);
+}
+.au-noti__close:hover {
+  color: var(--au-text-1);
+  background: var(--au-bg-mute);
+}

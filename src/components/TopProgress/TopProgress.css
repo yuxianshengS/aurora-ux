@@ -1,0 +1,49 @@
+.au-top-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--au-tp-h, 3px);
+  pointer-events: none;
+  background: transparent;
+}
+
+.au-top-progress__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--au-tp-color, var(--au-primary));
+  transition: width 0.25s ease-out;
+}
+
+/* 右端发光尖刺, NProgress 标志性效果 */
+.au-top-progress__peg {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 80px;
+  height: 100%;
+  box-shadow:
+    0 0 10px var(--au-tp-color, var(--au-primary)),
+    0 0 5px var(--au-tp-color, var(--au-primary));
+  opacity: 0.9;
+  transform: rotate(3deg) translate(0px, -3px);
+}
+
+.au-top-progress__spinner {
+  position: fixed;
+  top: 10px;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: var(--au-tp-color, var(--au-primary));
+  border-left-color: var(--au-tp-color, var(--au-primary));
+  border-radius: 50%;
+  animation: au-tp-spin 0.7s linear infinite;
+  pointer-events: none;
+}
+@keyframes au-tp-spin {
+  to { transform: rotate(360deg); }
+}

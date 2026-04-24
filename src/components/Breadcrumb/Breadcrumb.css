@@ -1,0 +1,59 @@
+.au-breadcrumb {
+  font-size: 13.5px;
+  color: var(--au-text-2);
+  line-height: 1.5;
+}
+
+.au-breadcrumb__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.au-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.au-breadcrumb__icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  color: inherit;
+}
+
+.au-breadcrumb__link,
+.au-breadcrumb__plain,
+.au-breadcrumb__current {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 4px;
+  border-radius: var(--au-radius-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+.au-breadcrumb__link {
+  color: var(--au-text-2);
+  cursor: pointer;
+  transition: background 0.15s var(--au-ease), color 0.15s var(--au-ease);
+}
+.au-breadcrumb__link:hover {
+  color: var(--au-text-1);
+  background: var(--au-bg-mute);
+}
+
+.au-breadcrumb__current {
+  color: var(--au-text-1);
+  font-weight: 500;
+  cursor: default;
+}
+
+.au-breadcrumb__sep {
+  margin: 0 8px;
+  color: var(--au-text-3);
+  user-select: none;
+}

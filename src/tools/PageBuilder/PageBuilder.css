@@ -1,0 +1,1367 @@
+.au-pb {
+  --au-pb-gutter: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--au-bg-soft);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  overflow: hidden;
+  color: var(--au-text-1);
+  font-size: 14px;
+}
+
+/* ==== toolbar ==== */
+.au-pb__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--au-bg);
+  border-bottom: 1px solid var(--au-border);
+  flex-wrap: wrap;
+}
+.au-pb__toolbar-left,
+.au-pb__toolbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.au-pb__brand {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+.au-pb__count {
+  font-size: 12px;
+  color: var(--au-text-3);
+}
+.au-pb__saved {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--au-success, #10b981) 14%, transparent);
+  color: var(--au-success, #10b981);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  /* 保存瞬间亮一下, 然后淡回常态 — key 变更触发重新播放 */
+  animation: au-pb-saved-flash 1.6s var(--au-ease) both;
+}
+@keyframes au-pb-saved-flash {
+  0% { opacity: 0; transform: scale(0.9); }
+  20% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+
+/* ==== main layout ==== */
+.au-pb__main {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 280px;
+  gap: var(--au-pb-gutter);
+  padding: 0 var(--au-pb-gutter) var(--au-pb-gutter);
+  min-height: 400px;
+}
+.au-pb.is-preview .au-pb__main {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 1000px) {
+  .au-pb__main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==== palette ==== */
+.au-pb__palette {
+  background: var(--au-bg);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* 高度由 JS 按中间面板实际渲染高度动态注入, 避免硬编码与中间脱节 */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.au-pb__section-title {
+  font-size: 11px;
+  color: var(--au-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 4px;
+}
+
+.au-pb__palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+/* ==== 统一的细滚动条样式 (palette / 画布 / 属性面板) ==== */
+.au-pb__palette-list,
+.au-pb__canvas,
+.au-pb__props {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--au-border-strong) transparent;
+}
+.au-pb__palette-list::-webkit-scrollbar,
+.au-pb__canvas::-webkit-scrollbar,
+.au-pb__props::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.au-pb__palette-list::-webkit-scrollbar-track,
+.au-pb__canvas::-webkit-scrollbar-track,
+.au-pb__props::-webkit-scrollbar-track {
+  background: transparent;
+}
+.au-pb__palette-list::-webkit-scrollbar-thumb,
+.au-pb__canvas::-webkit-scrollbar-thumb,
+.au-pb__props::-webkit-scrollbar-thumb {
+  background: var(--au-border);
+  border-radius: 3px;
+  transition: background 0.15s var(--au-ease);
+}
+.au-pb__palette-list:hover::-webkit-scrollbar-thumb,
+.au-pb__canvas:hover::-webkit-scrollbar-thumb,
+.au-pb__props:hover::-webkit-scrollbar-thumb {
+  background: var(--au-border-strong);
+}
+.au-pb__palette-list::-webkit-scrollbar-thumb:hover,
+.au-pb__canvas::-webkit-scrollbar-thumb:hover,
+.au-pb__props::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--au-primary) 50%, var(--au-border-strong));
+}
+.au-pb__palette-list::-webkit-scrollbar-corner,
+.au-pb__canvas::-webkit-scrollbar-corner,
+.au-pb__props::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.au-pb__palette-search {
+  height: 28px;
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius-sm);
+  padding: 0 8px;
+  font: inherit;
+  font-size: 12.5px;
+  background: var(--au-bg-soft);
+  color: var(--au-text-1);
+  outline: none;
+  transition:
+    border-color 0.15s var(--au-ease),
+    box-shadow 0.15s var(--au-ease);
+}
+.au-pb__palette-search:focus {
+  border-color: var(--au-primary);
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+
+.au-pb__palette-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--au-border);
+  margin-bottom: 2px;
+}
+.au-pb__palette-group:last-child {
+  border-bottom: 0;
+}
+
+.au-pb__palette-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--au-text-2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--au-bg);
+  transition: color 0.12s var(--au-ease);
+}
+.au-pb__palette-group-head:hover {
+  color: var(--au-text-1);
+}
+.au-pb__palette-caret {
+  font-size: 9px;
+  color: var(--au-text-3);
+  transition: transform 0.18s var(--au-ease);
+}
+.au-pb__palette-group-head.is-collapsed .au-pb__palette-caret {
+  transform: rotate(-90deg);
+}
+
+.au-pb__palette-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.au-pb__palette-empty {
+  padding: 20px 8px;
+  text-align: center;
+  color: var(--au-text-3);
+  font-size: 12px;
+}
+
+.au-pb__count-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--au-bg-mute);
+  color: var(--au-text-3);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: auto;
+}
+
+.au-pb__palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--au-radius-sm);
+  cursor: grab;
+  user-select: none;
+  transition:
+    border-color 0.12s var(--au-ease),
+    background 0.12s var(--au-ease);
+  font-size: 13px;
+  position: relative;
+}
+.au-pb__palette-item:hover {
+  border-color: color-mix(in srgb, var(--au-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--au-primary) 6%, var(--au-bg));
+}
+.au-pb__palette-item:active {
+  cursor: grabbing;
+  opacity: 0.65;
+  transform: scale(0.98);
+}
+
+/* 容器块: 左侧主色竖条 + 底色区分, 一眼看出"这是容器" */
+.au-pb__palette-item.is-container {
+  background: color-mix(in srgb, var(--au-primary) 4%, var(--au-bg-soft));
+}
+.au-pb__palette-item.is-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--au-primary);
+}
+.au-pb__palette-item.is-container:hover {
+  background: color-mix(in srgb, var(--au-primary) 10%, var(--au-bg));
+}
+
+.au-pb__palette-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--au-bg-mute);
+  border-radius: 5px;
+  color: var(--au-text-2);
+  transition: background 0.12s var(--au-ease), color 0.12s var(--au-ease);
+}
+.au-pb__palette-item:hover .au-pb__palette-icon {
+  background: color-mix(in srgb, var(--au-primary) 14%, var(--au-bg));
+  color: var(--au-primary);
+}
+.au-pb__palette-item.is-container .au-pb__palette-icon {
+  background: color-mix(in srgb, var(--au-primary) 14%, var(--au-bg));
+  color: var(--au-primary);
+}
+
+.au-pb__palette-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.au-pb__palette-name {
+  color: var(--au-text-1);
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.au-pb__palette-sub {
+  color: var(--au-text-3);
+  font-size: 10.5px;
+  font-family: var(--au-mono);
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.au-pb__palette-label {
+  /* 旧单行布局保留作兜底 */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.au-pb__hint {
+  margin-top: auto;
+  padding: 8px 6px 2px;
+  font-size: 11.5px;
+  color: var(--au-text-3);
+  line-height: 1.45;
+  text-align: center;
+  border-top: 1px dashed var(--au-border);
+}
+
+/* ==== canvas ==== */
+.au-pb__canvas-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ==== mac: 固定 1280 虚拟宽, 通过 CSS zoom 等比缩到可用空间 ==== */
+.au-pb__mac {
+  background: var(--au-bg);
+  border: 1px solid var(--au-border);
+  border-radius: 10px;
+  box-shadow:
+    0 2px 6px rgba(17, 24, 39, 0.1),
+    0 16px 32px rgba(17, 24, 39, 0.14),
+    0 40px 72px rgba(17, 24, 39, 0.14);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 1280px;
+  /* zoom 由 inline style 动态设置 — 会真实改变 layout, 不用额外算高度 */
+}
+
+.au-pb__mac-scale {
+  color: var(--au-text-3);
+  opacity: 0.55;
+  margin-left: 8px;
+  font-size: 11px;
+}
+[data-theme="dark"] .au-pb__mac {
+  /* 暗模式下纯阴影不够, 用 primary 色发光环直接把面板勾出来 */
+  background: color-mix(in srgb, #fff 10%, var(--au-bg));
+  border-color: color-mix(in srgb, var(--au-primary) 55%, var(--au-border));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--au-primary) 35%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--au-primary) 10%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.7),
+    0 32px 64px rgba(0, 0, 0, 0.8);
+}
+
+.au-pb__mac-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+  padding: 0 12px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--au-bg-mute) 75%, var(--au-border)),
+    var(--au-bg-mute)
+  );
+  border-bottom: 1px solid var(--au-border);
+  user-select: none;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.au-pb__mac-lights {
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.au-pb__mac-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.35);
+  transition: filter 0.15s var(--au-ease);
+}
+.au-pb__mac-light--r {
+  background: radial-gradient(
+    circle at 35% 30%,
+    #ff7e75 0%,
+    #ff5f57 60%,
+    #e0443e 100%
+  );
+}
+.au-pb__mac-light--y {
+  background: radial-gradient(
+    circle at 35% 30%,
+    #ffd375 0%,
+    #febc2e 60%,
+    #d8a02a 100%
+  );
+}
+.au-pb__mac-light--g {
+  background: radial-gradient(
+    circle at 35% 30%,
+    #85dc6f 0%,
+    #28c840 60%,
+    #1aa32c 100%
+  );
+}
+.au-pb__mac-bar:hover .au-pb__mac-light {
+  filter: brightness(1.06);
+}
+
+.au-pb__mac-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--au-text-3);
+  font-family: var(--au-mono);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.au-pb__mac-spacer {
+  flex: 1;
+}
+
+.au-pb__canvas {
+  background: var(--au-bg);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1;
+  overflow: auto;
+}
+
+/* ==== slot (统一的 drop 区, root 画布 + 每个容器 slot 都用) ==== */
+.au-pb__slot {
+  height: 100%;
+  position: relative;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 60px;
+  border-radius: inherit;
+  transition: background 0.15s var(--au-ease);
+}
+.au-pb__slot--row {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0;
+  min-height: 80px;
+}
+/* 嵌套 slot (容器内部的 slot) — 跟宿主容器样式区分 */
+.au-pb__slot--nested {
+  padding: 6px;
+  min-height: 40px;
+  background: rgba(0, 0, 0, 0.015);
+  border-radius: 4px;
+}
+[data-theme="dark"] .au-pb__slot--nested {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* PageShell 顶栏 / 内容 / 页脚的 slot: 强制占满整行, 否则 Flex / Breadcrumb 等子块会按内容缩到一小块 */
+.au-shell__header > .au-pb__slot,
+.au-shell__content > .au-pb__slot,
+.au-shell__footer > .au-pb__slot {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 顶栏里的块/预览/Flex 都撑满高度, 这样 Flex 的 align (垂直居中) 才有足够空间真正表现出来 */
+.au-shell__header > .au-pb__slot > .au-pb__block,
+.au-shell__header > .au-pb__slot > .au-pb__block > .au-pb__block-preview,
+.au-shell__header .au-pb__block-preview > .au-flex {
+  height: 100%;
+  min-height: 0;
+}
+
+/* ==== 预览模式: 所有搭建器外壳隐身 ==== */
+.au-pb.is-preview .au-pb__slot {
+  padding: 0;
+  min-height: 0;
+  background: transparent !important;
+  outline: 0 !important;
+}
+.au-pb.is-preview .au-pb__slot--nested,
+.au-pb.is-preview .au-pb__slot--cell {
+  background: transparent;
+}
+.au-pb.is-preview .au-pb__slot.is-empty {
+  display: none;
+}
+.au-pb.is-preview .au-pb__slot-empty,
+.au-pb.is-preview .au-pb__drop-line {
+  display: none !important;
+}
+
+/* Grid auto 模式: slot display: contents, 让子块直接成为 grid 子项 (CSS auto-fit) */
+.au-pb__block .au-grid--auto > .au-pb__slot:not(.is-empty) {
+  display: contents;
+}
+.au-pb__block .au-grid--auto > .au-pb__slot.is-empty {
+  grid-column: 1 / -1;
+  min-height: 80px;
+}
+
+/* Flex 容器: 同理, 让内部 slot 透明, 子块直接成为 Flex 子项, direction/justify/align/gap 才能真正作用到块 */
+.au-pb__block .au-flex > .au-pb__slot:not(.is-empty) {
+  display: contents;
+}
+.au-pb__block .au-flex > .au-pb__slot.is-empty {
+  flex: 1;
+  min-height: 60px;
+}
+/* Flex 子块取消默认 width: 100%, 让 flex 布局自己决定尺寸 (横向时按内容, 纵向时可配 _grow / _width) */
+.au-pb__block .au-flex > .au-pb__slot > .au-pb__block {
+  width: auto;
+}
+
+/* Grid fixed 模式: cell 是真实 drop 容器 (每格可独立拖组件) */
+.au-pb__grid-cell {
+  position: relative;
+  min-height: 60px;
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius-sm);
+  background: rgba(0, 0, 0, 0.02);
+  transition: border-color 0.15s var(--au-ease), background 0.15s var(--au-ease);
+}
+.au-pb__grid-cell.is-empty {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 8px,
+    color-mix(in srgb, var(--au-border) 30%, transparent) 8px 16px
+  );
+  border-style: dashed;
+}
+.au-pb__grid-cell:hover {
+  border-color: color-mix(in srgb, var(--au-primary) 40%, transparent);
+}
+[data-theme='dark'] .au-pb__grid-cell {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* 预览模式: cell 外壳完全隐身, 只剩真实组件 */
+.au-pb.is-preview .au-pb__grid-cell {
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  transition: none;
+}
+.au-pb.is-preview .au-pb__grid-cell.is-empty {
+  display: none;
+}
+
+/* cell 内的 slot: 横排可换行 — 单组件撑满, 多组件并排挨着 */
+.au-pb__slot--cell {
+  padding: 8px;
+  min-height: 60px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+/* 默认: block 按自然宽 (多组件场景并排) */
+.au-pb__slot--cell > .au-pb__block {
+  width: auto;
+  flex: 0 0 auto;
+}
+/* 关键: 用 :has() 精确判定 "真实 block 只有一个" —
+   忽略拖拽时出现的 drop-line sibling, 避免布局抖动 */
+.au-pb__slot--cell:not(:has(.au-pb__block ~ .au-pb__block)) > .au-pb__block {
+  width: 100%;
+  flex: 1 1 auto;
+}
+.au-pb__slot--cell.is-empty {
+  outline: 0;
+  /* 关键: 保留 padding 和尺寸, 让整个 cell 都是 drop 命中区 (不只是中间的提示文字) */
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 72px;
+  justify-content: center;
+  align-items: center;
+}
+.au-pb.is-preview .au-pb__slot--cell {
+  padding: 0;
+  min-height: 0;
+}
+
+.au-pb__slot.is-empty {
+  width: 100%;
+  /* height: 100%; */
+  min-height: 80px;
+  /* outline: 1.5px dashed var(--au-border-strong); */
+  outline-offset: -4px;
+  /* align-items: center;
+  justify-content: center; */
+}
+.au-pb__slot--nested.is-empty {
+  outline: 1.5px dashed color-mix(in srgb, var(--au-primary) 30%, transparent);
+  min-height: 60px;
+  background: color-mix(in srgb, var(--au-primary) 4%, transparent);
+}
+.au-pb__slot.is-preview.is-empty {
+  outline: 0;
+  min-height: 0;
+  padding: 0;
+}
+.au-pb__slot-empty {
+  color: var(--au-text-3);
+  font-size: 12.5px;
+  padding: 10px 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.au-pb__empty {
+  text-align: center;
+  color: var(--au-text-3);
+  padding: 40px 16px;
+}
+
+/* ==== block (默认填满 slot 宽度, 跟真实 CSS 一致) ==== */
+/* 用 outline 而不是 border 做视觉指示: outline 不占 layout 空间也不创建 hit 区,
+   避免容器块边缘 2px "缝隙" 造成 cell / 容器 dragover 交替触发的闪烁 */
+.au-pb__block {
+  position: relative;
+  border-radius: var(--au-radius-sm);
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.15s var(--au-ease);
+  padding: 0;
+  cursor: pointer;
+  min-width: 0;
+  width: 100%;
+}
+.au-pb__block:hover {
+  outline-color: color-mix(in srgb, var(--au-primary) 40%, transparent);
+}
+.au-pb__block.is-selected {
+  outline-color: var(--au-primary);
+}
+.au-pb__block.is-container {
+  width: 100%;
+}
+/*
+ * Layout (PageShell) 专属: 在竖向槽里默认拉伸铺满画布.
+ * Flex / Row / Grid 按内容高度自适应, 不强制拉高, 所以用 data-type 精确锁定.
+ */
+.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="PageShell"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="PageShell"] > .au-pb__block-toolbar {
+  flex-shrink: 0;
+}
+.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="PageShell"] > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Menu: 让父链撑满高度, 才能让 Menu 自身的 height: 100% 真正生效 (跟 PageShell 侧栏同高) */
+.au-pb__block[data-type="Menu"],
+.au-pb__block[data-type="Menu"] > .au-pb__block-preview {
+  height: 100%;
+  min-height: 0;
+}
+.au-pb__slot--row > .au-pb__block {
+  /* Row 内子块自己填满 grid column */
+  width: auto;
+}
+
+/* ==== 预览态: 任何块的 hover / selected / 边框 / outline / 工具栏全部清掉 ==== */
+.au-pb.is-preview .au-pb__block,
+.au-pb.is-preview .au-pb__block:hover,
+.au-pb.is-preview .au-pb__block.is-selected {
+  padding: 0;
+  cursor: default;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+.au-pb.is-preview .au-pb__block-toolbar {
+  display: none !important;
+}
+.au-pb__block-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 14px;
+  font-size: 9.5px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+}
+.au-pb__palette-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  color: var(--au-primary);
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.au-pb__block-toolbar {
+  /* 浮在块内部右上角 — 不再溢出到外面, 避免被 Grid cell / Mac frame 的 overflow: hidden 裁掉 */
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  background: var(--au-text-1);
+  color: var(--au-bg);
+  border-radius: 4px;
+  padding: 0 4px 0 8px;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.15s var(--au-ease);
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  max-width: calc(100% - 8px);
+}
+.au-pb__block:hover > .au-pb__block-toolbar,
+.au-pb__block.is-selected > .au-pb__block-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.au-pb__block-label {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.au-pb__block-actions {
+  display: inline-flex;
+  gap: 2px;
+}
+.au-pb__block-actions button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 3px;
+  transition: background 0.12s var(--au-ease);
+}
+.au-pb__block-actions button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+.au-pb__block-actions button.is-danger:hover {
+  background: var(--au-danger);
+  color: #fff;
+}
+
+.au-pb__block-preview {
+  padding: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 大部分叶子组件在 PageBuilder 里应跟着 slot 宽度撑开 —
+   小件 (Button / Tag / Badge / Avatar / Gauge / Sparkline / Flip / Icon) 保留自然宽 */
+.au-pb__block-preview > .au-input,
+.au-pb__block-preview > .au-inputnum,
+.au-pb__block-preview > .au-select,
+.au-pb__block-preview > .au-dp,
+.au-pb__block-preview > .au-slider,
+.au-pb__block-preview > .au-alert,
+.au-pb__block-preview > .au-card,
+.au-pb__block-preview > .au-table,
+.au-pb__block-preview > .au-form,
+.au-pb__block-preview > .au-form-item,
+.au-pb__block-preview > .au-kpi,
+.au-pb__block-preview > .au-empty,
+.au-pb__block-preview > .au-radio-group,
+.au-pb__block-preview > .au-checkbox-group,
+.au-pb__block-preview > .au-breadcrumb,
+.au-pb__block-preview > .au-steps,
+.au-pb__block-preview > .au-tabs,
+.au-pb__block-preview > .au-wallet,
+.au-pb__block-preview > .au-funnel,
+.au-pb__block-preview > .au-activity-feed {
+  width: 100%;
+  max-width: none;
+}
+
+.au-pb__block-error {
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--au-danger) 8%, var(--au-bg));
+  border: 1px dashed color-mix(in srgb, var(--au-danger) 40%, transparent);
+  border-radius: var(--au-radius-sm);
+  color: var(--au-text-1);
+  line-height: 1.5;
+}
+
+.au-pb__drop-line {
+  height: 2px;
+  background: var(--au-primary);
+  border-radius: 2px;
+  margin: -2px 0;
+  position: relative;
+  animation: au-pb-pulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.au-pb__drop-line::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: var(--au-primary);
+  border-radius: 50%;
+}
+/* 横向 drop line (用于 Row 内子块之间) */
+.au-pb__drop-line--v {
+  width: 2px;
+  height: auto;
+  min-height: 40px;
+  align-self: stretch;
+  margin: 0 -2px;
+}
+.au-pb__drop-line--v::before {
+  left: -3px;
+  top: -4px;
+}
+@keyframes au-pb-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ==== property panel ==== */
+.au-pb__props {
+  background: var(--au-bg);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  padding: 12px;
+  /* 高度由 JS 按中间面板实际渲染高度动态注入 */
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.au-pb__props-empty {
+  padding: 30px 10px;
+  text-align: center;
+  color: var(--au-text-2);
+  background: var(--au-bg-soft);
+  border-radius: var(--au-radius-sm);
+}
+
+.au-pb__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.au-pb__form-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--au-border);
+}
+.au-pb__form-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--au-radius-sm);
+  background: var(--au-bg-mute);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.au-pb__form-title {
+  font-weight: 600;
+  color: var(--au-text-1);
+  font-size: 14px;
+}
+
+.au-pb__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.au-pb__field-label {
+  font-size: 12px;
+  color: var(--au-text-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.au-pb__field-tag {
+  padding: 0 5px;
+  font-size: 10px;
+  border-radius: 4px;
+  background: var(--au-bg-mute);
+  color: var(--au-text-3);
+  font-weight: 500;
+  line-height: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.au-pb__field-help {
+  font-size: 11px;
+  color: var(--au-text-3);
+}
+
+.au-pb__input {
+  height: 30px;
+  border: 1px solid var(--au-border-strong);
+  border-radius: var(--au-radius-sm);
+  padding: 0 8px;
+  font: inherit;
+  font-size: 13px;
+  background: var(--au-bg);
+  color: var(--au-text-1);
+  outline: none;
+  width: 100%;
+  transition:
+    border-color 0.15s var(--au-ease),
+    box-shadow 0.15s var(--au-ease);
+}
+.au-pb__input:focus {
+  border-color: var(--au-primary);
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+.au-pb__input--textarea {
+  height: auto;
+  padding: 6px 8px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 56px;
+  font-family: inherit;
+}
+
+.au-pb__json {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.au-pb__json-frame {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius-sm);
+  background: var(--au-bg-soft);
+  overflow: hidden;
+  transition:
+    border-color 0.12s var(--au-ease),
+    box-shadow 0.12s var(--au-ease);
+}
+.au-pb__json-frame.is-focused {
+  border-color: var(--au-primary);
+  box-shadow: 0 0 0 3px var(--au-primary-soft);
+}
+.au-pb__json-frame.is-error {
+  border-color: var(--au-danger);
+}
+.au-pb__json-frame.is-error.is-focused {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.14);
+}
+
+.au-pb__json-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 8px;
+  background: var(--au-bg-mute);
+  border-bottom: 1px solid var(--au-border);
+  font-family: var(--au-mono);
+  font-size: 11px;
+  color: var(--au-text-3);
+  user-select: none;
+}
+.au-pb__json-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 6px;
+  border: 1px solid var(--au-border);
+  border-radius: 8px;
+  background: var(--au-bg);
+  color: var(--au-text-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.au-pb__json-meta {
+  font-variant-numeric: tabular-nums;
+}
+.au-pb__json-spacer {
+  flex: 1;
+}
+.au-pb__json-btn {
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--au-text-2);
+  cursor: pointer;
+  font: inherit;
+  font-family: inherit;
+  font-size: 11px;
+  transition: background 0.12s var(--au-ease), color 0.12s var(--au-ease);
+}
+.au-pb__json-btn:hover:not(:disabled) {
+  background: var(--au-bg);
+  color: var(--au-primary);
+}
+.au-pb__json-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.au-pb__json-body {
+  position: relative;
+  display: flex;
+  min-height: 140px;
+  max-height: 340px;
+  font-family: var(--au-mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+/* 行号槽 */
+.au-pb__json-gutter {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px 8px 10px;
+  background: var(--au-bg-soft);
+  border-right: 1px solid var(--au-border);
+  color: var(--au-text-3);
+  text-align: right;
+  min-width: 34px;
+  overflow: hidden;
+  user-select: none;
+}
+.au-pb__json-gutter-line {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 编辑区: pre (高亮) 和 textarea (输入) 重叠同位 */
+.au-pb__json-edit {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.au-pb__json-hl,
+.au-pb__json-ta {
+  margin: 0;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: pre;
+  tab-size: 2;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+.au-pb__json-hl {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--au-text-2);
+}
+.au-pb__json-ta {
+  position: relative;
+  display: block;
+  min-height: 140px;
+  max-height: 340px;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--au-text-1);
+  border: 0;
+  outline: none;
+  resize: vertical;
+  overflow: auto;
+  /* 选中高亮保留文字感 */
+}
+.au-pb__json-ta::selection {
+  background: color-mix(in srgb, var(--au-primary) 30%, transparent);
+  color: transparent;
+}
+
+/* wrap 模式: 长行自动换行 (TSX 只读代码面板用) */
+.au-pb__json-hl.is-wrap,
+.au-pb__json-ta.is-wrap {
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+.au-pb__json-ta.is-wrap {
+  overflow-x: hidden;
+}
+.au-pb__json-ta[readonly] {
+  cursor: default;
+}
+
+/* token 配色 (亮色) */
+.au-pb__jh-key   { color: #a626a4; font-weight: 500; }
+.au-pb__jh-str   { color: #50a14f; }
+.au-pb__jh-num   { color: #986801; }
+.au-pb__jh-kw    { color: #d73a49; font-weight: 500; }
+.au-pb__jh-punct { color: var(--au-text-3); }
+
+/* token 配色 (暗色) */
+[data-theme="dark"] .au-pb__jh-key   { color: #e06ff0; }
+[data-theme="dark"] .au-pb__jh-str   { color: #98c379; }
+[data-theme="dark"] .au-pb__jh-num   { color: #e5c07b; }
+[data-theme="dark"] .au-pb__jh-kw    { color: #ff7b86; }
+[data-theme="dark"] .au-pb__jh-punct { color: #7b8a9b; }
+
+/* TSX / JSX token 配色 */
+.au-pb__ch-cmt       { color: #8a919c; font-style: italic; }
+.au-pb__ch-str       { color: #50a14f; }
+.au-pb__ch-num       { color: #986801; }
+.au-pb__ch-kw        { color: #d73a49; font-weight: 500; }
+.au-pb__ch-tag       { color: #2f6bd6; font-weight: 500; }
+.au-pb__ch-attr      { color: #c18401; }
+.au-pb__ch-ident-cap { color: #4078f2; }
+.au-pb__ch-punct     { color: var(--au-text-3); }
+
+[data-theme="dark"] .au-pb__ch-cmt       { color: #6b7888; }
+[data-theme="dark"] .au-pb__ch-str       { color: #98c379; }
+[data-theme="dark"] .au-pb__ch-num       { color: #e5c07b; }
+[data-theme="dark"] .au-pb__ch-kw        { color: #ff7b86; }
+[data-theme="dark"] .au-pb__ch-tag       { color: #7aa6ff; font-weight: 500; }
+[data-theme="dark"] .au-pb__ch-attr      { color: #f6c177; }
+[data-theme="dark"] .au-pb__ch-ident-cap { color: #82aaff; }
+[data-theme="dark"] .au-pb__ch-punct     { color: #7b8a9b; }
+
+.au-pb__json-error {
+  font-size: 11px;
+  color: var(--au-danger);
+  line-height: 1.4;
+  font-family: var(--au-mono);
+}
+
+/* ==== 通用 "布局 / 间距" 折叠分组 ==== */
+.au-pb__meta-group {
+  margin-top: 8px;
+  border-top: 1px dashed var(--au-border);
+  padding-top: 8px;
+}
+.au-pb__meta-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--au-text-2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: color 0.12s var(--au-ease);
+}
+.au-pb__meta-toggle:hover {
+  color: var(--au-primary);
+}
+.au-pb__meta-caret {
+  font-size: 9px;
+  color: var(--au-text-3);
+  transition: transform 0.18s var(--au-ease);
+}
+.au-pb__meta-toggle:not(.is-open) .au-pb__meta-caret {
+  transform: rotate(-90deg);
+}
+.au-pb__meta-hint {
+  margin-left: auto;
+  color: var(--au-text-3);
+  font-size: 10.5px;
+  font-family: var(--au-mono);
+  font-weight: 400;
+}
+.au-pb__meta-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0 4px;
+  animation: au-pb-meta-in 0.15s var(--au-ease);
+}
+@keyframes au-pb-meta-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+select.au-pb__input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%239ca3af' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 22px;
+}
+
+.au-pb__switch {
+  width: 36px;
+  height: 20px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--au-border-strong);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s var(--au-ease);
+  padding: 0;
+  align-self: flex-start;
+}
+.au-pb__switch.is-on {
+  background: var(--au-primary);
+}
+.au-pb__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s var(--au-ease);
+}
+.au-pb__switch.is-on .au-pb__switch-thumb {
+  transform: translateX(16px);
+}
+
+.au-pb__color {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.au-pb__color input[type="color"] {
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--au-border-strong);
+  border-radius: var(--au-radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+/* ==== code preview ==== */
+.au-pb__code {
+  background: var(--au-pre-bg);
+  color: var(--au-pre-text);
+  border-radius: var(--au-radius);
+  padding: 8px 12px 12px;
+  font-size: 13px;
+}
+.au-pb__code-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 6px;
+  color: #9ca3af;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.au-pb__code-head .au-btn {
+  color: #9ca3af;
+}
+.au-pb__code-head .au-btn:hover {
+  color: #fff;
+}
+.au-pb__code pre {
+  margin: 0;
+  overflow-x: auto;
+}
+.au-pb__code code {
+  font-family: var(--au-mono);
+  white-space: pre;
+  color: var(--au-pre-text);
+  background: transparent;
+}
