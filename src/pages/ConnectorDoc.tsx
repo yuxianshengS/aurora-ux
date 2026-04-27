@@ -27,6 +27,14 @@ const ConnectorDoc: React.FC = () => {
       <h2>代码演示</h2>
 
       <DemoBlock
+        title="自动绕行 (autoAvoid)"
+        description="ConnectorGroup 加 autoAvoid 后, step/orthogonal 类型的连线会检测路径是否穿过其它节点, 如果穿了就把中段推到障碍外侧绕开. 单条 Connector 也可以独立用 avoid={true} 或 avoid={[refX, refY]} 指定. 切换看前后对比."
+        code={AVOID_CODE}
+      >
+        <AvoidDemo />
+      </DemoBlock>
+
+      <DemoBlock
         title="实战: 网络拓扑架构图"
         description="5 层架构: Edge (Internet/Firewall) → Gateway (Load Balancer) → Web 层 (3 实例) → App 层 (2 实例) → Data 层 (主从). 串联用极光渐变流动虚线, 1-to-many 扇出, mesh 网状连接, 主从双向同步. 每层换一种 GlowCard 主色, 重要节点配 PulseDot 实时状态指示."
         code={TOPOLOGY_CODE}
@@ -174,6 +182,7 @@ const stageRef = useRef(null);
           { prop: 'defaultColor', desc: '默认配色', type: 'string | string[]', default: '主色' },
           { prop: 'defaultArrow', desc: '默认箭头', type: `'none' | 'start' | 'end' | 'both'`, default: `'end'` },
           { prop: 'defaultType', desc: '默认线形', type: `'curve' | 'step' | 'orthogonal' | 'straight'`, default: `'curve'` },
+          { prop: 'autoAvoid', desc: '全组连线自动绕开节点 (仅 step/orthogonal 生效)', type: 'boolean', default: 'false' },
           { prop: 'container', desc: 'SVG 渲染容器 ref. 不传则 portal 到 body 用 fixed (跨视口)', type: 'RefObject<HTMLElement>', default: '-' },
         ]}
       />
@@ -194,6 +203,7 @@ const stageRef = useRef(null);
           { prop: 'dashed', desc: '虚线', type: 'boolean', default: 'false' },
           { prop: 'animated', desc: '流动虚线 (像数据在跑)', type: 'boolean', default: 'false' },
           { prop: 'flow', desc: '沿线滚动的小圆点 (粒子). true / N / 自定义对象 { count, speed, size, color }', type: 'boolean | number | object', default: '-' },
+          { prop: 'avoid', desc: '本条线绕开节点. true=用 group 所有节点; 数组=只避指定的; false=不绕 (覆盖 group autoAvoid)', type: 'boolean | AnchorRef[]', default: '-' },
           { prop: 'radius', desc: 'orthogonal 拐角半径', type: 'number', default: '12' },
           { prop: 'label', desc: '中点 label', type: 'ReactNode', default: '-' },
           { prop: 'offset', desc: '从锚点延伸的距离 (避免紧贴 dom 边)', type: 'number', default: '0' },
@@ -432,6 +442,72 @@ const NetNode = React.forwardRef<HTMLDivElement, NetNodeProps>(
 NetNode.displayName = 'NetNode';
 
 /* ===================== Network Topology Demo ===================== */
+
+/* === Avoid Demo === */
+const AvoidDemo: React.FC = () => {
+  const [avoid, setAvoid] = useState(true);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const a = useRef<HTMLDivElement>(null);
+  const obstacle = useRef<HTMLDivElement>(null);
+  const b = useRef<HTMLDivElement>(null);
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <Tag
+          color={avoid ? 'success' : 'default'}
+          onClick={() => setAvoid(true)}
+          style={{ cursor: 'pointer' }}
+        >
+          autoAvoid: ON
+        </Tag>
+        <Tag
+          color={!avoid ? 'danger' : 'default'}
+          onClick={() => setAvoid(false)}
+          style={{ cursor: 'pointer' }}
+        >
+          autoAvoid: OFF (穿过障碍)
+        </Tag>
+      </div>
+      <div ref={stageRef} className="cd-stage cd-stage--tall">
+        <ConnectorGroup
+          container={stageRef}
+          defaultArrow="end"
+          defaultType="step"
+          autoAvoid={avoid}
+        >
+          <Box ref={a} style={{ left: 30, top: 30 }}>起点 A</Box>
+          <Box ref={obstacle} variant="hub" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+            障碍 (中间)
+          </Box>
+          <Box ref={b} style={{ right: 30, bottom: 30 }}>终点 B</Box>
+
+          <Connector
+            from={a}
+            to={b}
+            color="aurora"
+            thickness={2.5}
+            animated
+            flow={2}
+            label={avoid ? '绕行' : '穿过'}
+          />
+        </ConnectorGroup>
+      </div>
+    </div>
+  );
+};
+
+const AVOID_CODE = `<ConnectorGroup container={stageRef} autoAvoid defaultType="step">
+  <div ref={a} style={{ position:'absolute', left: 30, top: 30 }}>A</div>
+  <div ref={obstacle} style={{ position:'absolute', left:'50%', top:'50%' }}>障碍</div>
+  <div ref={b} style={{ position:'absolute', right: 30, bottom: 30 }}>B</div>
+
+  {/* autoAvoid={true} 在组上, A→B 自动绕开 obstacle */}
+  <Connector from={a} to={b} color="aurora" />
+</ConnectorGroup>
+
+// 或单条独立指定 (不开 autoAvoid):
+<Connector from={a} to={b} avoid={[obstacle]} />
+<Connector from={a} to={b} avoid={true} />  // 用 group 里所有节点作障碍`;
 
 const NetworkTopologyDemo: React.FC = () => {
   const stageRef = useRef<HTMLDivElement>(null);
