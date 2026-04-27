@@ -452,13 +452,13 @@ const NetworkTopologyDemo: React.FC = () => {
 
   return (
     <div ref={stageRef} className="cd-net-stage">
-      <ConnectorGroup container={stageRef} defaultArrow="end">
+      <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step">
         {/* Tier 标签 (装饰用) */}
-        <div className="net-tier-label" style={{ top: 36 }}>EDGE</div>
-        <div className="net-tier-label" style={{ top: 230 }}>GATEWAY</div>
-        <div className="net-tier-label" style={{ top: 340 }}>WEB</div>
-        <div className="net-tier-label" style={{ top: 470 }}>SERVICE</div>
-        <div className="net-tier-label" style={{ top: 600 }}>DATA</div>
+        <div className="net-tier-label" style={{ top: 50 }}>EDGE</div>
+        <div className="net-tier-label" style={{ top: 310 }}>GATEWAY</div>
+        <div className="net-tier-label" style={{ top: 450 }}>WEB</div>
+        <div className="net-tier-label" style={{ top: 590 }}>SERVICE</div>
+        <div className="net-tier-label" style={{ top: 730 }}>DATA</div>
 
         {/* Edge */}
         <NetNode
@@ -467,7 +467,7 @@ const NetworkTopologyDemo: React.FC = () => {
           icon="earth"
           title="Internet"
           sub="公网入口"
-          pos={{ left: 320, top: 30 }}
+          pos={{ left: 370, top: 40 }}
         />
         <NetNode
           ref={fw}
@@ -476,7 +476,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="Firewall · WAF"
           sub="HTTPS 终结 + DDoS"
           pulse="warning"
-          pos={{ left: 312, top: 130 }}
+          pos={{ left: 360, top: 160 }}
         />
 
         {/* Gateway */}
@@ -487,7 +487,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="Load Balancer"
           sub="L7 流量分发"
           pulse="live"
-          pos={{ left: 308, top: 245 }}
+          pos={{ left: 358, top: 300 }}
         />
 
         {/* Web (3 个) */}
@@ -498,7 +498,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="Web · 01"
           sub="nginx-1.27"
           pulse="live"
-          pos={{ left: 80, top: 365 }}
+          pos={{ left: 80, top: 440 }}
         />
         <NetNode
           ref={web2}
@@ -507,7 +507,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="Web · 02"
           sub="nginx-1.27"
           pulse="live"
-          pos={{ left: 320, top: 365 }}
+          pos={{ left: 380, top: 440 }}
         />
         <NetNode
           ref={web3}
@@ -516,7 +516,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="Web · 03"
           sub="nginx-1.27"
           pulse="danger"
-          pos={{ left: 560, top: 365 }}
+          pos={{ left: 680, top: 440 }}
         />
 
         {/* Service (2 个) */}
@@ -527,7 +527,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="App Service A"
           sub="node 20.x · :8080"
           pulse="live"
-          pos={{ left: 180, top: 495 }}
+          pos={{ left: 200, top: 580 }}
         />
         <NetNode
           ref={app2}
@@ -536,7 +536,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="App Service B"
           sub="node 20.x · :8080"
           pulse="live"
-          pos={{ left: 460, top: 495 }}
+          pos={{ left: 560, top: 580 }}
         />
 
         {/* Data */}
@@ -547,7 +547,7 @@ const NetworkTopologyDemo: React.FC = () => {
           title="DB · Master"
           sub="postgres-16 · rw"
           pulse="live"
-          pos={{ left: 180, top: 625 }}
+          pos={{ left: 200, top: 720 }}
         />
         <NetNode
           ref={dbr}
@@ -556,28 +556,26 @@ const NetworkTopologyDemo: React.FC = () => {
           title="DB · Replica"
           sub="postgres-16 · ro"
           pulse="live"
-          pos={{ left: 460, top: 625 }}
+          pos={{ left: 560, top: 720 }}
         />
 
-        {/* === 连线 === */}
+        {/* === 连线: 全部 step 直角折线, 网络拓扑标准画法 === */}
 
-        {/* Edge → Gateway: 主链路 极光渐变 + 流动 */}
+        {/* Edge → Gateway 主链路 */}
         <Connector
           from={inet}
           to={fw}
-          type="curve"
           color="aurora"
           thickness={2.5}
           animated
           label="HTTPS"
         />
-        <Connector from={fw} to={lb} type="curve" color="aurora" thickness={2.5} animated />
+        <Connector from={fw} to={lb} color="aurora" thickness={2.5} animated />
 
         {/* Gateway → Web: 1-to-many 扇出 */}
         <Connector
           from={lb}
           to={[web1, web2, web3]}
-          type="curve"
           color={['#a855f7', '#22d3ee']}
           thickness={2}
           animated
@@ -588,7 +586,6 @@ const NetworkTopologyDemo: React.FC = () => {
           from={[web1, web2, web3]}
           to={[app1, app2]}
           mode="mesh"
-          type="curve"
           color="#6366f1"
           thickness={1.5}
         />
@@ -597,7 +594,6 @@ const NetworkTopologyDemo: React.FC = () => {
         <Connector
           from={[app1, app2]}
           to={dbm}
-          type="curve"
           color="#10b981"
           thickness={2}
           label="读写"
@@ -607,7 +603,6 @@ const NetworkTopologyDemo: React.FC = () => {
         <Connector
           from={[app1, app2]}
           to={dbr}
-          type="curve"
           color="#10b981"
           thickness={1.5}
           dashed
@@ -618,7 +613,6 @@ const NetworkTopologyDemo: React.FC = () => {
         <Connector
           from={dbm}
           to={dbr}
-          type="step"
           startSide="right"
           endSide="left"
           arrow="both"
@@ -633,35 +627,63 @@ const NetworkTopologyDemo: React.FC = () => {
   );
 };
 
-const TOPOLOGY_CODE = `// 5 层网络拓扑: Edge / Gateway / Web / Service / Data
+const TOPOLOGY_CODE = `// 注意: NetNode 不是 aurora-ux 导出的组件,
+// 是这个 demo 本地写的 GlowCard + Icon + PulseDot 包装. 复制下面定义即可用.
+
+import { GlowCard, Icon, PulseDot, ConnectorGroup, Connector } from 'aurora-ux';
+import { forwardRef, useRef } from 'react';
+
+const TIER = {
+  edge:    '#22d3ee',
+  gateway: '#a855f7',
+  web:     '#6366f1',
+  service: '#f472b6',
+  data:    '#10b981',
+};
+
+const NetNode = forwardRef(({ tier, icon, title, sub, pulse, pos }, ref) => (
+  <div ref={ref} style={{ position: 'absolute', ...pos }}>
+    <GlowCard glowColor={TIER[tier]} intensity={0.65} padding="14px 18px" radius={12}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Icon name={icon} size={22} style={{ color: TIER[tier] }} />
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <strong>{title}</strong>
+          {sub && <span style={{ fontSize: 11, opacity: 0.6 }}>{sub}</span>}
+        </div>
+        {pulse && <PulseDot status={pulse} size={7} />}
+      </div>
+    </GlowCard>
+  </div>
+));
+
+// === 然后用法 (defaultType="step" 让所有线默认走直角折线, 网络拓扑标准画法) ===
 const stageRef = useRef(null);
 const inet = useRef(null), fw = useRef(null), lb = useRef(null);
 const web1 = useRef(null), web2 = useRef(null), web3 = useRef(null);
 const app1 = useRef(null), app2 = useRef(null);
 const dbm = useRef(null), dbr = useRef(null);
 
-<div ref={stageRef} style={{ position: 'relative', height: 720 }}>
-  <ConnectorGroup container={stageRef} defaultArrow="end">
-    {/* 节点 — 每层换主色, 重要节点配 PulseDot */}
-    <NetNode ref={inet} tier="edge"    icon="earth"       title="Internet" />
-    <NetNode ref={fw}   tier="edge"    icon="lock"        title="Firewall" pulse="warning" />
-    <NetNode ref={lb}   tier="gateway" icon="connections" title="Load Balancer" pulse="live" />
-    <NetNode ref={web1} tier="web"     icon="monitor"     title="Web · 01" pulse="live" />
-    <NetNode ref={web2} tier="web"     icon="monitor"     title="Web · 02" pulse="live" />
-    <NetNode ref={web3} tier="web"     icon="monitor"     title="Web · 03" pulse="danger" />
-    <NetNode ref={app1} tier="service" icon="application-record" title="App A" />
-    <NetNode ref={app2} tier="service" icon="application-record" title="App B" />
-    <NetNode ref={dbm}  tier="data"    icon="folder"      title="DB Master" />
-    <NetNode ref={dbr}  tier="data"    icon="folder"      title="DB Replica" />
+<div ref={stageRef} style={{ position: 'relative', height: 880 }}>
+  <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step">
+    <NetNode ref={inet} tier="edge"    icon="earth"       title="Internet"      pos={{ left: 370, top: 40 }} />
+    <NetNode ref={fw}   tier="edge"    icon="lock"        title="Firewall"      pulse="warning" pos={{ left: 360, top: 160 }} />
+    <NetNode ref={lb}   tier="gateway" icon="connections" title="Load Balancer" pulse="live"    pos={{ left: 358, top: 300 }} />
+    <NetNode ref={web1} tier="web"     icon="monitor"     title="Web · 01" pulse="live"   pos={{ left: 80,  top: 440 }} />
+    <NetNode ref={web2} tier="web"     icon="monitor"     title="Web · 02" pulse="live"   pos={{ left: 380, top: 440 }} />
+    <NetNode ref={web3} tier="web"     icon="monitor"     title="Web · 03" pulse="danger" pos={{ left: 680, top: 440 }} />
+    <NetNode ref={app1} tier="service" icon="application-record" title="App A" pos={{ left: 200, top: 580 }} />
+    <NetNode ref={app2} tier="service" icon="application-record" title="App B" pos={{ left: 560, top: 580 }} />
+    <NetNode ref={dbm}  tier="data"    icon="folder" title="DB Master"  pos={{ left: 200, top: 720 }} />
+    <NetNode ref={dbr}  tier="data"    icon="folder" title="DB Replica" pos={{ left: 560, top: 720 }} />
 
-    {/* 连线: 主链路 → 1-to-many → mesh → many-to-one → 主从双向 */}
+    {/* 连线: 全部 step 直角, 主链路 → 1-to-many → mesh → many-to-one → 主从双向 */}
     <Connector from={inet} to={fw} color="aurora" animated label="HTTPS" />
     <Connector from={fw}   to={lb} color="aurora" animated />
     <Connector from={lb}   to={[web1, web2, web3]} color={['#a855f7', '#22d3ee']} animated />
     <Connector from={[web1, web2, web3]} to={[app1, app2]} mode="mesh" color="#6366f1" />
     <Connector from={[app1, app2]} to={dbm} color="#10b981" label="读写" />
     <Connector from={[app1, app2]} to={dbr} color="#10b981" dashed label="只读" />
-    <Connector from={dbm} to={dbr} type="step" arrow="both" dashed animated
+    <Connector from={dbm} to={dbr} arrow="both" dashed animated
                startSide="right" endSide="left"
                color={['#a855f7', '#10b981']} label="主从同步" />
   </ConnectorGroup>
