@@ -1,24 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card } from '../components';
+import {
+  Button,
+  AuroraBg,
+  GradientText,
+  NumberRoll,
+  GlowCard,
+  Tag,
+  KpiCard,
+  Icon,
+} from '../components';
 import './Home.css';
 
 const Home: React.FC = () => {
   return (
     <div className="home">
-      <section className="home-hero">
-        <div className="home-hero__aurora" aria-hidden />
+      {/* ===== Hero ===== */}
+      <AuroraBg preset="aurora" intensity={0.65} blur={110} className="home-hero">
         <div className="home-hero__inner">
-          <span className="home-hero__tag">AuroraUI · v0.1.0</span>
+          <div className="home-hero__tag">
+            <span className="home-hero__tag-dot" />
+            v0.3.0 · 极光特效已上线
+          </div>
           <h1 className="home-hero__title">
-            轻盈如<span className="home-hero__gradient">极光</span>
-            <br />
-            为现代 React 应用而生的组件库
+            <GradientText
+              as="span"
+              preset="aurora"
+              animate
+              duration={6}
+              size={72}
+              weight={800}
+              style={{ display: 'block', lineHeight: 1.1 }}
+            >
+              为中后台而生
+            </GradientText>
+            <span className="home-hero__title-sub">的极光感 React 组件库</span>
           </h1>
           <p className="home-hero__desc">
-            精心雕琢的视觉语言，完整的 TypeScript 类型提示，
+            60+ 组件 + 可视化拖拽搭建器, 招牌的 AuroraBg / GlowCard / GradientText
             <br />
-            帮助你更快地打造优雅、一致的产品体验。
+            让每一个看板都自带光感, 而不是再多一个 antd 克隆.
           </p>
           <div className="home-hero__cta">
             <Link to="/docs/getting-started">
@@ -26,53 +47,286 @@ const Home: React.FC = () => {
                 开始使用 →
               </Button>
             </Link>
-            <Link to="/examples/dashboard">
-              <Button size="large">看看样板 Dashboard →</Button>
+            <Link to="/builder">
+              <Button size="large">打开搭建器</Button>
             </Link>
-            <Link to="/docs/button">
+            <a
+              href="https://www.npmjs.com/package/aurora-ux"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button type="ghost" size="large">
-                浏览组件
+                <span style={{ fontFamily: 'monospace' }}>npm i aurora-ux</span>
               </Button>
+            </a>
+          </div>
+          <HomeStats />
+        </div>
+      </AuroraBg>
+
+      {/* ===== 招牌组件墙 ===== */}
+      <section className="home-section">
+        <div className="home-section__head">
+          <Tag color="primary">独家</Tag>
+          <h2 className="home-section__title">极光特效组件</h2>
+          <p className="home-section__sub">
+            别人没有的, 才是 Aurora 的招牌. 拖几个进项目, 看板从此有光.
+          </p>
+        </div>
+        <div className="home-showcase">
+          <ShowcaseAurora />
+          <ShowcaseGradientText />
+          <ShowcaseGlowCard />
+          <ShowcaseNumberRoll />
+        </div>
+      </section>
+
+      {/* ===== KPI 看板示意 ===== */}
+      <section className="home-section">
+        <div className="home-section__head">
+          <Tag color="success">看板就绪</Tag>
+          <h2 className="home-section__title">3 分钟搭出一个看板</h2>
+          <p className="home-section__sub">
+            KpiCard / Sparkline / Bar3D / Heatmap / Funnel ... 60+ 组件全套, 不用再东拼西凑.
+          </p>
+        </div>
+        <div className="home-kpi-grid">
+          <KpiCard
+            title="本月销售额"
+            value="¥ 1,284,560"
+            delta={{ value: 12.4, suffix: '%' }}
+            status="success"
+            trend={{ data: [8, 12, 9, 14, 18, 16, 22, 24], type: 'area' }}
+          />
+          <KpiCard
+            title="新增用户"
+            value="8,624"
+            delta={{ value: 5.2, suffix: '%' }}
+            status="success"
+            trend={{ data: [3, 5, 4, 6, 8, 9, 11, 13], type: 'area' }}
+          />
+          <KpiCard
+            title="转化率"
+            value="24.6%"
+            delta={{ value: -1.8, suffix: '%' }}
+            status="danger"
+            trend={{ data: [28, 26, 27, 25, 24, 25, 24, 24.6], type: 'line' }}
+          />
+          <KpiCard
+            title="留存率"
+            value="78.3%"
+            delta={{ value: 2.1, suffix: '%' }}
+            status="success"
+            trend={{ data: [72, 73, 75, 74, 76, 77, 78, 78.3], type: 'area' }}
+          />
+        </div>
+      </section>
+
+      {/* ===== 特性 6 张卡 ===== */}
+      <section className="home-section">
+        <div className="home-section__head">
+          <Tag>能力</Tag>
+          <h2 className="home-section__title">为什么选 AuroraUI</h2>
+        </div>
+        <div className="home-features">
+          <FeatureCard
+            glowColor="#6366f1"
+            icon="scenes"
+            title="极光美学"
+            body="AuroraBg / GlowCard / GradientText 等招牌组件, 默认就有 dribbble 级别质感."
+          />
+          <FeatureCard
+            glowColor="#a855f7"
+            icon="click"
+            title="拖拽搭建器"
+            body="60+ 组件全部可拖, 整段模板一键展开, 导出 JSX 直接 commit."
+          />
+          <FeatureCard
+            glowColor="#22d3ee"
+            icon="charts-bar"
+            title="数据看板齐"
+            body="KpiCard / Sparkline / Bar3D / Heatmap / Funnel / Gauge 一套到底."
+          />
+          <FeatureCard
+            glowColor="#10b981"
+            icon="catalog-check"
+            title="完整表单"
+            body="useForm + 校验规则 + 实时联动, 不再为表单接 antd."
+          />
+          <FeatureCard
+            glowColor="#fb923c"
+            icon="change"
+            title="双主题驱动"
+            body="CSS 变量驱动, 暗色亮色一键切, 改一行改全套."
+          />
+          <FeatureCard
+            glowColor="#f43f5e"
+            icon="lock"
+            title="TypeScript 全套"
+            body="所有 props 完备类型, 编辑器里点字段直接知道是什么."
+          />
+        </div>
+      </section>
+
+      {/* ===== CTA ===== */}
+      <AuroraBg preset="cosmic" intensity={0.85} blur={130} className="home-final-cta">
+        <div className="home-final-cta__inner">
+          <GradientText
+            preset="cosmic"
+            size={48}
+            weight={800}
+            as="h2"
+            style={{ margin: 0 }}
+          >
+            准备好让你的看板自带光感了吗?
+          </GradientText>
+          <p className="home-final-cta__desc">
+            一行命令开始, 看板搭建从未如此轻松.
+          </p>
+          <pre className="home-final-cta__code">
+            <code>npm install aurora-ux</code>
+          </pre>
+          <div className="home-final-cta__buttons">
+            <Link to="/docs/getting-started">
+              <Button type="primary" size="large">
+                立即开始 →
+              </Button>
+            </Link>
+            <Link to="/builder">
+              <Button size="large">打开搭建器</Button>
             </Link>
           </div>
         </div>
-      </section>
-
-      <section className="home-features">
-        <h2 className="home-section__title">为什么选择 AuroraUI</h2>
-        <div className="home-features__grid">
-          <Card hoverable title="🌈 设计精良">
-            遵循一致的视觉规范，色彩、间距、动效都经过反复推敲。
-          </Card>
-          <Card hoverable title="⚡ 开箱即用">
-            30+ 常用组件开箱可用，配合清晰的 API，让开发更专注业务。
-          </Card>
-          <Card hoverable title="🧩 易于扩展">
-            基于 CSS 变量的主题系统，几行代码即可定制你的专属品牌色。
-          </Card>
-          <Card hoverable title="🛡️ 类型安全">
-            使用 TypeScript 编写，自带完备的类型定义，减少运行时错误。
-          </Card>
-          <Card hoverable title="📦 轻量无依赖">
-            零额外 UI 依赖，按需引入，打包体积友好。
-          </Card>
-          <Card hoverable title="🌙 深色模式">
-            基于 CSS 变量，切换主题毫无阻力（即将支持）。
-          </Card>
-        </div>
-      </section>
-
-      <section className="home-cta">
-        <h2 className="home-section__title">现在就试一试</h2>
-        <pre>
-          <code>npm install aurora-ux</code>
-        </pre>
-        <Link to="/docs/getting-started">
-          <Button type="primary">阅读快速开始 →</Button>
-        </Link>
-      </section>
+      </AuroraBg>
     </div>
   );
 };
+
+const HomeStats: React.FC = () => {
+  // 给在线用户数加个轻微抖动, 让它"活着"
+  const [users, setUsers] = useState(1284560);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setUsers((p) => p + Math.floor(Math.random() * 30));
+    }, 2000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="home-hero__stats">
+      <div className="home-hero__stat">
+        <NumberRoll value={60} size={32} weight={700} suffix="+" color="white" />
+        <span>组件</span>
+      </div>
+      <div className="home-hero__stat">
+        <NumberRoll value={users} size={32} weight={700} color="white" />
+        <span>用户在线</span>
+      </div>
+      <div className="home-hero__stat">
+        <NumberRoll value={99.9} precision={1} size={32} weight={700} suffix="%" color="white" />
+        <span>类型覆盖</span>
+      </div>
+      <div className="home-hero__stat">
+        <NumberRoll value={6} size={32} weight={700} color="white" />
+        <span>整段模板</span>
+      </div>
+    </div>
+  );
+};
+
+const ShowcaseAurora: React.FC = () => (
+  <Link to="/docs/aurora-bg" className="home-showcase__item">
+    <AuroraBg preset="aurora" style={{ height: 220, borderRadius: 12 }} />
+    <div className="home-showcase__caption">
+      <strong>AuroraBg</strong>
+      <span>极光背景, 5 套预设</span>
+    </div>
+  </Link>
+);
+
+const ShowcaseGradientText: React.FC = () => (
+  <Link to="/docs/gradient-text" className="home-showcase__item">
+    <div className="home-showcase__centered">
+      <GradientText preset="sunset" size={36} weight={800}>
+        Sunset
+      </GradientText>
+      <GradientText preset="ocean" size={36} weight={800}>
+        Ocean
+      </GradientText>
+      <GradientText preset="cosmic" size={36} weight={800}>
+        Cosmic
+      </GradientText>
+    </div>
+    <div className="home-showcase__caption">
+      <strong>GradientText</strong>
+      <span>渐变流动文字, 6 种预设</span>
+    </div>
+  </Link>
+);
+
+const ShowcaseGlowCard: React.FC = () => (
+  <Link to="/docs/glow-card" className="home-showcase__item">
+    <div className="home-showcase__glow-row">
+      <GlowCard
+        glowColor="#a855f7"
+        intensity={0.7}
+        padding={16}
+        radius={12}
+        style={{ flex: 1, fontSize: 13 }}
+      >
+        <strong>悬停看光晕 →</strong>
+      </GlowCard>
+      <GlowCard
+        glowColor="#22d3ee"
+        intensity={0.7}
+        padding={16}
+        radius={12}
+        style={{ flex: 1, fontSize: 13 }}
+      >
+        <strong>← 鼠标在哪光在哪</strong>
+      </GlowCard>
+    </div>
+    <div className="home-showcase__caption">
+      <strong>GlowCard</strong>
+      <span>鼠标跟随发光 + 旋转描边</span>
+    </div>
+  </Link>
+);
+
+const ShowcaseNumberRoll: React.FC = () => {
+  const [n, setN] = useState(1284560);
+  useEffect(() => {
+    const id = setInterval(
+      () => setN(Math.floor(Math.random() * 9000000) + 1000000),
+      2500,
+    );
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <Link to="/docs/number-roll" className="home-showcase__item">
+      <div className="home-showcase__centered">
+        <NumberRoll value={n} size={48} weight={800} color="var(--au-primary)" />
+      </div>
+      <div className="home-showcase__caption">
+        <strong>NumberRoll</strong>
+        <span>翻牌器式数字滚动</span>
+      </div>
+    </Link>
+  );
+};
+
+const FeatureCard: React.FC<{
+  glowColor: string;
+  icon: string;
+  title: string;
+  body: string;
+}> = ({ glowColor, icon, title, body }) => (
+  <GlowCard glowColor={glowColor} intensity={0.5} padding={28}>
+    <div className="home-feature__icon" style={{ color: glowColor }}>
+      <Icon name={icon} size={28} />
+    </div>
+    <h3 className="home-feature__title">{title}</h3>
+    <p className="home-feature__body">{body}</p>
+  </GlowCard>
+);
 
 export default Home;
