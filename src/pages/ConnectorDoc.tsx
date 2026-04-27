@@ -457,46 +457,46 @@ const FlowchartDemo: React.FC = () => {
   return (
     <div ref={stageRef} className="cd-flow-stage">
       <ConnectorGroup container={stageRef} defaultArrow="end">
-        {/* 左栏 */}
-        <FlowNode ref={start} kind="start" pos={{ left: 170, top: 18 }}>
+        {/* 左栏 (主流程) — 行距 110px */}
+        <FlowNode ref={start} kind="start" pos={{ left: 198, top: 30 }}>
           开始
         </FlowNode>
-        <FlowNode ref={recv} kind="process" icon="order" pos={{ left: 130, top: 84 }}>
+        <FlowNode ref={recv} kind="process" icon="order" pos={{ left: 158, top: 130 }}>
           接收订单
         </FlowNode>
-        <FlowNode ref={stockQ} kind="decision" pos={{ left: 130, top: 168 }}>
+        <FlowNode ref={stockQ} kind="decision" pos={{ left: 158, top: 240 }}>
           库存充足?
         </FlowNode>
         <FlowNode
           ref={createPay}
           kind="process"
           icon="checkstand"
-          pos={{ left: 130, top: 252 }}
+          pos={{ left: 158, top: 350 }}
         >
           创建支付单
         </FlowNode>
-        <FlowNode ref={payQ} kind="decision" pos={{ left: 130, top: 336 }}>
+        <FlowNode ref={payQ} kind="decision" pos={{ left: 158, top: 460 }}>
           支付成功?
         </FlowNode>
-        <FlowNode ref={ship} kind="process" icon="logistics-airfreight" pos={{ left: 130, top: 420 }}>
+        <FlowNode ref={ship} kind="process" icon="logistics-airfreight" pos={{ left: 158, top: 570 }}>
           发货
         </FlowNode>
-        <FlowNode ref={endOk} kind="end-ok" pos={{ left: 158, top: 504 }}>
+        <FlowNode ref={endOk} kind="end-ok" pos={{ left: 192, top: 680 }}>
           完成
         </FlowNode>
 
-        {/* 右栏 */}
+        {/* 右栏 (异常分支) */}
         <FlowNode
           ref={cancel}
           kind="process-danger"
-          pos={{ left: 460, top: 168 }}
+          pos={{ left: 580, top: 240 }}
         >
           取消并通知
         </FlowNode>
-        <FlowNode ref={endFail} kind="end-fail" pos={{ left: 488, top: 256 }}>
+        <FlowNode ref={endFail} kind="end-fail" pos={{ left: 614, top: 350 }}>
           结束
         </FlowNode>
-        <FlowNode ref={retry} kind="process-soft" pos={{ left: 460, top: 336 }}>
+        <FlowNode ref={retry} kind="process-soft" pos={{ left: 580, top: 460 }}>
           等待重试
         </FlowNode>
 

@@ -18,14 +18,16 @@
 .cd-flow-stage {
   position: relative;
   width: 100%;
-  height: 580px;
+  min-width: 800px;
+  height: 760px;
   background:
-    radial-gradient(80% 80% at 30% 0%, color-mix(in srgb, #6366f1 6%, transparent), transparent 60%),
-    radial-gradient(80% 80% at 70% 100%, color-mix(in srgb, #a855f7 5%, transparent), transparent 60%),
+    radial-gradient(70% 60% at 25% 10%, color-mix(in srgb, #6366f1 8%, transparent), transparent 65%),
+    radial-gradient(70% 60% at 80% 90%, color-mix(in srgb, #a855f7 6%, transparent), transparent 65%),
+    radial-gradient(50% 50% at 90% 30%, color-mix(in srgb, #ef4444 4%, transparent), transparent 65%),
     var(--au-bg-soft);
   border: 1px solid var(--au-border);
   border-radius: 14px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .flow-node__inner {
