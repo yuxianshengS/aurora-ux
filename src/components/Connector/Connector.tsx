@@ -209,6 +209,11 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
   const [drawn, setDrawn] = useState<DrawnLine[]>([]);
   const allElsRef = useRef<Set<Element>>(new Set());
 
+  // 直接写入 DOM 的 refs (绕过 React, 避免滚动时 1-2 帧渲染延迟造成抖动)
+  const pathRefs = useRef<Map<string, SVGPathElement>>(new Map());
+  const gradRefs = useRef<Map<string, SVGLinearGradientElement>>(new Map());
+  const labelRefs = useRef<Map<string, SVGForeignObjectElement>>(new Map());
+
   const recompute = useCallback(() => {
     const lines: ResolvedLine[] = [];
     const els = new Set<Element>();
@@ -371,6 +376,29 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     drawnLines.sort(
       (a, b) => (a.spec.zIndex ?? 0) - (b.spec.zIndex ?? 0),
     );
+
+    // === 关键: 直接写入 SVG 元素属性, 与浏览器滚动同帧 ===
+    // 这一步同步执行, scroll 触发 → 立刻 setAttribute → 浏览器同帧 paint
+    // 不再走 React state → reconcile → DOM 更新 (会延迟 1-2 帧导致抖动)
+    drawnLines.forEach((line) => {
+      const path = pathRefs.current.get(line.id);
+      if (path) path.setAttribute('d', line.d);
+      const grad = gradRefs.current.get(line.id);
+      if (grad) {
+        grad.setAttribute('x1', String(line.start.x));
+        grad.setAttribute('y1', String(line.start.y));
+        grad.setAttribute('x2', String(line.end.x));
+        grad.setAttribute('y2', String(line.end.y));
+      }
+      const lbl = labelRefs.current.get(line.id);
+      if (lbl) {
+        lbl.setAttribute('x', String(line.mid.x - 60));
+        lbl.setAttribute('y', String(line.mid.y - 12));
+      }
+    });
+
+    // 仍然 setDrawn — 保证 React state 与 DOM 同步, 避免无关 re-render 把 d 重置回旧值
+    // (DOM 已经被 setAttribute 同步更新, 此 setState 触发的 reconcile 只是写一个相同的 d 进去)
     setDrawn(drawnLines);
   }, [allSpecs, containerEl, defaultType, ids]);
 
@@ -388,10 +416,11 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     recompute();
   }, [recompute]);
 
-  // 拆成两个 effect: scroll/resize 全局只挂一次; ResizeObserver 跟随 drawn 重建
+  // scroll/resize 直接同步调用 recompute (不过 RAF), 与浏览器滚动同帧, 不抖动
+  // recompute 内部已直接 setAttribute, 不会因为 React 渲染延迟而落后
   useEffect(() => {
-    const onScroll = () => schedule();
-    const onResize = () => schedule();
+    const onScroll = () => recompute();
+    const onResize = () => recompute();
     window.addEventListener('scroll', onScroll, { capture: true, passive: true });
     window.addEventListener('resize', onResize);
     return () => {
@@ -401,7 +430,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
       window.removeEventListener('resize', onResize);
       if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
     };
-  }, [schedule]);
+  }, [recompute]);
 
   useEffect(() => {
     const ro = new ResizeObserver(schedule);
@@ -437,6 +466,10 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
               y1={line.start.y}
               x2={line.end.x}
               y2={line.end.y}
+              ref={(el) => {
+                if (el) gradRefs.current.set(line.id, el);
+                else gradRefs.current.delete(line.id);
+              }}
             >
               {colors.map((c, i) => (
                 <stop
@@ -508,6 +541,10 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
         return (
           <path
             key={line.id}
+            ref={(el) => {
+              if (el) pathRefs.current.set(line.id, el);
+              else pathRefs.current.delete(line.id);
+            }}
             d={line.d}
             fill="none"
             stroke={stroke}
@@ -533,6 +570,10 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
         return (
           <foreignObject
             key={`lbl-${line.id}`}
+            ref={(el) => {
+              if (el) labelRefs.current.set(line.id, el);
+              else labelRefs.current.delete(line.id);
+            }}
             x={line.mid.x - 60}
             y={line.mid.y - 12}
             width={120}
