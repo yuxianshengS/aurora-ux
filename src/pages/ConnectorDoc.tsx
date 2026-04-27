@@ -5,6 +5,7 @@ import {
   Draggable,
   GlowCard,
   Tag,
+  Icon,
   type ConnectorType,
 } from '../components';
 import DemoBlock from '../site-components/DemoBlock';
@@ -23,6 +24,14 @@ const ConnectorDoc: React.FC = () => {
       </p>
 
       <h2>代码演示</h2>
+
+      <DemoBlock
+        title="实战: 订单履约流程图"
+        description="10 节点真实电商场景: 开始 → 接收订单 → 库存判断 → 创建支付 → 支付判断 → 发货 → 完成. 失败路径单独走右栏, 支付失败回到等待重试再循环回创建支付单. 节点用 GlowCard 按语义着色 (蓝=流程, 橙=判断, 绿=成功端, 红=失败端). 连线极光渐变 + 流动虚线 + 中点 label."
+        code={FLOWCHART_CODE}
+      >
+        <FlowchartDemo />
+      </DemoBlock>
 
       <DemoBlock
         title="基础: 一对一"
@@ -370,6 +379,234 @@ const DataApiDemo: React.FC = () => {
 };
 
 /* ===================== 小积木: Box ===================== */
+
+/* ===================== Flowchart 节点 ===================== */
+
+type FlowNodeKind =
+  | 'start'
+  | 'end-ok'
+  | 'end-fail'
+  | 'process'
+  | 'process-danger'
+  | 'process-soft'
+  | 'decision';
+
+interface FlowNodeProps {
+  kind: FlowNodeKind;
+  icon?: string;
+  pos: { left?: number | string; right?: number | string; top: number };
+  children: React.ReactNode;
+}
+
+const NODE_CFG: Record<FlowNodeKind, { glow: string; pill: boolean; defaultIcon?: string }> = {
+  'start': { glow: '#10b981', pill: true },
+  'end-ok': { glow: '#10b981', pill: true, defaultIcon: 'catalog-check' },
+  'end-fail': { glow: '#ef4444', pill: true, defaultIcon: 'delete' },
+  'process': { glow: '#6366f1', pill: false },
+  'process-danger': { glow: '#ef4444', pill: false, defaultIcon: 'trade-alert' },
+  'process-soft': { glow: '#9ca3af', pill: false, defaultIcon: 'return' },
+  'decision': { glow: '#f59e0b', pill: false, defaultIcon: 'help' },
+};
+
+const FlowNode = React.forwardRef<HTMLDivElement, FlowNodeProps>(
+  ({ kind, icon, pos, children }, ref) => {
+    const cfg = NODE_CFG[kind];
+    const finalIcon = icon ?? cfg.defaultIcon;
+    return (
+      <div
+        ref={ref}
+        className={`flow-node flow-node--${kind}`}
+        style={{ position: 'absolute', ...pos }}
+      >
+        <GlowCard
+          glowColor={cfg.glow}
+          intensity={0.6}
+          padding={cfg.pill ? '6px 18px' : '12px 16px'}
+          radius={cfg.pill ? 999 : 12}
+        >
+          <div className="flow-node__inner">
+            {finalIcon && (
+              <Icon name={finalIcon} size={cfg.pill ? 13 : 16} style={{ color: cfg.glow }} />
+            )}
+            <span>{children}</span>
+          </div>
+        </GlowCard>
+      </div>
+    );
+  },
+);
+FlowNode.displayName = 'FlowNode';
+
+/* ===================== Flowchart Demo ===================== */
+
+const FlowchartDemo: React.FC = () => {
+  const stageRef = useRef<HTMLDivElement>(null);
+  // 左栏 (主流程)
+  const start = useRef<HTMLDivElement>(null);
+  const recv = useRef<HTMLDivElement>(null);
+  const stockQ = useRef<HTMLDivElement>(null);
+  const createPay = useRef<HTMLDivElement>(null);
+  const payQ = useRef<HTMLDivElement>(null);
+  const ship = useRef<HTMLDivElement>(null);
+  const endOk = useRef<HTMLDivElement>(null);
+  // 右栏 (异常分支)
+  const cancel = useRef<HTMLDivElement>(null);
+  const endFail = useRef<HTMLDivElement>(null);
+  const retry = useRef<HTMLDivElement>(null);
+
+  return (
+    <div ref={stageRef} className="cd-flow-stage">
+      <ConnectorGroup container={stageRef} defaultArrow="end">
+        {/* 左栏 */}
+        <FlowNode ref={start} kind="start" pos={{ left: 170, top: 18 }}>
+          开始
+        </FlowNode>
+        <FlowNode ref={recv} kind="process" icon="order" pos={{ left: 130, top: 84 }}>
+          接收订单
+        </FlowNode>
+        <FlowNode ref={stockQ} kind="decision" pos={{ left: 130, top: 168 }}>
+          库存充足?
+        </FlowNode>
+        <FlowNode
+          ref={createPay}
+          kind="process"
+          icon="checkstand"
+          pos={{ left: 130, top: 252 }}
+        >
+          创建支付单
+        </FlowNode>
+        <FlowNode ref={payQ} kind="decision" pos={{ left: 130, top: 336 }}>
+          支付成功?
+        </FlowNode>
+        <FlowNode ref={ship} kind="process" icon="logistics-airfreight" pos={{ left: 130, top: 420 }}>
+          发货
+        </FlowNode>
+        <FlowNode ref={endOk} kind="end-ok" pos={{ left: 158, top: 504 }}>
+          完成
+        </FlowNode>
+
+        {/* 右栏 */}
+        <FlowNode
+          ref={cancel}
+          kind="process-danger"
+          pos={{ left: 460, top: 168 }}
+        >
+          取消并通知
+        </FlowNode>
+        <FlowNode ref={endFail} kind="end-fail" pos={{ left: 488, top: 256 }}>
+          结束
+        </FlowNode>
+        <FlowNode ref={retry} kind="process-soft" pos={{ left: 460, top: 336 }}>
+          等待重试
+        </FlowNode>
+
+        {/* 主流程连线 */}
+        <Connector from={start} to={recv} type="curve" color="aurora" thickness={2.5} animated />
+        <Connector from={recv} to={stockQ} type="curve" color="aurora" thickness={2.5} />
+        <Connector
+          from={stockQ}
+          to={createPay}
+          type="curve"
+          color="#10b981"
+          thickness={2}
+          label="充足"
+        />
+        <Connector from={createPay} to={payQ} type="curve" color="aurora" thickness={2} />
+        <Connector
+          from={payQ}
+          to={ship}
+          type="curve"
+          color="#10b981"
+          thickness={2}
+          label="成功"
+        />
+        <Connector from={ship} to={endOk} type="curve" color="#10b981" thickness={2.5} />
+
+        {/* 异常分支 */}
+        <Connector
+          from={stockQ}
+          to={cancel}
+          type="step"
+          startSide="right"
+          endSide="left"
+          color="#ef4444"
+          thickness={2}
+          label="不足"
+        />
+        <Connector
+          from={cancel}
+          to={endFail}
+          type="curve"
+          color="#ef4444"
+          thickness={2}
+        />
+        <Connector
+          from={payQ}
+          to={retry}
+          type="step"
+          startSide="right"
+          endSide="left"
+          color="#f59e0b"
+          thickness={2}
+          dashed
+          label="失败"
+        />
+
+        {/* 重试回流 (orthogonal U 型, 流动虚线) */}
+        <Connector
+          from={retry}
+          to={createPay}
+          type="orthogonal"
+          startSide="left"
+          endSide="right"
+          color="#9ca3af"
+          thickness={1.5}
+          dashed
+          animated
+          label="重试"
+        />
+      </ConnectorGroup>
+    </div>
+  );
+};
+
+const FLOWCHART_CODE = `// 1. 给每个节点准备 ref
+const stageRef = useRef(null);
+const start = useRef(null);
+const stockQ = useRef(null);
+const createPay = useRef(null);
+const payQ = useRef(null);
+const cancel = useRef(null);
+const retry = useRef(null);
+// ... 等等
+
+// 2. 容器 + 节点 + 连线写在 ConnectorGroup 里
+<div ref={stageRef} style={{ position: 'relative', height: 580 }}>
+  <ConnectorGroup container={stageRef} defaultArrow="end">
+    {/* 节点 (每个 ref 指向定位 div) */}
+    <FlowNode ref={start} kind="start" pos={{ left: 170, top: 18 }}>
+      开始
+    </FlowNode>
+    <FlowNode ref={stockQ} kind="decision" pos={{ left: 130, top: 168 }}>
+      库存充足?
+    </FlowNode>
+    {/* ... 其他节点 ... */}
+
+    {/* 连线 — 4 种 type 混用 */}
+    <Connector from={start} to={recv} type="curve" color="aurora" animated />
+    <Connector from={stockQ} to={createPay} color="#10b981" label="充足" />
+    <Connector from={stockQ} to={cancel} type="step"
+               startSide="right" endSide="left"
+               color="#ef4444" label="不足" />
+    <Connector from={payQ} to={retry} type="step" dashed
+               startSide="right" endSide="left"
+               color="#f59e0b" label="失败" />
+    {/* 重试回流: orthogonal U 型 */}
+    <Connector from={retry} to={createPay} type="orthogonal"
+               startSide="left" endSide="right"
+               color="#9ca3af" dashed animated label="重试" />
+  </ConnectorGroup>
+</div>`;
 
 const Box = React.forwardRef<
   HTMLDivElement,

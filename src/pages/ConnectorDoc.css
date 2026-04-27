@@ -13,3 +13,36 @@
 .cd-stage--mesh {
   height: 280px;
 }
+
+/* === Flowchart 实战 demo === */
+.cd-flow-stage {
+  position: relative;
+  width: 100%;
+  height: 580px;
+  background:
+    radial-gradient(80% 80% at 30% 0%, color-mix(in srgb, #6366f1 6%, transparent), transparent 60%),
+    radial-gradient(80% 80% at 70% 100%, color-mix(in srgb, #a855f7 5%, transparent), transparent 60%),
+    var(--au-bg-soft);
+  border: 1px solid var(--au-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.flow-node__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--au-text-1);
+  white-space: nowrap;
+}
+.flow-node--start .flow-node__inner,
+.flow-node--end-ok .flow-node__inner,
+.flow-node--end-fail .flow-node__inner {
+  font-size: 12.5px;
+}
+.flow-node--decision .flow-node__inner {
+  color: var(--au-text-1);
+  letter-spacing: 0.3px;
+}
