@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Button,
@@ -9,6 +9,9 @@ import {
   Tag,
   KpiCard,
   Icon,
+  ConnectorGroup,
+  Connector,
+  PulseDot,
 } from '../components';
 import './Home.css';
 
@@ -71,6 +74,64 @@ const Home: React.FC = () => {
           <ShowcaseGradientText />
           <ShowcaseGlowCard />
           <ShowcaseNumberRoll />
+        </div>
+      </section>
+
+      {/* ===== Connector 关系图专栏 ===== */}
+      <section className="home-section home-connector">
+        <div className="home-section__head">
+          <Tag color="purple">主题能力</Tag>
+          <h2 className="home-section__title">用 Connector 画任何关系图</h2>
+          <p className="home-section__sub">
+            DOM 之间画一条线, 自动跟随尺寸 / 滚动 / 拖动. 1-1, 1-many, mesh,
+            主从双向 — 4 种线形 + 极光渐变 + 流动虚线, 拓扑图 / 流程图 / 思维导图
+            一个组件搞定.
+          </p>
+        </div>
+        <div className="home-connector__inner">
+          <div className="home-connector__diagram">
+            <MiniTopologyShowcase />
+          </div>
+          <div className="home-connector__usecases">
+            <ConnectorUseCase
+              to="/docs/connector"
+              color="#22d3ee"
+              icon="connections"
+              title="网络拓扑"
+              body="多层架构 / 服务拓扑 / K8s 集群"
+            />
+            <ConnectorUseCase
+              to="/docs/flowchart"
+              color="#a855f7"
+              icon="catalog"
+              title="流程图"
+              body="审批流 / 工作流 / 状态机"
+            />
+            <ConnectorUseCase
+              to="/docs/dependency-graph"
+              color="#f472b6"
+              icon="connections"
+              title="依赖关系"
+              body="模块依赖 / 微服务调用 / Pkg Tree"
+            />
+            <ConnectorUseCase
+              to="/docs/data-lineage"
+              color="#10b981"
+              icon="charts-curve"
+              title="数据血缘"
+              body="数据源 → ETL → 仓库 → 报表"
+            />
+            <ConnectorUseCase
+              to="/docs/mindmap"
+              color="#fb923c"
+              icon="catalog-check"
+              title="思维导图"
+              body="中心放射 / 多级展开"
+            />
+            <Link to="/docs/connector" className="home-connector__cta">
+              查看完整文档 →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -416,6 +477,119 @@ const CopyLine: React.FC<{ prefix: string; command: string }> = ({ prefix, comma
     </button>
   );
 };
+
+/* === Connector 主题专栏 === */
+
+const MiniTopologyShowcase: React.FC = () => {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const gw = useRef<HTMLDivElement>(null);
+  const svc1 = useRef<HTMLDivElement>(null);
+  const svc2 = useRef<HTMLDivElement>(null);
+  const svc3 = useRef<HTMLDivElement>(null);
+  const db = useRef<HTMLDivElement>(null);
+  return (
+    <div ref={stageRef} className="home-connector__stage">
+      <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step">
+        <MiniNode
+          ref={gw}
+          icon="connections"
+          color="#22d3ee"
+          title="API Gateway"
+          pos={{ left: '50%', top: 20, transform: 'translateX(-50%)' }}
+          pulse="live"
+        />
+        <MiniNode
+          ref={svc1}
+          icon="customer"
+          color="#6366f1"
+          title="User Svc"
+          pos={{ left: '8%', top: 130 }}
+        />
+        <MiniNode
+          ref={svc2}
+          icon="order"
+          color="#a855f7"
+          title="Order Svc"
+          pos={{ left: '50%', top: 130, transform: 'translateX(-50%)' }}
+        />
+        <MiniNode
+          ref={svc3}
+          icon="checkstand"
+          color="#f472b6"
+          title="Payment Svc"
+          pos={{ right: '8%', top: 130 }}
+        />
+        <MiniNode
+          ref={db}
+          icon="folder"
+          color="#10b981"
+          title="Postgres"
+          pos={{ left: '50%', top: 240, transform: 'translateX(-50%)' }}
+          pulse="live"
+        />
+
+        <Connector
+          from={gw}
+          to={[svc1, svc2, svc3]}
+          color={['#22d3ee', '#a855f7']}
+          thickness={2}
+          animated
+        />
+        <Connector
+          from={[svc1, svc2, svc3]}
+          to={db}
+          color="#10b981"
+          thickness={1.5}
+        />
+      </ConnectorGroup>
+    </div>
+  );
+};
+
+interface MiniNodeProps {
+  icon: string;
+  color: string;
+  title: string;
+  pulse?: 'live' | 'warning' | 'danger';
+  pos: React.CSSProperties;
+}
+const MiniNode = React.forwardRef<HTMLDivElement, MiniNodeProps>(
+  ({ icon, color, title, pulse, pos }, ref) => (
+    <div
+      ref={ref}
+      className="home-mini-node"
+      style={{ position: 'absolute', ...pos }}
+    >
+      <GlowCard glowColor={color} intensity={0.6} padding="10px 14px" radius={10}>
+        <div className="home-mini-node__row">
+          <Icon name={icon} size={16} style={{ color }} />
+          <span>{title}</span>
+          {pulse && <PulseDot status={pulse} size={6} />}
+        </div>
+      </GlowCard>
+    </div>
+  ),
+);
+MiniNode.displayName = 'MiniNode';
+
+const ConnectorUseCase: React.FC<{
+  to: string;
+  color: string;
+  icon: string;
+  title: string;
+  body: string;
+}> = ({ to, color, icon, title, body }) => (
+  <Link to={to} className="home-connector__usecase">
+    <span className="home-connector__usecase-icon" style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>
+      <Icon name={icon} size={18} />
+    </span>
+    <div className="home-connector__usecase-text">
+      <strong>{title}</strong>
+      <span>{body}</span>
+    </div>
+    <span className="home-connector__usecase-arrow" style={{ color }}>→</span>
+  </Link>
+);
 
 const FeatureCard: React.FC<{
   glowColor: string;

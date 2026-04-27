@@ -106,7 +106,16 @@ export const navGroups: NavGroup[] = [
       { title: 'PulseDot 脉冲点', path: '/docs/pulse-dot' },
       { title: 'TickerTape 跑马灯', path: '/docs/ticker-tape' },
       { title: 'ScrambleText 乱码文字', path: '/docs/scramble-text' },
-      { title: 'Connector 连接线', path: '/docs/connector' },
+    ],
+  },
+  {
+    title: '图与拓扑',
+    items: [
+      { title: 'Connector · 连接线 / 网络拓扑', path: '/docs/connector' },
+      { title: '流程图', path: '/docs/flowchart' },
+      { title: '依赖关系图', path: '/docs/dependency-graph' },
+      { title: '数据血缘', path: '/docs/data-lineage' },
+      { title: '思维导图', path: '/docs/mindmap' },
     ],
   },
   {

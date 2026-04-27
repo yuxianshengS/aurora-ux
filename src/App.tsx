@@ -81,6 +81,10 @@ const PulseDotDoc = lazy(() => import('./pages/PulseDotDoc'));
 const TickerTapeDoc = lazy(() => import('./pages/TickerTapeDoc'));
 const ScrambleTextDoc = lazy(() => import('./pages/ScrambleTextDoc'));
 const ConnectorDoc = lazy(() => import('./pages/ConnectorDoc'));
+const FlowchartDoc = lazy(() => import('./pages/FlowchartDoc'));
+const DependencyGraphDoc = lazy(() => import('./pages/DependencyGraphDoc'));
+const DataLineageDoc = lazy(() => import('./pages/DataLineageDoc'));
+const MindmapDoc = lazy(() => import('./pages/MindmapDoc'));
 
 const AppShell: React.FC = () => {
   const loc = useLocation();
@@ -191,6 +195,10 @@ const AppRoutes: React.FC = () => (
         <Route path="ticker-tape" element={<TickerTapeDoc />} />
         <Route path="scramble-text" element={<ScrambleTextDoc />} />
         <Route path="connector" element={<ConnectorDoc />} />
+        <Route path="flowchart" element={<FlowchartDoc />} />
+        <Route path="dependency-graph" element={<DependencyGraphDoc />} />
+        <Route path="data-lineage" element={<DataLineageDoc />} />
+        <Route path="mindmap" element={<MindmapDoc />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

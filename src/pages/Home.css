@@ -231,6 +231,116 @@
   font-size: 13px;
 }
 
+/* ===== Connector 主题专栏 ===== */
+.home-connector__inner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+.home-connector__diagram {
+  position: relative;
+}
+.home-connector__stage {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background:
+    radial-gradient(60% 60% at 30% 10%, color-mix(in srgb, #22d3ee 8%, transparent), transparent 60%),
+    radial-gradient(60% 60% at 70% 90%, color-mix(in srgb, #10b981 7%, transparent), transparent 60%),
+    var(--au-bg-soft);
+  border: 1px solid var(--au-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.home-mini-node__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--au-text-1);
+}
+.home-connector__usecases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.home-connector__usecase {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--au-border);
+  border-radius: 10px;
+  background: var(--au-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.home-connector__usecase:hover {
+  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--au-primary) 40%, transparent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.home-connector__usecase-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.home-connector__usecase-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.home-connector__usecase-text strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+.home-connector__usecase-text span {
+  font-size: 12px;
+  color: var(--au-text-3);
+}
+.home-connector__usecase-arrow {
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.home-connector__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.home-connector__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px color-mix(in srgb, #a855f7 35%, transparent);
+}
+
+@media (max-width: 880px) {
+  .home-connector__inner {
+    grid-template-columns: 1fr;
+  }
+  .home-connector__stage {
+    height: 280px;
+  }
+}
+
 /* ===== KPI 看板示意 ===== */
 .home-kpi-grid {
   display: grid;

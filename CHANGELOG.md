@@ -6,6 +6,24 @@
 
 待发布的改动会列在这里。
 
+## [0.6.0] — 2026-04-27 — Diagram Edition
+
+### 新增 — Connector 升格为主题能力
+- 首页新加 **"用 Connector 画任何关系图"** 专栏: 迷你 API Gateway 拓扑实时演示 + 5 用例缩略卡 (网络拓扑/流程图/依赖关系/数据血缘/思维导图) + CTA
+- 导航栏拆出**"图与拓扑"**类目, Connector 从极光特效组移出
+- 4 个新文档页, 每页一个完整真实场景:
+  - `/docs/flowchart` 订单审批流 (条件分支 + 驳回回流 + orthogonal U 型)
+  - `/docs/dependency-graph` 电商微服务调用图 (3 层架构 + RPC + MQ async + 缓存)
+  - `/docs/data-lineage` 数据血缘 (源头 → CDC → 湖 → ETL → 仓库 → BI/AI/风控)
+  - `/docs/mindmap` 产品规划思维导图 (中心放射 + 4 主分支 + 12 leaves)
+
+### 改进
+- 网络拓扑图默认 type 从 curve 改为 step (网络图标准画法), 节点间距和舞台尺寸大幅放大
+- HashRouter 替代 BrowserRouter, GH Pages 任意子路由刷新不再 404
+
+### Routing
+- BrowserRouter → HashRouter; URL 形式 `/aurora-ux/#/docs/...`
+
 ## [0.5.0] — 2026-04-27
 
 ### 新增 — Connector 连接线
@@ -73,7 +91,8 @@
 - **ThemeSwitch** 暗亮主题切换
 - 在线预览站 + iconfont 同步脚本
 
-[Unreleased]: https://github.com/yuxianshengS/aurora-ux/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/yuxianshengS/aurora-ux/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.2.0...v0.3.0
