@@ -613,26 +613,36 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
               style={line.spec.style}
             />
             {flowDots &&
-              Array.from({ length: flowDots.count }).map((_, i) => (
-                <circle
-                  key={`dot-${line.id}-${i}`}
-                  r={flowDots.size}
-                  fill={flowColor}
-                  className="au-connector__dot"
-                  style={{
-                    filter: `drop-shadow(0 0 ${flowDots.size * 2}px ${flowColor})`,
-                  }}
-                >
-                  <animateMotion
-                    dur={`${flowDots.speed}s`}
-                    repeatCount="indefinite"
-                    rotate="auto"
-                    begin={`-${(flowDots.speed * i) / flowDots.count}s`}
+              (() => {
+                // 按箭头方向裁剪小圆点的运行区间, 不让它压在箭头上
+                const startGap = showStart ? 0.05 : 0;
+                const endGap = showEnd ? 0.05 : 0;
+                const fromT = startGap;
+                const toT = 1 - endGap;
+                return Array.from({ length: flowDots.count }).map((_, i) => (
+                  <circle
+                    key={`dot-${line.id}-${i}`}
+                    r={flowDots.size}
+                    fill={flowColor}
+                    className="au-connector__dot"
+                    style={{
+                      filter: `drop-shadow(0 0 ${flowDots.size * 2}px ${flowColor})`,
+                    }}
                   >
-                    <mpath href={`#${pathId}`} />
-                  </animateMotion>
-                </circle>
-              ))}
+                    <animateMotion
+                      dur={`${flowDots.speed}s`}
+                      repeatCount="indefinite"
+                      rotate="auto"
+                      keyPoints={`${fromT};${toT}`}
+                      keyTimes="0;1"
+                      calcMode="linear"
+                      begin={`-${(flowDots.speed * i) / flowDots.count}s`}
+                    >
+                      <mpath href={`#${pathId}`} />
+                    </animateMotion>
+                  </circle>
+                ));
+              })()}
           </React.Fragment>
         );
       })}
