@@ -159,6 +159,11 @@ export interface ConnectorGroupProps {
    * 单条 Connector 通过 `avoid` 也可单独开.
    */
   autoAvoid?: boolean;
+  /**
+   * 显式追加的障碍物列表. 即使节点没参与连线, 注册到这里也会被避让.
+   * 比如 demo 中作为"中间挡路"的节点.
+   */
+  obstacles?: AnchorRef[];
   /** SVG 渲染容器 ref. 不传则 portal 到 body 用 fixed 定位 (跨 viewport) */
   container?: React.RefObject<HTMLElement | null> | HTMLElement | null;
   /** 整组 className/style */
@@ -190,6 +195,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
   defaultArrow = 'end',
   defaultType = 'curve',
   autoAvoid = false,
+  obstacles: extraObstacles,
   container,
   className = '',
   style,
@@ -394,10 +400,23 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
             if (el && el !== line.fromEl && el !== line.toEl) obstacleEls.push(el);
           }
         } else {
-          // autoAvoid 或 avoid={true}: 用 group 收集的所有节点 (排除自己 from/to)
+          // autoAvoid 或 avoid={true}: 用 group 收集的所有连线节点 + 显式 obstacles
+          const seen = new Set<Element>();
           allElsRef.current.forEach((el) => {
-            if (el !== line.fromEl && el !== line.toEl) obstacleEls.push(el);
+            if (el !== line.fromEl && el !== line.toEl) {
+              obstacleEls.push(el);
+              seen.add(el);
+            }
           });
+          if (extraObstacles) {
+            for (const ref of extraObstacles) {
+              const el = resolveRef(ref, ids);
+              if (el && el !== line.fromEl && el !== line.toEl && !seen.has(el)) {
+                obstacleEls.push(el);
+                seen.add(el);
+              }
+            }
+          }
         }
         obstacles = obstacleEls.map((el) => {
           const r = getRect(el);

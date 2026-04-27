@@ -183,6 +183,7 @@ const stageRef = useRef(null);
           { prop: 'defaultArrow', desc: '默认箭头', type: `'none' | 'start' | 'end' | 'both'`, default: `'end'` },
           { prop: 'defaultType', desc: '默认线形', type: `'curve' | 'step' | 'orthogonal' | 'straight'`, default: `'curve'` },
           { prop: 'autoAvoid', desc: '全组连线自动绕开节点 (仅 step/orthogonal 生效)', type: 'boolean', default: 'false' },
+          { prop: 'obstacles', desc: '显式追加为障碍的节点 (即使没参与连线也避让)', type: 'AnchorRef[]', default: '-' },
           { prop: 'container', desc: 'SVG 渲染容器 ref. 不传则 portal 到 body 用 fixed (跨视口)', type: 'RefObject<HTMLElement>', default: '-' },
         ]}
       />
@@ -474,6 +475,7 @@ const AvoidDemo: React.FC = () => {
           defaultArrow="end"
           defaultType="step"
           autoAvoid={avoid}
+          obstacles={[obstacle]}
         >
           <Box ref={a} style={{ left: 30, top: 30 }}>起点 A</Box>
           <Box ref={obstacle} variant="hub" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
@@ -496,18 +498,26 @@ const AvoidDemo: React.FC = () => {
   );
 };
 
-const AVOID_CODE = `<ConnectorGroup container={stageRef} autoAvoid defaultType="step">
+const AVOID_CODE = `<ConnectorGroup
+  container={stageRef}
+  defaultType="step"
+  autoAvoid                       /* 全组开启自动绕行 */
+  obstacles={[obstacle]}          /* 显式注册非连线节点为障碍 */
+>
   <div ref={a} style={{ position:'absolute', left: 30, top: 30 }}>A</div>
   <div ref={obstacle} style={{ position:'absolute', left:'50%', top:'50%' }}>障碍</div>
   <div ref={b} style={{ position:'absolute', right: 30, bottom: 30 }}>B</div>
 
-  {/* autoAvoid={true} 在组上, A→B 自动绕开 obstacle */}
+  {/* A→B 默认 step 路径会撞 obstacle, 自动绕到 obstacle 外侧 */}
   <Connector from={a} to={b} color="aurora" />
 </ConnectorGroup>
 
-// 或单条独立指定 (不开 autoAvoid):
+// 注: autoAvoid 默认只把"参与连线"的节点当障碍.
+// 像上图中 obstacle 没连任何线, 必须用 obstacles 显式登记.
+
+// 或单条线独立指定 (不开 autoAvoid):
 <Connector from={a} to={b} avoid={[obstacle]} />
-<Connector from={a} to={b} avoid={true} />  // 用 group 里所有节点作障碍`;
+<Connector from={a} to={b} avoid={true} />  // 用 group 里 connected + obstacles`;
 
 const NetworkTopologyDemo: React.FC = () => {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -529,7 +539,7 @@ const NetworkTopologyDemo: React.FC = () => {
 
   return (
     <div ref={stageRef} className="cd-net-stage">
-      <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step">
+      <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step" autoAvoid>
         {/* Tier 标签 (装饰用) */}
         <div className="net-tier-label" style={{ top: 50 }}>EDGE</div>
         <div className="net-tier-label" style={{ top: 310 }}>GATEWAY</div>
@@ -751,7 +761,7 @@ const app1 = useRef(null), app2 = useRef(null);
 const dbm = useRef(null), dbr = useRef(null);
 
 <div ref={stageRef} style={{ position: 'relative', height: 880 }}>
-  <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step">
+  <ConnectorGroup container={stageRef} defaultArrow="end" defaultType="step" autoAvoid>
     <NetNode ref={inet} tier="edge"    icon="earth"       title="Internet"      pos={{ left: 370, top: 40 }} />
     <NetNode ref={fw}   tier="edge"    icon="lock"        title="Firewall"      pulse="warning" pos={{ left: 360, top: 160 }} />
     <NetNode ref={lb}   tier="gateway" icon="connections" title="Load Balancer" pulse="live"    pos={{ left: 358, top: 300 }} />
