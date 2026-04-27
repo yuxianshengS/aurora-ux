@@ -154,6 +154,11 @@ export interface ConnectorGroupProps {
   defaultArrow?: ArrowKind;
   /** 默认 type */
   defaultType?: ConnectorType;
+  /**
+   * 全组连线自动绕开节点 (仅 step / orthogonal 生效).
+   * 单条 Connector 通过 `avoid` 也可单独开.
+   */
+  autoAvoid?: boolean;
   /** SVG 渲染容器 ref. 不传则 portal 到 body 用 fixed 定位 (跨 viewport) */
   container?: React.RefObject<HTMLElement | null> | HTMLElement | null;
   /** 整组 className/style */
@@ -184,6 +189,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
   defaultColor,
   defaultArrow = 'end',
   defaultType = 'curve',
+  autoAvoid = false,
   container,
   className = '',
   style,
@@ -373,16 +379,52 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
       const b: Pt = { x: end.x + offsetX, y: end.y + offsetY };
 
       const type = line.spec.type ?? defaultType;
+
+      // === 障碍物收集 (仅 step / orthogonal 才需要) ===
+      let obstacles: ObstacleRect[] = [];
+      const wantAvoid =
+        (type === 'step' || type === 'orthogonal') &&
+        (line.spec.avoid !== undefined ? !!line.spec.avoid : autoAvoid);
+      if (wantAvoid) {
+        let obstacleEls: Element[] = [];
+        if (Array.isArray(line.spec.avoid)) {
+          // 显式数组: 只避这些
+          for (const ref of line.spec.avoid) {
+            const el = resolveRef(ref, ids);
+            if (el && el !== line.fromEl && el !== line.toEl) obstacleEls.push(el);
+          }
+        } else {
+          // autoAvoid 或 avoid={true}: 用 group 收集的所有节点 (排除自己 from/to)
+          allElsRef.current.forEach((el) => {
+            if (el !== line.fromEl && el !== line.toEl) obstacleEls.push(el);
+          });
+        }
+        obstacles = obstacleEls.map((el) => {
+          const r = getRect(el);
+          return {
+            left: r.left + offsetX,
+            right: r.right + offsetX,
+            top: r.top + offsetY,
+            bottom: r.bottom + offsetY,
+          };
+        });
+      }
+
       let d: string;
       switch (type) {
         case 'straight':
           d = pathStraight(a, b);
           break;
         case 'step':
-          d = pathStep(a, fromEp.side, b);
+          d = wantAvoid
+            ? pathStepAvoiding(a, fromEp.side, b, obstacles)
+            : pathStep(a, fromEp.side, b);
           break;
         case 'orthogonal':
-          d = pathOrthogonal(a, fromEp.side, b, line.spec.radius ?? 12);
+          // 圆角折线复用 step 的避让 + 圆角 (简化: 当前先用 step 的 d, 视觉上没拐角圆但避开了障碍)
+          d = wantAvoid
+            ? pathStepAvoiding(a, fromEp.side, b, obstacles)
+            : pathOrthogonal(a, fromEp.side, b, line.spec.radius ?? 12);
           break;
         case 'curve':
         default:
