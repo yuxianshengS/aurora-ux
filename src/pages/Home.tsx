@@ -202,25 +202,7 @@ const Home: React.FC = () => {
                 <span className="home-code__filename">Dashboard.tsx</span>
               </div>
               <pre className="home-code__editor">
-{`import { AuroraBg, GradientText, NumberRoll, KpiCard } from 'aurora-ux';
-
-export default function Dashboard() {
-  return (
-    <AuroraBg preset="aurora" style={{ minHeight: 320 }}>
-      <GradientText size={56} weight={800}>
-        本月销售额
-      </GradientText>
-      <NumberRoll value={1284560} prefix="¥" size={64} />
-
-      <KpiCard
-        title="新增用户"
-        value="8,624"
-        delta={{ value: 5.2, suffix: '%' }}
-        trend={{ data: [3, 5, 4, 6, 8, 9, 11, 13], type: 'area' }}
-      />
-    </AuroraBg>
-  );
-}`}
+                <CodeSnippet />
               </pre>
             </div>
           </div>
@@ -341,6 +323,41 @@ const ShowcaseNumberRoll: React.FC = () => {
     </Link>
   );
 };
+
+/* ===== 手写 JSX 语法高亮: token 原子 ===== */
+type Tk = (s: React.ReactNode) => React.ReactElement;
+const k: Tk = (s) => <span className="tk-k">{s}</span>;   // keyword (import/from/export/default/function/return)
+const t: Tk = (s) => <span className="tk-t">{s}</span>;   // tag / 组件名
+const a: Tk = (s) => <span className="tk-a">{s}</span>;   // attr / prop
+const str: Tk = (s) => <span className="tk-s">{s}</span>; // string
+const n: Tk = (s) => <span className="tk-n">{s}</span>;   // number
+const p: Tk = (s) => <span className="tk-p">{s}</span>;   // punctuation (dim)
+const fn: Tk = (s) => <span className="tk-f">{s}</span>;  // function name
+const txt = (s: string) => <span className="tk-text">{s}</span>; // JSX 文本
+
+const CodeSnippet: React.FC = () => (
+  <code className="tk-root">
+    <div>{k('import')} {p('{')} {t('AuroraBg')}{p(',')} {t('GradientText')}{p(',')} {t('NumberRoll')}{p(',')} {t('KpiCard')} {p('}')} {k('from')} {str("'aurora-ux'")}{p(';')}</div>
+    <div>&nbsp;</div>
+    <div>{k('export')} {k('default')} {k('function')} {fn('Dashboard')}{p('()')} {p('{')}</div>
+    <div>{'  '}{k('return')} {p('(')}</div>
+    <div>{'    '}{p('<')}{t('AuroraBg')} {a('preset')}{p('=')}{str('"aurora"')} {a('style')}{p('={{')} {a('minHeight')}{p(':')} {n('320')} {p('}}>')}</div>
+    <div>{'      '}{p('<')}{t('GradientText')} {a('size')}{p('={')}{n('56')}{p('}')} {a('weight')}{p('={')}{n('800')}{p('}>')}</div>
+    <div>{'        '}{txt('本月销售额')}</div>
+    <div>{'      '}{p('</')}{t('GradientText')}{p('>')}</div>
+    <div>{'      '}{p('<')}{t('NumberRoll')} {a('value')}{p('={')}{n('1284560')}{p('}')} {a('prefix')}{p('=')}{str('"¥"')} {a('size')}{p('={')}{n('64')}{p('}')} {p('/>')}</div>
+    <div>&nbsp;</div>
+    <div>{'      '}{p('<')}{t('KpiCard')}</div>
+    <div>{'        '}{a('title')}{p('=')}{str('"新增用户"')}</div>
+    <div>{'        '}{a('value')}{p('=')}{str('"8,624"')}</div>
+    <div>{'        '}{a('delta')}{p('={{')} {a('value')}{p(':')} {n('5.2')}{p(',')} {a('suffix')}{p(':')} {str("'%'")} {p('}}')}</div>
+    <div>{'        '}{a('trend')}{p('={{')} {a('data')}{p(':')} {p('[')}{n('3')}{p(',')} {n('5')}{p(',')} {n('4')}{p(',')} {n('6')}{p(',')} {n('8')}{p(',')} {n('9')}{p(',')} {n('11')}{p(',')} {n('13')}{p('],')} {a('type')}{p(':')} {str("'area'")} {p('}}')}</div>
+    <div>{'      '}{p('/>')}</div>
+    <div>{'    '}{p('</')}{t('AuroraBg')}{p('>')}</div>
+    <div>{'  '}{p(');')}</div>
+    <div>{p('}')}</div>
+  </code>
+);
 
 const HeroInstallPill: React.FC = () => {
   const cmd = 'npm i aurora-ux';

@@ -388,6 +388,18 @@
   background: transparent;
 }
 
+/* JSX 高亮 token 配色 (Aurora 调色板) */
+.tk-root        { display: block; white-space: pre; }
+.tk-root > div  { white-space: pre; min-height: 1.7em; }
+.tk-k   { color: #c084fc; }                         /* keyword 紫 */
+.tk-t   { color: #5eead4; font-weight: 600; }       /* 组件名 青绿 */
+.tk-a   { color: #f472b6; font-style: italic; }     /* attr 粉 */
+.tk-s   { color: #fde68a; }                         /* string 暖金 */
+.tk-n   { color: #93c5fd; }                         /* number 冷蓝 */
+.tk-p   { color: rgba(255, 255, 255, 0.42); }       /* 标点 dim */
+.tk-f   { color: #fbbf24; font-weight: 600; }       /* function name 金 */
+.tk-text{ color: rgba(255, 255, 255, 0.92); }       /* JSX 文本节点 */
+
 /* ===== 响应式 ===== */
 @media (max-width: 880px) {
   .home-hero__title-sub {
