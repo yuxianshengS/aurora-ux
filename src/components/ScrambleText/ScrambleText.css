@@ -1,0 +1,6 @@
+.au-scramble {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+  white-space: pre-wrap;
+}

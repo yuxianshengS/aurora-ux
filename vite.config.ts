@@ -69,5 +69,26 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       open: false,
     },
+    build: {
+      // 主 chunk 已经在合理范围内 (~450KB), 把警告调一下别噪音
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          // 把大的 vendor 拆开, 避免首屏加载所有可视化/PDF 依赖
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('echarts-gl')) return 'vendor-echarts-gl';
+              if (id.includes('echarts') || id.includes('zrender'))
+                return 'vendor-echarts';
+              if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('purify'))
+                return 'vendor-pdf';
+              if (id.includes('react-dom')) return 'vendor-react-dom';
+              if (id.includes('react-router')) return 'vendor-router';
+              if (id.includes('/react/')) return 'vendor-react';
+            }
+          },
+        },
+      },
+    },
   };
 });

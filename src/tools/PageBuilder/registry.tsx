@@ -51,6 +51,9 @@ import AuroraBg from '../../components/AuroraBg';
 import NumberRoll from '../../components/NumberRoll';
 import GradientText from '../../components/GradientText';
 import GlowCard from '../../components/GlowCard';
+import PulseDot from '../../components/PulseDot';
+import TickerTape from '../../components/TickerTape';
+import ScrambleText from '../../components/ScrambleText';
 import Layout from '../../components/Layout';
 import Skeleton from '../../components/Skeleton';
 import Statistic from '../../components/Statistic';
@@ -672,6 +675,121 @@ export const REGISTRY: BlockSchema[] = [
         imports: ['GlowCard'],
       };
     },
+  },
+  {
+    type: 'PulseDot',
+    label: 'PulseDot 脉冲点',
+    icon: <Ico n="trade-alert" />,
+    category: '极光特效',
+    component: PulseDot,
+    defaultProps: {
+      status: 'live',
+      size: 8,
+      duration: 1.6,
+      children: '实时同步中',
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'children', label: '文字', type: 'text', asChildren: true },
+      {
+        key: 'status',
+        label: '语义色',
+        type: 'select',
+        options: [
+          { label: 'live (青)', value: 'live' },
+          { label: 'success (绿)', value: 'success' },
+          { label: 'warning (橙)', value: 'warning' },
+          { label: 'danger (红)', value: 'danger' },
+          { label: 'info (靛)', value: 'info' },
+          { label: 'default (灰)', value: 'default' },
+        ],
+      },
+      { key: 'color', label: '自定义颜色 (覆盖 status)', type: 'color' },
+      { key: 'size', label: '直径 (px)', type: 'number', min: 4, max: 32 },
+      { key: 'duration', label: '脉冲时长 (s)', type: 'number', min: 0.3, max: 5, step: 0.1 },
+      { key: 'silent', label: '关闭脉冲', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'TickerTape',
+    label: 'TickerTape 跑马灯',
+    icon: <Ico n="charts-line" />,
+    category: '极光特效',
+    component: TickerTape,
+    defaultProps: {
+      items: [
+        { label: 'BTC', value: '¥ 432,180', trend: 'up' },
+        { label: 'ETH', value: '¥ 18,420', trend: 'up' },
+        { label: 'SOL', value: '¥ 1,240', trend: 'down' },
+        { label: 'CNY/USD', value: '7.18', trend: 'flat' },
+      ],
+      duration: 30,
+      direction: 'left',
+      pauseOnHover: true,
+      height: 36,
+      bordered: true,
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      {
+        key: 'items',
+        label: '滚动项',
+        type: 'json',
+        help: '每项: { label, value, trend?(up/down/flat), color?, key? }',
+      },
+      { key: 'duration', label: '滚动时长 (s)', type: 'number', min: 5, max: 120 },
+      {
+        key: 'direction',
+        label: '方向',
+        type: 'select',
+        options: [
+          { label: 'left (向左)', value: 'left' },
+          { label: 'right (向右)', value: 'right' },
+        ],
+      },
+      { key: 'pauseOnHover', label: '悬停暂停', type: 'boolean' },
+      { key: 'height', label: '高度 (px)', type: 'number', min: 20, max: 80 },
+      { key: 'bordered', label: '边框', type: 'boolean' },
+      { key: 'separator', label: '分隔符', type: 'text' },
+    ],
+  },
+  {
+    type: 'ScrambleText',
+    label: 'ScrambleText 乱码文字',
+    icon: <Ico n="editor-text" />,
+    category: '极光特效',
+    component: ScrambleText,
+    defaultProps: {
+      text: 'Welcome to Aurora UI',
+      rounds: 12,
+      speed: 50,
+      stagger: 40,
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'text', label: '最终文本', type: 'text' },
+      { key: 'rounds', label: '乱码轮数', type: 'number', min: 1, max: 60 },
+      { key: 'speed', label: '帧间隔 (ms)', type: 'number', min: 10, max: 300 },
+      { key: 'stagger', label: '字符延迟 (ms)', type: 'number', min: 0, max: 300 },
+      {
+        key: 'charset',
+        label: '字符集',
+        type: 'text',
+        help: '乱码用的字符池, 留空用默认 (英数+符号)',
+      },
+      {
+        key: 'as',
+        label: '渲染元素',
+        type: 'select',
+        options: [
+          { label: 'span', value: 'span' },
+          { label: 'div', value: 'div' },
+          { label: 'h1', value: 'h1' },
+          { label: 'h2', value: 'h2' },
+          { label: 'h3', value: 'h3' },
+        ],
+      },
+    ],
   },
 
   /* ---------- 通用 ---------- */

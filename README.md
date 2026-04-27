@@ -1,64 +1,128 @@
 <div align="center">
 
-# AuroraUI
+# Aurora UI
 
-**轻盈如极光的 React 组件库**
+**为中后台而生的极光感 React 组件库 + 可视化拖拽搭建器**
 
-[🌐 在线预览](https://yuxianshengs.github.io/aurora-ux/) · [📦 npm](https://www.npmjs.com/package/aurora-ux)
+[![npm](https://img.shields.io/npm/v/aurora-ux?color=a855f7&label=npm)](https://www.npmjs.com/package/aurora-ux)
+[![license](https://img.shields.io/npm/l/aurora-ux?color=22d3ee)](./LICENSE)
+[![docs](https://img.shields.io/badge/docs-online-22d3ee)](https://yuxianshengs.github.io/aurora-ux/)
+
+[🌐 在线预览](https://yuxianshengs.github.io/aurora-ux/) · [📦 npm](https://www.npmjs.com/package/aurora-ux) · [🧩 拖拽搭建器](https://yuxianshengs.github.io/aurora-ux/builder)
 
 </div>
 
 ---
 
-## 关于 AuroraUI
+## 这是什么
 
-AuroraUI 是一套追求"**视觉质感**"与"**克制留白**"的 React 组件库。
-灵感源自极光（Aurora）——渐变的色带、柔和的过渡、轻盈的动势，
-希望每一个组件不只是"能用"，而是让界面本身成为一种**氛围**。
+**Aurora UI** 是一套追求"极光感视觉 + 看板专精"的 React 组件库。和 antd/element 不一样的地方:
 
-我们相信：好的 UI 不需要复杂的装饰，只需要恰到好处的**光**、**色**、**距**。
+- 🌌 **极光招牌** — `AuroraBg` / `GradientText` / `GlowCard` / `NumberRoll` 等独家组件, 默认就有 dribbble 级质感
+- 📊 **中后台优先** — `KpiCard` / `Sparkline` / `Bar3D` / `Heatmap` / `Gauge` / `Funnel` 等看板组件全套, 不是又一个 antd 克隆
+- 🧩 **拖拽搭建器** — 60+ 组件全部可拖, 整段 Section 模板一键展开, 导出 JSX 直接 commit
+- ⚡ **零额外依赖** — 没有 ThemeProvider, 没有 SDK, 一行 import 就用; CSS 变量驱动主题, 改一个变量改全套
 
-## 设计理念
+## 快速开始
 
-- **极光配色** — 以蓝紫渐变为主色，辅以柔和的毛玻璃与微光反射，避免纯色块的平面感
-- **呼吸感留白** — 组件内外的间距遵循统一的节奏，拒绝堆砌与拥挤
-- **双主题** — 暗色为主，亮色为辅，CSS 变量驱动，一键切换
-- **低心智负担** — 属性命名直觉，默认效果即最佳实践，上手即用
+```bash
+pnpm add aurora-ux
+# 或: npm install aurora-ux / yarn add aurora-ux
+```
 
-## 组件概览
+```tsx
+// main.tsx
+import 'aurora-ux/style.css';
+```
 
-| 分类 | 组件 | 说明 |
-|------|------|------|
-| 通用 | **Button** | 多层次按钮，支持主次、危险、幽灵等形态 |
-| 数据录入 | **Input / TextArea** | 轻量输入框，支持自适应高度 |
-|  | **Switch** | 丝滑的开关切换 |
-|  | **ThemeSwitch** | 暗亮主题一键切换 |
-|  | **DatePicker** | 极简日期选择器，支持年/月/日模式 |
-| 数据展示 | **Card** | 基础容器，带渐变描边 |
-|  | **Wallet** | 卡包式视觉，错落堆叠展示 |
-|  | **Timeline** | 垂直时间轴，支持多色节点 |
-| 反馈 | **Tooltip** | 悬浮提示，四向定位 |
-| 可视化 | **Bar3D** | 基于 ECharts-GL 的 3D 柱状图 |
+```tsx
+// App.tsx
+import { AuroraBg, GradientText, NumberRoll, KpiCard } from 'aurora-ux';
 
-## 更新图标库 (Iconfont)
+export default function App() {
+  return (
+    <AuroraBg preset="aurora" style={{ minHeight: 320 }}>
+      <GradientText size={56} weight={800}>本月销售额</GradientText>
+      <NumberRoll value={1284560} prefix="¥" size={64} />
+      <KpiCard
+        title="新增用户"
+        value="8,624"
+        delta={{ value: 5.2, suffix: '%' }}
+        trend={{ data: [3, 5, 4, 6, 8, 9, 11, 13], type: 'area' }}
+      />
+    </AuroraBg>
+  );
+}
+```
 
-Icon 组件基于阿里 [iconfont](https://www.iconfont.cn/) 项目 `4644876`。新增图标:
+完整指南: [快速开始](https://yuxianshengs.github.io/aurora-ux/docs/getting-started) · [设计理念](https://yuxianshengs.github.io/aurora-ux/docs/design)
 
-1. 在 iconfont 网站把图标加到项目 → 点 **「Font class」→「更新代码」** → 复制 CSS 链接
-2. 运行同步脚本(自动改 `index.html` 和 `src/data/iconfontNames.ts`):
+## 组件总览
+
+> 60+ 组件, 覆盖中后台所有常见场景。完整 API + 在线预览见[文档站](https://yuxianshengs.github.io/aurora-ux/)。
+
+### ✨ 极光特效 (独家)
+**AuroraBg** · **GradientText** · **NumberRoll** · **GlowCard**
+
+### 📋 表单
+**Form / FormItem / useForm** (含 required/type/min/max/pattern/whitespace/validator 完整校验)
+**Input** · **InputNumber** · **Select** · **Radio** · **Checkbox** · **Switch** · **Slider** · **DatePicker** · **Upload** · **TreeSelect**
+
+### 📊 数据展示 / 可视化
+**Table** · **Tree** · **Tabs** · **Pagination** · **Description** · **Statistic** · **Progress** · **KpiCard** · **Sparkline** · **Bar3D** · **Heatmap** · **Funnel** · **Gauge** · **DayTimeline** · **Timeline** · **ActivityFeed** · **Wallet**
+
+### 🧱 布局
+**Layout** · **Grid** · **Row** · **Flex** · **Space** · **Divider** · **Split** · **Card**
+
+### 💡 反馈
+**Modal** · **Drawer** · **Message** · **Notification** · **Popconfirm** · **Alert** · **Spin** · **Skeleton** · **Tooltip** · **FullscreenProgress** · **TopProgress** · **Result**
+
+### 🧭 导航
+**Menu** · **Breadcrumb** · **Steps** · **Dropdown**
+
+### 🎨 通用
+**Button** · **Icon** · **Text** · **Tag** · **Badge** · **Avatar** · **Empty** · **Switch** · **ThemeSwitch** · **Typewriter** · **Flip** · **Draggable** · **PdfDownload**
+
+## 拖拽搭建器
+
+试一下: [https://yuxianshengs.github.io/aurora-ux/builder](https://yuxianshengs.github.io/aurora-ux/builder)
+
+- 60+ 组件全部可拖, 实时预览, 属性面板可视化改 props
+- **Section 整段模板** — Hero / Pricing / Features / Stats / CTA / KPI 一拖即用
+- 导出可直接 commit 的 JSX 代码; 大数据 (table cols / menu items) 自动 hoist 成 `useState`
+- 容器嵌套 (Layout / Flex / Grid / Split / Form), 拖到 slot 直接生效
+
+## 主题定制
+
+所有视觉变量都是 CSS variable, 全局或局部覆盖即可:
+
+```css
+:root {
+  --au-primary: #7c3aed;
+  --au-radius: 14px;
+  --au-bg: #fafafa;
+}
+```
+
+暗色模式: `<ThemeSwitch />` 一行搞定。
+
+## 更新图标库
+
+Icon 基于阿里 [iconfont](https://www.iconfont.cn/) 项目 `4644876`。新增图标:
 
 ```bash
 pnpm sync:icon "https://at.alicdn.com/t/c/font_4644876_新哈希.css"
 ```
 
-刷新页面即可在 `/docs/icon` 看到全部新图标。
+脚本会自动更新 `index.html` + `src/data/iconfontNames.ts`。
 
 ## 适合谁用
 
-- 想让作品集/个人站点看起来不那么"Bootstrap"的独立开发者
-- 偏爱暗色主题、渐变质感、微光动效的设计师
-- 想要组件 + 数据可视化一套搞定的小型 Dashboard 项目
+- 想做中后台 / 数据看板的独立开发者和小团队
+- 偏爱**极光感**视觉, 想让看板看起来不那么 "Bootstrap"
+- 想用**拖拽搭建**减少重复 JSX, 但又不想被低代码 SaaS 锁定
+- 喜欢 TypeScript 全套类型 + CSS variable 主题的工程派
 
 ## License
 
-MIT
+MIT © [yuxianshengS](https://github.com/yuxianshengS)

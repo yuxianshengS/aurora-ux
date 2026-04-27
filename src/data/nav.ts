@@ -103,6 +103,9 @@ export const navGroups: NavGroup[] = [
       { title: 'GradientText 渐变文字', path: '/docs/gradient-text' },
       { title: 'NumberRoll 数字滚动', path: '/docs/number-roll' },
       { title: 'GlowCard 发光卡片', path: '/docs/glow-card' },
+      { title: 'PulseDot 脉冲点', path: '/docs/pulse-dot' },
+      { title: 'TickerTape 跑马灯', path: '/docs/ticker-tape' },
+      { title: 'ScrambleText 乱码文字', path: '/docs/scramble-text' },
     ],
   },
   {

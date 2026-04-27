@@ -1,0 +1,88 @@
+.au-ticker {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--au-bg-soft);
+  border-radius: var(--au-radius-sm, 8px);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+}
+
+.au-ticker.is-bordered {
+  border: 1px solid var(--au-border);
+}
+
+/* 左右两端羽化, 让循环更优雅 */
+.au-ticker::before,
+.au-ticker::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  pointer-events: none;
+  z-index: 1;
+}
+.au-ticker::before {
+  left: 0;
+  background: linear-gradient(to right, var(--au-bg-soft), transparent);
+}
+.au-ticker::after {
+  right: 0;
+  background: linear-gradient(to left, var(--au-bg-soft), transparent);
+}
+
+.au-ticker__track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  width: max-content;
+  animation: au-ticker-scroll var(--ticker-duration, 30s) linear infinite;
+  animation-direction: var(--ticker-direction, normal);
+  padding: 0 8px;
+}
+
+.au-ticker.is-pausable:hover .au-ticker__track {
+  animation-play-state: paused;
+}
+
+@keyframes au-ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(var(--ticker-distance, 100%) * -1)); }
+}
+
+.au-ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.au-ticker__label {
+  color: var(--au-text-2);
+  font-weight: 500;
+}
+.au-ticker__value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.au-ticker__arrow {
+  font-size: 9px;
+  line-height: 1;
+}
+.au-ticker__sep {
+  color: var(--au-text-3);
+  opacity: 0.4;
+  font-size: 12px;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-ticker__track {
+    animation: none;
+  }
+}
