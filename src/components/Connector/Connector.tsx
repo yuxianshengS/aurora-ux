@@ -168,7 +168,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
 }) => {
   // 子 Connector 注册的 spec
   const childSpecs = useRef<Map<string, ConnectorSpec>>(new Map());
-  const [, bump] = useReducer((n: number) => n + 1, 0);
+  const [version, bump] = useReducer((n: number) => n + 1, 0);
 
   const ctxValue = useMemo<RegistryCtx>(
     () => ({
@@ -185,8 +185,8 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
   );
 
   // 合并 children + connections
+  // version 必须进 deps, 子 Connector 注册时 bump 才能让 allSpecs 重新计算
   const allSpecs = useMemo<ConnectorSpec[]>(() => {
-    void childSpecs.current; // 依赖 bump 触发
     const list: ConnectorSpec[] = [];
     childSpecs.current.forEach((spec, id) => list.push({ ...spec, id }));
     if (connections) {
@@ -195,15 +195,15 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
       );
     }
     return list;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connections, /* bump triggers re-eval via parent re-render */ ctxValue]);
+  }, [connections, version]);
 
-  // 容器解析
-  const containerEl = useMemo(() => {
-    if (!container) return null;
-    if (container instanceof HTMLElement) return container;
-    return container.current ?? null;
-  }, [container]);
+  // 容器解析: 首次 render 时 ref.current 可能还是 null, 不能用 useMemo 缓存
+  // 直接每次 render 都算, useEffect deps 监听 containerEl 变化
+  const containerEl: HTMLElement | null = container
+    ? container instanceof HTMLElement
+      ? container
+      : container.current
+    : null;
 
   // 把 specs 展开成 (fromEl, toEl) pair
   const [drawn, setDrawn] = useState<DrawnLine[]>([]);
@@ -558,14 +558,54 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
 
 export interface ConnectorProps extends ConnectorSpec {}
 
+const SPEC_KEYS: (keyof ConnectorSpec)[] = [
+  'from',
+  'to',
+  'mode',
+  'type',
+  'startSide',
+  'endSide',
+  'arrow',
+  'arrowSize',
+  'color',
+  'thickness',
+  'dashed',
+  'animated',
+  'radius',
+  'label',
+  'offset',
+  'zIndex',
+];
+
+function specShallowEq(a: ConnectorSpec | null, b: ConnectorSpec): boolean {
+  if (!a) return false;
+  for (const k of SPEC_KEYS) {
+    const av = a[k];
+    const bv = b[k];
+    if (av === bv) continue;
+    if (Array.isArray(av) && Array.isArray(bv)) {
+      if (av.length !== bv.length) return false;
+      for (let i = 0; i < av.length; i++) {
+        if (av[i] !== bv[i]) return false;
+      }
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
 const Connector: React.FC<ConnectorProps> = (props) => {
   const ctx = useContext(ConnectorContext);
   const autoId = useId();
   const id = props.id ?? autoId;
+  const lastPropsRef = useRef<ConnectorSpec | null>(null);
 
-  // 每次 commit 上传最新 spec
+  // 每次 commit 都尝试上传, 但 shallow-eq 防 bump→re-render→upsert→bump 死循环
   useLayoutEffect(() => {
     if (!ctx) return;
+    if (specShallowEq(lastPropsRef.current, props)) return;
+    lastPropsRef.current = props;
     ctx.upsert(id, props);
   });
 
@@ -575,9 +615,6 @@ const Connector: React.FC<ConnectorProps> = (props) => {
     return () => ctx.remove(id);
   }, [ctx, id]);
 
-  if (!ctx) {
-    // 没在 group 里就静默不渲染. (Vite dev 时会在 console 看到 react warn 没儿子也行)
-  }
   return null;
 };
 

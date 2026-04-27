@@ -313,12 +313,10 @@ const Box = React.forwardRef<
   HTMLDivElement,
   { children: React.ReactNode; style?: React.CSSProperties; variant?: 'default' | 'hub' }
 >(({ children, style, variant = 'default' }, ref) => {
+  // ref 必须指向定位 + 含尺寸的外层 div, 否则连线锚点会贴到内部文字框
   return (
-    <GlowCard
-      glowColor={variant === 'hub' ? '#a855f7' : 'var(--au-primary)'}
-      intensity={variant === 'hub' ? 0.7 : 0.4}
-      padding={12}
-      radius={10}
+    <div
+      ref={ref}
       style={{
         position: 'absolute',
         minWidth: 96,
@@ -328,8 +326,15 @@ const Box = React.forwardRef<
         ...style,
       }}
     >
-      <div ref={ref}>{children}</div>
-    </GlowCard>
+      <GlowCard
+        glowColor={variant === 'hub' ? '#a855f7' : 'var(--au-primary)'}
+        intensity={variant === 'hub' ? 0.7 : 0.4}
+        padding={12}
+        radius={10}
+      >
+        {children}
+      </GlowCard>
+    </div>
   );
 });
 Box.displayName = 'Box';
