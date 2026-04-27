@@ -3,7 +3,7 @@
 }
 
 .au-connector__path {
-  transition: d 0.16s linear;
+  /* 不能加 transition: d, 滚动/拖动时连续更新会导致线条永远在追赶, 视觉上"跟丢" */
   pointer-events: stroke;
 }
 

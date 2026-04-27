@@ -388,22 +388,26 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     recompute();
   }, [recompute]);
 
+  // 拆成两个 effect: scroll/resize 全局只挂一次; ResizeObserver 跟随 drawn 重建
   useEffect(() => {
-    const ro = new ResizeObserver(schedule);
-    allElsRef.current.forEach((el) => ro.observe(el));
-    if (containerEl) ro.observe(containerEl);
-
     const onScroll = () => schedule();
     const onResize = () => schedule();
     window.addEventListener('scroll', onScroll, { capture: true, passive: true });
     window.addEventListener('resize', onResize);
-
     return () => {
-      ro.disconnect();
-      window.removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
+      window.removeEventListener('scroll', onScroll, {
+        capture: true,
+      } as EventListenerOptions);
       window.removeEventListener('resize', onResize);
       if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
     };
+  }, [schedule]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(schedule);
+    allElsRef.current.forEach((el) => ro.observe(el));
+    if (containerEl) ro.observe(containerEl);
+    return () => ro.disconnect();
   }, [drawn, containerEl, schedule]);
 
   // === SVG 渲染 ===
@@ -610,9 +614,14 @@ const Connector: React.FC<ConnectorProps> = (props) => {
   });
 
   // 卸载移除
+  // StrictMode 下 effect cleanup 会先于第二次 LE setup 跑, 必须重置 lastPropsRef,
+  // 否则 specShallowEq 会让第二次 setup 跳过 upsert, childSpecs 永远是空.
   useEffect(() => {
     if (!ctx) return;
-    return () => ctx.remove(id);
+    return () => {
+      ctx.remove(id);
+      lastPropsRef.current = null;
+    };
   }, [ctx, id]);
 
   return null;
