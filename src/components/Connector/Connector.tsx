@@ -417,17 +417,44 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
   }, [recompute]);
 
   // scroll/resize 直接同步调用 recompute (不过 RAF), 与浏览器滚动同帧, 不抖动
-  // recompute 内部已直接 setAttribute, 不会因为 React 渲染延迟而落后
+  // 拖拽通过 transform 改位置, 不触发 scroll/resize/ResizeObserver — 必须额外监听
+  // mousemove/touchmove 抓拖拽过程; 用 mousedown gate 减少空闲时的开销
   useEffect(() => {
+    let pointerDown = false;
+    const onPointerDown = () => {
+      pointerDown = true;
+    };
+    const onPointerUp = () => {
+      pointerDown = false;
+    };
+    const onPointerMove = () => {
+      if (pointerDown) recompute();
+    };
     const onScroll = () => recompute();
     const onResize = () => recompute();
+
     window.addEventListener('scroll', onScroll, { capture: true, passive: true });
     window.addEventListener('resize', onResize);
+    window.addEventListener('mousedown', onPointerDown, true);
+    window.addEventListener('mouseup', onPointerUp, true);
+    window.addEventListener('mousemove', onPointerMove, { passive: true });
+    window.addEventListener('touchstart', onPointerDown, { passive: true, capture: true });
+    window.addEventListener('touchend', onPointerUp, true);
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+
     return () => {
       window.removeEventListener('scroll', onScroll, {
         capture: true,
       } as EventListenerOptions);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousedown', onPointerDown, true);
+      window.removeEventListener('mouseup', onPointerUp, true);
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('touchstart', onPointerDown, {
+        capture: true,
+      } as EventListenerOptions);
+      window.removeEventListener('touchend', onPointerUp, true);
+      window.removeEventListener('touchmove', onPointerMove);
       if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
     };
   }, [recompute]);
