@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './site-components/Navbar';
 import DocLayout from './layouts/DocLayout';
 import Home from './pages/Home';
@@ -197,9 +197,9 @@ const AppRoutes: React.FC = () => (
 );
 
 const App: React.FC = () => (
-  <BrowserRouter>
+  <HashRouter>
     <AppShell />
-  </BrowserRouter>
+  </HashRouter>
 );
 
 export default App;

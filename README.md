@@ -8,7 +8,7 @@
 [![license](https://img.shields.io/npm/l/aurora-ux?color=22d3ee)](./LICENSE)
 [![docs](https://img.shields.io/badge/docs-online-22d3ee)](https://yuxianshengs.github.io/aurora-ux/)
 
-[🌐 在线预览](https://yuxianshengs.github.io/aurora-ux/) · [📦 npm](https://www.npmjs.com/package/aurora-ux) · [🧩 拖拽搭建器](https://yuxianshengs.github.io/aurora-ux/builder)
+[🌐 在线预览](https://yuxianshengs.github.io/aurora-ux/) · [📦 npm](https://www.npmjs.com/package/aurora-ux) · [🧩 拖拽搭建器](https://yuxianshengs.github.io/aurora-ux/#/builder)
 
 </div>
 
@@ -55,7 +55,7 @@ export default function App() {
 }
 ```
 
-完整指南: [快速开始](https://yuxianshengs.github.io/aurora-ux/docs/getting-started) · [设计理念](https://yuxianshengs.github.io/aurora-ux/docs/design)
+完整指南: [快速开始](https://yuxianshengs.github.io/aurora-ux/#/docs/getting-started) · [设计理念](https://yuxianshengs.github.io/aurora-ux/#/docs/design)
 
 ## 组件总览
 
@@ -85,7 +85,7 @@ export default function App() {
 
 ## 拖拽搭建器
 
-试一下: [https://yuxianshengs.github.io/aurora-ux/builder](https://yuxianshengs.github.io/aurora-ux/builder)
+试一下: [https://yuxianshengs.github.io/aurora-ux/#/builder](https://yuxianshengs.github.io/aurora-ux/#/builder)
 
 - 60+ 组件全部可拖, 实时预览, 属性面板可视化改 props
 - **Section 整段模板** — Hero / Pricing / Features / Stats / CTA / KPI 一拖即用
