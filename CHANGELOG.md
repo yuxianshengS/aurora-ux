@@ -6,6 +6,18 @@
 
 待发布的改动会列在这里。
 
+## [0.5.0] — 2026-04-27
+
+### 新增 — Connector 连接线
+- **ConnectorGroup + Connector** 双层组件: 共享一个 SVG 渲染所有线, 内部用 React context 注册
+- **3 种连接关系**: 1-1 / 一对多 / 多对多 (默认 mesh 笛卡尔积, 可切 pairs 一一配对)
+- **4 种线形**: curve (三次贝塞尔) / step (90° 折线) / orthogonal (圆角折线) / straight
+- 自动决定 startSide / endSide; 同一节点同一边多线时 **沿边均匀分布**, 不堆中点
+- 极光渐变 stroke (linearGradient 跟随线段方向), 流动虚线, 单端/双端/无箭头, 中点 label
+- **ResizeObserver + 全局 scroll/resize** 联合监听, RAF 节流, 拖动节点连线实时跟随
+- 数据 API (`connections` + `ids`) 与 JSX (`<Connector>`) 两种写法共存
+- Portal 到 body 走 fixed 定位 (跨视口) 或贴在指定 container 内 (相对定位)
+
 ## [0.4.0] — 2026-04-27
 
 ### 新增 — 极光特效 #2 系列
@@ -61,7 +73,8 @@
 - **ThemeSwitch** 暗亮主题切换
 - 在线预览站 + iconfont 同步脚本
 
-[Unreleased]: https://github.com/yuxianshengS/aurora-ux/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/yuxianshengS/aurora-ux/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yuxianshengS/aurora-ux/compare/v0.1.1...v0.2.0

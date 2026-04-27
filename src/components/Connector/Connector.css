@@ -1,0 +1,45 @@
+.au-connector {
+  z-index: 1;
+}
+
+.au-connector__path {
+  transition: d 0.16s linear;
+  pointer-events: stroke;
+}
+
+.au-connector__path.is-animated {
+  animation: au-connector-flow 1.2s linear infinite;
+}
+
+@keyframes au-connector-flow {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+
+.au-connector__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  background: var(--au-bg, white);
+  border: 1px solid var(--au-border, rgba(0, 0, 0, 0.1));
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--au-text-2, #4b5563);
+  white-space: nowrap;
+  pointer-events: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transform: translateX(-50%);
+  margin-left: 60px; /* foreignObject offset */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-connector__path.is-animated {
+    animation: none;
+  }
+  .au-connector__path {
+    transition: none;
+  }
+}
