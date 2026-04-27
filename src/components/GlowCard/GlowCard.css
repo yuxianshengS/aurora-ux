@@ -1,0 +1,93 @@
+.au-glow-card {
+  position: relative;
+  border-radius: var(--glow-radius, 16px);
+  background: var(--au-bg);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.2s ease;
+}
+
+.au-glow-card:hover {
+  transform: translateY(-2px);
+}
+
+.au-glow-card.has-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--au-border);
+  -webkit-mask:
+    linear-gradient(#000, #000) content-box,
+    linear-gradient(#000, #000);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.au-glow-card__border {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    transparent 0deg,
+    var(--glow-color) 60deg,
+    transparent 120deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000, #000) content-box,
+    linear-gradient(#000, #000);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+  animation: au-glow-card-border-spin 6s linear infinite;
+}
+
+.au-glow-card:hover .au-glow-card__border {
+  opacity: 0.8;
+}
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes au-glow-card-border-spin {
+  to { --border-angle: 360deg; }
+}
+
+.au-glow-card__halo {
+  position: absolute;
+  pointer-events: none;
+  width: var(--glow-size, 240px);
+  height: var(--glow-size, 240px);
+  left: var(--glow-x, 50%);
+  top: var(--glow-y, 50%);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+  opacity: var(--glow-opacity, 0);
+  transition: opacity 0.3s ease;
+  z-index: 0;
+  filter: blur(12px);
+  mix-blend-mode: screen;
+}
+
+.au-glow-card__content {
+  position: relative;
+  z-index: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-glow-card__border {
+    animation: none;
+  }
+}

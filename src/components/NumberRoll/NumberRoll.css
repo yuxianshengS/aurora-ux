@@ -1,0 +1,45 @@
+.au-number-roll {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.au-number-roll__affix {
+  display: inline-block;
+  margin: 0 0.1em;
+}
+
+.au-number-roll__sep {
+  display: inline-block;
+  width: auto;
+}
+
+.au-number-roll__digit {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  vertical-align: top;
+  text-align: center;
+}
+
+.au-number-roll__reel {
+  display: flex;
+  flex-direction: column;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.au-number-roll__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-number-roll__reel {
+    transition: none !important;
+  }
+}

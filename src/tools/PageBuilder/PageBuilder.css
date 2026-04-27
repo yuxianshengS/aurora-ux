@@ -282,6 +282,36 @@
   border-radius: 2px;
   background: var(--au-primary);
 }
+
+/* Section 整段模板组 */
+.au-pb__palette-group--sections {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--au-primary) 8%, transparent),
+    color-mix(in srgb, #a855f7 8%, transparent),
+    color-mix(in srgb, #22d3ee 5%, transparent)
+  );
+  border-radius: var(--au-radius-sm);
+  padding: 6px;
+  margin-bottom: 10px;
+}
+.au-pb__palette-group-head.is-static {
+  cursor: default;
+  font-weight: 600;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  padding: 4px 6px 8px;
+  color: var(--au-text-1);
+}
+.au-pb__palette-item--section {
+  background: var(--au-bg);
+  border: 1px solid color-mix(in srgb, var(--au-primary) 20%, transparent);
+}
+.au-pb__palette-item--section:hover {
+  border-color: var(--au-primary);
+  background: color-mix(in srgb, var(--au-primary) 5%, var(--au-bg));
+}
 .au-pb__palette-item.is-container:hover {
   background: color-mix(in srgb, var(--au-primary) 10%, var(--au-bg));
 }

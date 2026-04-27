@@ -20,6 +20,7 @@ import {
   type FieldSchema,
   type BlockCategory,
 } from './registry';
+import { SECTION_TEMPLATES, getSectionTemplate, materializeSection } from './sections';
 import './PageBuilder.css';
 
 export interface PageBuilderProps {
@@ -36,9 +37,10 @@ let idSeed = 0;
 const uid = () => `b-${Date.now().toString(36)}-${(++idSeed).toString(36)}`;
 
 interface DragPayload {
-  kind: 'new' | 'move';
+  kind: 'new' | 'move' | 'section';
   type?: string;
   id?: string;
+  sectionKey?: string;
 }
 
 const orientationOf = (containerType: string | null): 'vertical' | 'horizontal' =>
@@ -316,6 +318,15 @@ const PageBuilder: React.FC<PageBuilderProps> = ({
       }
       emit(insertBlock(blocks, nb, parentId, slotName, targetIndex));
       setSelectedId(nb.id);
+    } else if (payload.kind === 'section' && payload.sectionKey) {
+      const tpl = getSectionTemplate(payload.sectionKey);
+      if (!tpl) {
+        setDropIndicator(null);
+        return;
+      }
+      const tree = materializeSection(tpl.build(), uid);
+      emit(insertBlock(blocks, tree, parentId, slotName, targetIndex));
+      setSelectedId(tree.id);
     } else if (payload.kind === 'move' && payload.id) {
       const moving = findBlockById(blocks, payload.id);
       if (!moving) {
@@ -733,6 +744,31 @@ const PageBuilder: React.FC<PageBuilderProps> = ({
               onChange={(e) => setPaletteQuery(e.target.value)}
             />
             <div className="au-pb__palette-list">
+              {!paletteQuery && (
+                <div className="au-pb__palette-group au-pb__palette-group--sections">
+                  <div className="au-pb__palette-group-head is-static">
+                    <span style={{ marginRight: 6 }}>✨</span>
+                    <span>整段模板</span>
+                    <span className="au-pb__count-mini">{SECTION_TEMPLATES.length}</span>
+                  </div>
+                  <div className="au-pb__palette-group-items">
+                    {SECTION_TEMPLATES.map((s) => (
+                      <div
+                        key={s.key}
+                        className="au-pb__palette-item au-pb__palette-item--section"
+                        draggable
+                        title={s.description}
+                        onDragStart={(e) =>
+                          setDataTransfer(e, { kind: 'section', sectionKey: s.key })
+                        }
+                      >
+                        <span className="au-pb__palette-item-icon">{s.icon}</span>
+                        <span className="au-pb__palette-item-label">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {groupedPalette.length === 0 ? (
                 <div className="au-pb__palette-empty">无匹配组件</div>
               ) : (

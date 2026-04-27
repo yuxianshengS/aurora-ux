@@ -71,6 +71,10 @@ import ResultDoc from './pages/ResultDoc';
 import UploadDoc from './pages/UploadDoc';
 import TreeDoc from './pages/TreeDoc';
 import TreeSelectDoc from './pages/TreeSelectDoc';
+import AuroraBgDoc from './pages/AuroraBgDoc';
+import GradientTextDoc from './pages/GradientTextDoc';
+import NumberRollDoc from './pages/NumberRollDoc';
+import GlowCardDoc from './pages/GlowCardDoc';
 
 const AppShell: React.FC = () => {
   const loc = useLocation();
@@ -156,6 +160,10 @@ const AppRoutes: React.FC = () => (
         <Route path="upload" element={<UploadDoc />} />
         <Route path="tree" element={<TreeDoc />} />
         <Route path="tree-select" element={<TreeSelectDoc />} />
+        <Route path="aurora-bg" element={<AuroraBgDoc />} />
+        <Route path="gradient-text" element={<GradientTextDoc />} />
+        <Route path="number-roll" element={<NumberRollDoc />} />
+        <Route path="glow-card" element={<GlowCardDoc />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

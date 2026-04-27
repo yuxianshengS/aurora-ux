@@ -47,6 +47,10 @@ import Flex from '../../components/Flex';
 import Text from '../../components/Text';
 import Split from '../../components/Split';
 import Grid from '../../components/Grid';
+import AuroraBg from '../../components/AuroraBg';
+import NumberRoll from '../../components/NumberRoll';
+import GradientText from '../../components/GradientText';
+import GlowCard from '../../components/GlowCard';
 import Layout from '../../components/Layout';
 import Skeleton from '../../components/Skeleton';
 import Statistic from '../../components/Statistic';
@@ -75,7 +79,8 @@ export type BlockCategory =
   | '可视化'
   | '布局'
   | '动效'
-  | '导航';
+  | '导航'
+  | '极光特效';
 
 export interface FieldSchema {
   key: string;
@@ -426,6 +431,249 @@ const serializeFormField = (innerTag: string) => (
 };
 
 export const REGISTRY: BlockSchema[] = [
+  /* ---------- 极光特效 ---------- */
+  {
+    type: 'AuroraBg',
+    label: 'AuroraBg 极光背景',
+    icon: <Ico n="scenes" />,
+    category: '极光特效',
+    component: AuroraBg,
+    isContainer: true,
+    slots: ['default'],
+    slotLabels: { default: '把 Hero / Card / Text 拖进来叠在极光上' },
+    defaultProps: {
+      preset: 'aurora',
+      blur: 100,
+      speed: 1,
+      intensity: 0.7,
+      grain: true,
+      _minHeight: 280,
+    },
+    previewWrapperStyle: { width: '100%' },
+    transformProps: (props) => {
+      const { _minHeight, style: oldStyle, ...rest } = props;
+      const style: React.CSSProperties = {
+        ...((oldStyle as React.CSSProperties) ?? {}),
+        borderRadius: 16,
+      };
+      if (typeof _minHeight === 'number') style.minHeight = _minHeight;
+      return { ...rest, style };
+    },
+    fields: [
+      {
+        key: 'preset',
+        label: '预设配色',
+        type: 'select',
+        options: [
+          { label: 'aurora 极光 (蓝紫青绿粉)', value: 'aurora' },
+          { label: 'sunset 日落 (橙红紫黄)', value: 'sunset' },
+          { label: 'ocean 深海 (蓝青)', value: 'ocean' },
+          { label: 'forest 森林 (绿青)', value: 'forest' },
+          { label: 'cosmic 星宇 (深紫粉黄)', value: 'cosmic' },
+        ],
+      },
+      {
+        key: 'colors',
+        label: '自定义颜色 (覆盖预设)',
+        type: 'json',
+        help: '字符串数组, 4-6 个最佳; 例: ["#6366f1", "#a855f7", "#22d3ee"]',
+      },
+      { key: 'blur', label: '模糊度 (px)', type: 'number', min: 20, max: 200 },
+      { key: 'speed', label: '速度倍率', type: 'number', min: 0.3, max: 3, step: 0.1 },
+      { key: 'intensity', label: '强度 0-1', type: 'number', min: 0.1, max: 1, step: 0.05 },
+      { key: 'grain', label: '颗粒纹理', type: 'boolean' },
+      {
+        key: '_minHeight',
+        label: '容器最小高度 (px)',
+        type: 'number',
+        min: 80,
+        max: 1200,
+        step: 20,
+      },
+    ],
+    serialize: (props, slotJsx, indent = 2) => {
+      const attrs: string[] = [];
+      if (props.preset && props.preset !== 'aurora') attrs.push(`preset="${props.preset}"`);
+      if (Array.isArray(props.colors) && props.colors.length > 0)
+        attrs.push(`colors={${JSON.stringify(props.colors)}}`);
+      if (typeof props.blur === 'number' && props.blur !== 100) attrs.push(`blur={${props.blur}}`);
+      if (typeof props.speed === 'number' && props.speed !== 1) attrs.push(`speed={${props.speed}}`);
+      if (typeof props.intensity === 'number' && props.intensity !== 0.7)
+        attrs.push(`intensity={${props.intensity}}`);
+      if (props.grain === false) attrs.push('grain={false}');
+      const styleParts: string[] = ['borderRadius: 16'];
+      if (typeof props._minHeight === 'number') styleParts.push(`minHeight: ${props._minHeight}`);
+      attrs.push(`style={{ ${styleParts.join(', ')} }}`);
+      const attrStr = ' ' + attrs.join(' ');
+      const inPad = pad(indent + 1);
+      const outPad = pad(indent);
+      const inner = slotJsx?.default;
+      if (!inner) {
+        return {
+          jsx: `<AuroraBg${attrStr} />`,
+          imports: ['AuroraBg'],
+        };
+      }
+      return {
+        jsx: `<AuroraBg${attrStr}>\n${inner}\n${outPad}</AuroraBg>`,
+        imports: ['AuroraBg'],
+      };
+    },
+  },
+  {
+    type: 'GradientText',
+    label: 'GradientText 渐变文字',
+    icon: <Ico n="editor-text" />,
+    category: '极光特效',
+    component: GradientText,
+    defaultProps: {
+      children: '欢迎来到 Aurora UI',
+      preset: 'aurora',
+      animate: true,
+      duration: 6,
+      angle: 90,
+      size: 48,
+      weight: 700,
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'children', label: '文字内容', type: 'text', asChildren: true },
+      {
+        key: 'preset',
+        label: '预设配色',
+        type: 'select',
+        options: [
+          { label: 'aurora 极光', value: 'aurora' },
+          { label: 'sunset 日落', value: 'sunset' },
+          { label: 'ocean 深海', value: 'ocean' },
+          { label: 'forest 森林', value: 'forest' },
+          { label: 'cosmic 星宇', value: 'cosmic' },
+          { label: 'metal 金属', value: 'metal' },
+        ],
+      },
+      {
+        key: 'colors',
+        label: '自定义颜色 (覆盖预设)',
+        type: 'json',
+        help: '字符串数组, 例: ["#22d3ee", "#a855f7", "#22d3ee"]',
+      },
+      { key: 'animate', label: '流动动画', type: 'boolean' },
+      { key: 'duration', label: '动画一周时长 (s)', type: 'number', min: 1, max: 30, step: 0.5 },
+      { key: 'angle', label: '渐变方向 (deg)', type: 'number', min: 0, max: 360 },
+      { key: 'size', label: '字号 (px)', type: 'number', min: 12, max: 200 },
+      {
+        key: 'weight',
+        label: '字重',
+        type: 'select',
+        options: [
+          { label: 'normal (400)', value: 400 },
+          { label: 'medium (500)', value: 500 },
+          { label: 'semibold (600)', value: 600 },
+          { label: 'bold (700)', value: 700 },
+          { label: 'black (800)', value: 800 },
+        ],
+      },
+      {
+        key: 'as',
+        label: '渲染元素',
+        type: 'select',
+        options: [
+          { label: 'span (行内)', value: 'span' },
+          { label: 'div', value: 'div' },
+          { label: 'h1', value: 'h1' },
+          { label: 'h2', value: 'h2' },
+          { label: 'h3', value: 'h3' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'NumberRoll',
+    label: 'NumberRoll 数字滚动',
+    icon: <Ico n="calculator" />,
+    category: '极光特效',
+    component: NumberRoll,
+    defaultProps: {
+      value: 1284560,
+      size: 56,
+      weight: 700,
+      precision: 0,
+      thousandSeparator: true,
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'value', label: '目标数字', type: 'number' },
+      { key: 'precision', label: '小数位', type: 'number', min: 0, max: 8 },
+      { key: 'thousandSeparator', label: '千分位逗号', type: 'boolean' },
+      { key: 'size', label: '字号 (px)', type: 'number', min: 12, max: 200 },
+      {
+        key: 'weight',
+        label: '字重',
+        type: 'select',
+        options: [
+          { label: 'normal (400)', value: 400 },
+          { label: 'medium (500)', value: 500 },
+          { label: 'semibold (600)', value: 600 },
+          { label: 'bold (700)', value: 700 },
+        ],
+      },
+      { key: 'color', label: '颜色', type: 'color' },
+      { key: 'duration', label: '滚动时长 (ms)', type: 'number', min: 100, max: 3000 },
+      { key: 'stagger', label: '位间延迟 (ms)', type: 'number', min: 0, max: 500 },
+      { key: 'prefix', label: '前缀', type: 'text' },
+      { key: 'suffix', label: '后缀', type: 'text' },
+    ],
+  },
+  {
+    type: 'GlowCard',
+    label: 'GlowCard 发光卡片',
+    icon: <Ico n="card" />,
+    category: '极光特效',
+    component: GlowCard,
+    isContainer: true,
+    slots: ['default'],
+    slotLabels: { default: '把任意组件拖进发光卡片里' },
+    defaultProps: {
+      glowColor: '#7c3aed',
+      glowSize: 240,
+      intensity: 0.6,
+      border: true,
+      radius: 16,
+      padding: 24,
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'glowColor', label: '光晕颜色', type: 'color' },
+      { key: 'glowSize', label: '光晕直径 (px)', type: 'number', min: 80, max: 600 },
+      { key: 'intensity', label: '光晕强度 0-1', type: 'number', min: 0.1, max: 1, step: 0.05 },
+      { key: 'border', label: '旋转描边', type: 'boolean' },
+      { key: 'radius', label: '圆角 (px)', type: 'number', min: 0, max: 48 },
+      { key: 'padding', label: '内边距 (px)', type: 'number', min: 0, max: 80 },
+    ],
+    serialize: (props, slotJsx, indent = 2) => {
+      const attrs: string[] = [];
+      if (props.glowColor && props.glowColor !== 'var(--au-primary, #5b8def)')
+        attrs.push(`glowColor="${props.glowColor}"`);
+      if (typeof props.glowSize === 'number' && props.glowSize !== 240)
+        attrs.push(`glowSize={${props.glowSize}}`);
+      if (typeof props.intensity === 'number' && props.intensity !== 0.6)
+        attrs.push(`intensity={${props.intensity}}`);
+      if (props.border === false) attrs.push('border={false}');
+      if (typeof props.radius === 'number' && props.radius !== 16)
+        attrs.push(`radius={${props.radius}}`);
+      if (typeof props.padding === 'number' && props.padding !== 24)
+        attrs.push(`padding={${props.padding}}`);
+      const attrStr = attrs.length ? ' ' + attrs.join(' ') : '';
+      const inPad = pad(indent + 1);
+      const outPad = pad(indent);
+      const inner = slotJsx?.default ?? `${inPad}{/* 内容 */}`;
+      return {
+        jsx: `<GlowCard${attrStr}>\n${inner}\n${outPad}</GlowCard>`,
+        imports: ['GlowCard'],
+      };
+    },
+  },
+
   /* ---------- 通用 ---------- */
   {
     type: 'Text',
@@ -2854,6 +3102,7 @@ export const REGISTRY: BlockSchema[] = [
 // 5. 可视化 — dashboard 场景
 // 6. 反馈 / 动效 — 点缀
 export const CATEGORIES: BlockCategory[] = [
+  '极光特效',
   '布局',
   '导航',
   '表单',

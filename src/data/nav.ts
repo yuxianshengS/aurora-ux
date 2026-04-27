@@ -97,6 +97,15 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: '极光特效',
+    items: [
+      { title: 'AuroraBg 极光背景', path: '/docs/aurora-bg' },
+      { title: 'GradientText 渐变文字', path: '/docs/gradient-text' },
+      { title: 'NumberRoll 数字滚动', path: '/docs/number-roll' },
+      { title: 'GlowCard 发光卡片', path: '/docs/glow-card' },
+    ],
+  },
+  {
     title: '布局',
     items: [
       { title: 'Layout 页面布局', path: '/docs/layout' },

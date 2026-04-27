@@ -1,6 +1,6 @@
 {
   "name": "aurora-ux",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "中后台 / 数据看板 UI 组件库 + 可视化搭建器. Dashboard-ready React components with a drag-and-drop page builder.",
   "type": "module",
   "main": "./dist/aurora-ui.cjs",
