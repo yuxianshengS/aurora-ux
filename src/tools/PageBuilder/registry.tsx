@@ -41,11 +41,21 @@ import Menu from '../../components/Menu';
 import Breadcrumb from '../../components/Breadcrumb';
 import Steps from '../../components/Steps';
 import Form, { FormItem } from '../../components/Form';
+import type { Rule } from '../../components/Form';
 import Row from '../../components/Row';
 import Flex from '../../components/Flex';
 import Text from '../../components/Text';
+import Split from '../../components/Split';
 import Grid from '../../components/Grid';
-import PageShell from '../../components/PageShell';
+import Layout from '../../components/Layout';
+import Skeleton from '../../components/Skeleton';
+import Statistic from '../../components/Statistic';
+import Progress from '../../components/Progress';
+import Description from '../../components/Description';
+import Result from '../../components/Result';
+import Upload from '../../components/Upload';
+import Tree from '../../components/Tree';
+import TreeSelect from '../../components/TreeSelect';
 
 export type FieldType =
   | 'text'
@@ -95,7 +105,7 @@ export interface BlockSchema {
   isContainer?: boolean;
   /**
    * 容器块的具名插槽
-   * - 静态数组: PageShell 这种固定结构 ['header', 'sider', 'content', 'footer']
+   * - 静态数组: Layout 这种固定结构 ['header', 'sider', 'content', 'footer']
    * - 函数: Grid 这种动态(根据 cols×rows 生成 cell-0, cell-1, ...)
    * - 不传: 默认 ['default'] 单插槽 (Row)
    */
@@ -293,6 +303,8 @@ interface FormMetaProps {
   _help?: React.ReactNode;
   _name?: string;
   _width?: number;
+  /** 校验规则数组 (Rule[]) */
+  _rules?: Array<Record<string, unknown>>;
 }
 
 /** 把 _ 前缀的元数据剥离,返回 { metaProps(FormItem 用), innerProps(子组件用) } */
@@ -305,9 +317,30 @@ const splitFormProps = (all: Record<string, unknown>) => {
     else if (k === '_help') meta._help = v as React.ReactNode;
     else if (k === '_name') meta._name = v as string;
     else if (k === '_width') meta._width = Number(v) || undefined;
+    else if (k === '_rules') meta._rules = Array.isArray(v) ? (v as Array<Record<string, unknown>>) : undefined;
     else inner[k] = v;
   }
   return { meta, inner };
+};
+
+/** 表单项通用的"校验规则"字段定义, 直接 spread 进 fields 数组复用 */
+const rulesField = {
+  key: '_rules',
+  label: '校验规则',
+  type: 'json' as const,
+  help: '数组, 每项: { required?, message?, type?(string/number/email/url/integer/array/boolean), min?, max?, len?, pattern?(JSON 不支持正则, 需要时直接写在代码里), whitespace? }; 例: [{ type: "email", message: "邮箱格式错" }, { min: 6, message: "至少 6 位" }]',
+};
+
+/** 把 _required + _rules 合并成最终的 rules 数组 (_required 自动转成 { required: true, message }) */
+const buildEffectiveRules = (meta: FormMetaProps): Array<Record<string, unknown>> => {
+  const rules: Array<Record<string, unknown>> = [];
+  if (meta._required) {
+    rules.push({ required: true, message: `请填写${meta._label ?? '此字段'}` });
+  }
+  if (meta._rules && meta._rules.length > 0) {
+    rules.push(...meta._rules);
+  }
+  return rules;
 };
 
 /** 通用的"表单项 + 内部组件"渲染 */
@@ -327,12 +360,14 @@ const makeFormFieldPreview = (
             },
           }
         : inner;
+    const effectiveRules = buildEffectiveRules(meta);
     return (
       <FormItem
         label={meta._label}
         required={meta._required}
         help={meta._help}
         name={meta._name}
+        rules={effectiveRules.length > 0 ? (effectiveRules as Rule[]) : undefined}
       >
         <Inner {...innerWithWidth} />
       </FormItem>
@@ -352,8 +387,12 @@ const serializeFormField = (innerTag: string) => (
   const itemAttrs: string[] = [];
   if (meta._label != null && meta._label !== '') itemAttrs.push(`label="${String(meta._label)}"`);
   if (meta._name) itemAttrs.push(`name="${meta._name}"`);
-  if (meta._required) itemAttrs.push('required');
   if (meta._help) itemAttrs.push(`help="${String(meta._help)}"`);
+  // _required + _rules 合并输出成 rules 数组 (而不是单独的 required prop, 这样真校验生效)
+  const effectiveRules = buildEffectiveRules(meta);
+  if (effectiveRules.length > 0) {
+    itemAttrs.push(`rules={${JSON.stringify(effectiveRules, null, 2)}}`);
+  }
   const itemAttrStr = itemAttrs.length ? ' ' + itemAttrs.join(' ') : '';
 
   const innerAttrs: string[] = [];
@@ -385,30 +424,6 @@ const serializeFormField = (innerTag: string) => (
     imports: ['Form', innerTag.split('.')[0]],
   };
 };
-
-/** 整个 Form 容器的"示例"JSX (预览 + 代码生成) */
-const sampleFormPreview: React.FC<Record<string, unknown>> = ({
-  layout,
-  labelWidth,
-}) => (
-  <Form
-    layout={(layout as 'horizontal' | 'vertical' | 'inline') ?? 'horizontal'}
-    labelWidth={(labelWidth as number) ?? 96}
-  >
-    <FormItem label="姓名" required>
-      <Input placeholder="请输入姓名" />
-    </FormItem>
-    <FormItem label="邮箱" help="我们不会泄露你的邮箱">
-      <Input placeholder="you@example.com" />
-    </FormItem>
-    <FormItem label="订阅">
-      <Switch defaultChecked />
-    </FormItem>
-    <FormItem label=" ">
-      <Button type="primary">提交</Button>
-    </FormItem>
-  </Form>
-);
 
 export const REGISTRY: BlockSchema[] = [
   /* ---------- 通用 ---------- */
@@ -540,48 +555,62 @@ export const REGISTRY: BlockSchema[] = [
     ],
   },
 
-  /* ---------- 表单 (每一项 = FormItem + Input 组合) ---------- */
+  /* ---------- 表单 (Form 是容器, 内部往里拖 FormItem.*) ---------- */
   {
     type: 'Form',
     label: 'Form 表单容器',
     icon: <Ico n="catalog" />,
     category: '表单',
-    component: sampleFormPreview,
-    defaultProps: { layout: 'horizontal', labelWidth: 96 },
-    previewWrapperStyle: { width: '100%', maxWidth: 540 },
+    component: Form,
+    isContainer: true,
+    slots: ['default'],
+    defaultProps: {
+      layout: 'horizontal',
+      labelWidth: 96,
+      labelAlign: 'right',
+      colon: true,
+      size: 'medium',
+    },
+    previewWrapperStyle: { width: '100%' },
     fields: [
       {
         key: 'layout',
         label: '布局',
         type: 'select',
         options: [
-          { label: 'horizontal', value: 'horizontal' },
-          { label: 'vertical', value: 'vertical' },
-          { label: 'inline', value: 'inline' },
+          { label: 'horizontal (水平)', value: 'horizontal' },
+          { label: 'vertical (垂直)', value: 'vertical' },
+          { label: 'inline (行内)', value: 'inline' },
         ],
       },
-      { key: 'labelWidth', label: 'Label 宽度', type: 'number', min: 60, max: 240 },
+      { key: 'labelWidth', label: 'Label 宽度 (px)', type: 'number', min: 0, max: 240 },
+      {
+        key: 'labelAlign',
+        label: 'Label 对齐',
+        type: 'select',
+        options: [
+          { label: 'right (右)', value: 'right' },
+          { label: 'left (左)', value: 'left' },
+        ],
+      },
+      { key: 'colon', label: '显示冒号', type: 'boolean' },
+      { key: 'size', label: '尺寸', type: 'select', options: sizeOptions },
     ],
-    serialize: (props, _slotJsx, indent = 2) => {
+    serialize: (props, slotJsx, indent = 2) => {
+      const attrs: string[] = [];
+      if (props.layout && props.layout !== 'horizontal') attrs.push(`layout="${props.layout}"`);
+      if (typeof props.labelWidth === 'number' && props.labelWidth !== 96)
+        attrs.push(`labelWidth={${props.labelWidth}}`);
+      if (props.labelAlign && props.labelAlign !== 'right') attrs.push(`labelAlign="${props.labelAlign}"`);
+      if (props.colon === false) attrs.push('colon={false}');
+      if (props.size && props.size !== 'medium') attrs.push(`size="${props.size}"`);
+      const attrStr = attrs.length ? ' ' + attrs.join(' ') : '';
       const inPad = pad(indent + 1);
-      const inInPad = pad(indent + 2);
       const outPad = pad(indent);
+      const inner = slotJsx?.default ?? `${inPad}{/* 把 FormItem 拖进来 */}`;
       return {
-        jsx: `<Form layout="${props.layout ?? 'horizontal'}" labelWidth={${props.labelWidth ?? 96}}>
-${inPad}<Form.Item label="姓名" required>
-${inInPad}<Input placeholder="请输入姓名" />
-${inPad}</Form.Item>
-${inPad}<Form.Item label="邮箱" help="我们不会泄露你的邮箱">
-${inInPad}<Input placeholder="you@example.com" />
-${inPad}</Form.Item>
-${inPad}<Form.Item label="订阅">
-${inInPad}<Switch defaultChecked />
-${inPad}</Form.Item>
-${inPad}<Form.Item label=" ">
-${inInPad}<Button type="primary">提交</Button>
-${inPad}</Form.Item>
-${outPad}</Form>`,
-        imports: ['Form', 'Input', 'Switch', 'Button'],
+        jsx: `<Form${attrStr}>\n${inner}\n${outPad}</Form>`,
+        imports: ['Form'],
       };
     },
   },
@@ -604,6 +633,7 @@ ${outPad}</Form>`,
       { key: '_required', label: '必填', type: 'boolean' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       { key: 'placeholder', label: '占位', type: 'text' },
       { key: 'size', label: '尺寸', type: 'select', options: sizeOptions },
       { key: 'disabled', label: '禁用', type: 'boolean' },
@@ -631,6 +661,7 @@ ${outPad}</Form>`,
       { key: '_required', label: '必填', type: 'boolean' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       { key: 'defaultValue', label: '默认值', type: 'number' },
       { key: 'min', label: '最小', type: 'number' },
       { key: 'max', label: '最大', type: 'number' },
@@ -664,6 +695,7 @@ ${outPad}</Form>`,
       { key: '_required', label: '必填', type: 'boolean' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       {
         key: 'options',
         label: '选项',
@@ -694,6 +726,7 @@ ${outPad}</Form>`,
       { key: '_name', label: '字段 name', type: 'text' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       { key: 'defaultChecked', label: '默认开', type: 'boolean' },
       { key: 'disabled', label: '禁用', type: 'boolean' },
     ],
@@ -716,6 +749,7 @@ ${outPad}</Form>`,
       { key: '_name', label: '字段 name', type: 'text' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       { key: 'defaultValue', label: '默认值', type: 'number' },
       { key: 'min', label: '最小', type: 'number' },
       { key: 'max', label: '最大', type: 'number' },
@@ -742,6 +776,7 @@ ${outPad}</Form>`,
       { key: '_required', label: '必填', type: 'boolean' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       { key: 'placeholder', label: '占位', type: 'text' },
       {
         key: 'picker',
@@ -780,6 +815,7 @@ ${outPad}</Form>`,
       { key: '_required', label: '必填', type: 'boolean' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       {
         key: 'options',
         label: '选项',
@@ -823,6 +859,7 @@ ${outPad}</Form>`,
       { key: '_required', label: '必填', type: 'boolean' },
       { key: '_help', label: '帮助文字', type: 'text' },
       { key: '_width', label: '输入框宽度 (px)', type: 'number', min: 60, max: 800, help: '不设则填满所在 cell' },
+      rulesField,
       {
         key: 'options',
         label: '选项',
@@ -921,6 +958,36 @@ ${outPad}</Form>`,
       { key: 'allowClear', label: '可清除', type: 'boolean' },
       { key: 'multiple', label: '多选', type: 'boolean' },
       { key: 'filterable', label: '可搜索', type: 'boolean' },
+      { key: 'disabled', label: '禁用', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'Radio',
+    label: 'Radio 单选 (单个)',
+    icon: <Ico n="selected" />,
+    category: '数据录入',
+    component: Radio,
+    defaultProps: { value: 'a', children: '选项 A', defaultChecked: true },
+    fields: [
+      { key: 'children', label: '文案', type: 'text', asChildren: true },
+      { key: 'value', label: 'value', type: 'text', help: '提交时的值' },
+      { key: 'defaultChecked', label: '默认选中', type: 'boolean' },
+      { key: 'disabled', label: '禁用', type: 'boolean' },
+      { key: 'name', label: 'name (同一组共用)', type: 'text' },
+    ],
+  },
+  {
+    type: 'Checkbox',
+    label: 'Checkbox 复选 (单个)',
+    icon: <Ico n="check" />,
+    category: '数据录入',
+    component: Checkbox,
+    defaultProps: { value: 'a', children: '同意条款', defaultChecked: false },
+    fields: [
+      { key: 'children', label: '文案', type: 'text', asChildren: true },
+      { key: 'value', label: 'value', type: 'text', help: 'Group 模式下提交的值' },
+      { key: 'defaultChecked', label: '默认选中', type: 'boolean' },
+      { key: 'indeterminate', label: '半选态', type: 'boolean' },
       { key: 'disabled', label: '禁用', type: 'boolean' },
     ],
   },
@@ -1092,6 +1159,90 @@ ${outPad}</Form>`,
       },
     ],
   },
+  {
+    type: 'Upload',
+    label: 'Upload 文件上传',
+    icon: <Ico n="cloud-up" />,
+    category: '数据录入',
+    component: Upload,
+    defaultProps: { listType: 'text', multiple: false },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      {
+        key: 'listType',
+        label: '展示形态',
+        type: 'select',
+        options: [
+          { label: 'text (文字列表)', value: 'text' },
+          { label: 'picture (缩略图)', value: 'picture' },
+          { label: 'card (卡片网格)', value: 'card' },
+          { label: 'drag (拖拽区)', value: 'drag' },
+        ],
+      },
+      { key: 'accept', label: '接受类型', type: 'text', placeholder: 'image/* .pdf' },
+      { key: 'multiple', label: '多选', type: 'boolean' },
+      { key: 'maxSize', label: '单文件大小限制 (KB)', type: 'number', min: 1 },
+      { key: 'showFileList', label: '显示文件列表', type: 'boolean' },
+      { key: 'disabled', label: '禁用', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'Tree',
+    label: 'Tree 树形控件',
+    icon: <Ico n="folder" />,
+    category: '数据录入',
+    component: Tree,
+    defaultProps: {
+      treeData: [
+        { key: '1', title: '根目录', children: [
+          { key: '1-1', title: '文档', children: [
+            { key: '1-1-1', title: '产品规划.md' },
+            { key: '1-1-2', title: '会议纪要.md' },
+          ]},
+          { key: '1-2', title: '资源' },
+        ]},
+        { key: '2', title: '其他' },
+      ],
+      defaultExpandedKeys: ['1', '1-1'],
+      checkable: false,
+      showLine: false,
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'treeData', label: '节点数据', type: 'json', help: '每项: { key, title, children?, disabled? }' },
+      { key: 'defaultExpandedKeys', label: '默认展开 (数组)', type: 'json' },
+      { key: 'defaultExpandAll', label: '默认全展开', type: 'boolean' },
+      { key: 'checkable', label: '显示复选框', type: 'boolean' },
+      { key: 'multiple', label: '多选 (selectedKeys)', type: 'boolean' },
+      { key: 'showLine', label: '显示连接线', type: 'boolean' },
+      { key: 'blockNode', label: '整行可点', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'TreeSelect',
+    label: 'TreeSelect 树形选择器',
+    icon: <Ico n="folder" />,
+    category: '数据录入',
+    component: TreeSelect,
+    defaultProps: {
+      treeData: [
+        { key: 'parent', title: '父节点', children: [
+          { key: 'a', title: '选项 A' },
+          { key: 'b', title: '选项 B' },
+        ]},
+        { key: 'c', title: '选项 C' },
+      ],
+      placeholder: '请选择',
+      treeDefaultExpandAll: true,
+    },
+    fields: [
+      { key: 'treeData', label: '树数据', type: 'json', help: '同 Tree, { key, title, children? }' },
+      { key: 'placeholder', label: '占位', type: 'text' },
+      { key: 'treeDefaultExpandAll', label: '默认全展开', type: 'boolean' },
+      { key: 'allowClear', label: '可清除', type: 'boolean' },
+      { key: 'disabled', label: '禁用', type: 'boolean' },
+    ],
+  },
 
   /* ---------- 数据展示 ---------- */
   {
@@ -1197,14 +1348,92 @@ ${outPad}</Form>`,
       columns: sampleTableColumns,
       dataSource: sampleTableData,
       pagination: false,
+      striped: true,
     },
     previewWrapperStyle: { width: '100%' },
+    /**
+     * 把声明式 column 配置转成真正的 render 函数 (PageBuilder 预览用):
+     * - actions: 按钮组操作列
+     * - format: 'currency' | 'percent' | 'date' | 'datetime' — 内置数值/时间格式化
+     * - template: 字符串模板, "{字段名}" 占位符替换 (如 "¥{price} / 月")
+     * - tag: { color?, mapping? } — 把值渲染成 Tag, mapping 把值映射成颜色
+     * Copy JSX 出去时这些字段保持原样, 用户自己在代码里改成 render 函数
+     */
+    transformProps: (props) => {
+      const cols = props.columns as Array<Record<string, unknown>> | undefined;
+      if (!Array.isArray(cols)) return props;
+      const transformed = cols.map((col) => {
+        // 1. 操作列
+        const actions = col.actions as Array<Record<string, unknown>> | undefined;
+        if (Array.isArray(actions) && actions.length > 0) {
+          return {
+            ...col,
+            render: () => (
+              <span style={{ display: 'inline-flex', gap: 8 }}>
+                {actions.map((a, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`au-btn au-btn--small au-btn--${a.type ?? 'default'}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {String(a.label ?? '操作')}
+                  </button>
+                ))}
+              </span>
+            ),
+          };
+        }
+        // 2. 内置格式化
+        const format = col.format as string | undefined;
+        if (format) {
+          const formatters: Record<string, (v: unknown) => React.ReactNode> = {
+            currency: (v) => `¥ ${Number(v ?? 0).toLocaleString()}`,
+            percent: (v) => `${v ?? 0}%`,
+            date: (v) => (v ? new Date(String(v)).toLocaleDateString() : '-'),
+            datetime: (v) => (v ? new Date(String(v)).toLocaleString() : '-'),
+          };
+          const fn = formatters[format];
+          if (fn) return { ...col, render: fn };
+        }
+        // 3. 模板字符串 "{name} 岁" — 把 {key} 替换成行数据里对应字段
+        const template = col.template as string | undefined;
+        if (template) {
+          return {
+            ...col,
+            render: (_v: unknown, row: Record<string, unknown>) =>
+              template.replace(/\{(\w+)\}/g, (_, k) => String((row?.[k] as unknown) ?? '')),
+          };
+        }
+        // 4. tag 渲染 (值 → Tag 组件), tag.mapping 把值映射成 color
+        const tag = col.tag as { color?: string; mapping?: Record<string, string> } | undefined;
+        if (tag) {
+          return {
+            ...col,
+            render: (v: unknown) => {
+              const text = v == null ? '' : String(v);
+              const color = tag.mapping?.[text] ?? tag.color ?? 'default';
+              return (
+                <span
+                  className={`au-tag au-tag--${color}`}
+                  style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}
+                >
+                  {text}
+                </span>
+              );
+            },
+          };
+        }
+        return col;
+      });
+      return { ...props, columns: transformed };
+    },
     fields: [
       {
         key: 'columns',
         label: '列配置',
         type: 'json',
-        help: '数组, 每项: { title 列头, dataIndex 字段名, width?, align? }',
+        help: '纯 JSON, 不写函数。可选声明字段: actions (按钮组) / format (currency|percent|date|datetime) / template ("{字段}文案") / tag ({color, mapping})。详细见文档帮助下方示例',
       },
       {
         key: 'dataSource',
@@ -1415,6 +1644,76 @@ ${outPad}</Form>`,
       { key: 'height', label: '高度', type: 'number', min: 40, max: 120 },
     ],
   },
+  {
+    type: 'Statistic',
+    label: 'Statistic 数值',
+    icon: <Ico n="charts-bar" />,
+    category: '数据展示',
+    component: Statistic,
+    defaultProps: { title: '本月 GMV', value: 128500, prefix: '¥', precision: 0 },
+    previewWrapperStyle: { display: 'inline-block' },
+    fields: [
+      { key: 'title', label: '标题', type: 'text' },
+      { key: 'value', label: '数值', type: 'number' },
+      { key: 'prefix', label: '前缀', type: 'text' },
+      { key: 'suffix', label: '后缀', type: 'text' },
+      { key: 'precision', label: '小数位', type: 'number', min: 0, max: 6 },
+      { key: 'groupSeparator', label: '千分位符', type: 'text', placeholder: ',' },
+      { key: 'loading', label: '加载占位', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'Description',
+    label: 'Description 描述列表',
+    icon: <Ico n="list" />,
+    category: '数据展示',
+    component: Description,
+    defaultProps: {
+      title: '用户信息',
+      column: 3,
+      bordered: false,
+      items: [
+        { label: '用户名', value: '余星辰' },
+        { label: '账号', value: 'yuxianshengs' },
+        { label: '邮箱', value: 'yu@example.com' },
+        { label: '城市', value: '北京' },
+        { label: '电话', value: '138 0000 0000' },
+        { label: '注册时间', value: '2026-01-12' },
+      ],
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'title', label: '标题', type: 'text' },
+      {
+        key: 'items',
+        label: '描述项',
+        type: 'json',
+        help: '每项: { label, value, span?(跨列数) }',
+      },
+      { key: 'column', label: '列数', type: 'number', min: 1, max: 6 },
+      {
+        key: 'layout',
+        label: '布局',
+        type: 'select',
+        options: [
+          { label: 'horizontal (label 在左)', value: 'horizontal' },
+          { label: 'vertical (label 在上)', value: 'vertical' },
+        ],
+      },
+      {
+        key: 'size',
+        label: '尺寸',
+        type: 'select',
+        options: [
+          { label: 'small', value: 'small' },
+          { label: 'default', value: 'default' },
+          { label: 'large', value: 'large' },
+        ],
+      },
+      { key: 'bordered', label: '带边框', type: 'boolean' },
+      { key: 'colon', label: 'label 后加冒号', type: 'boolean' },
+    ],
+  },
 
   /* ---------- 反馈 ---------- */
   {
@@ -1445,6 +1744,100 @@ ${outPad}</Form>`,
       { key: 'tip', label: '提示', type: 'text' },
       { key: 'size', label: '尺寸', type: 'select', options: smallMediumLarge },
       { key: 'spinning', label: '加载中', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'Skeleton',
+    label: 'Skeleton 骨架屏',
+    icon: <Ico n="loading" />,
+    category: '反馈',
+    component: Skeleton,
+    defaultProps: { loading: true, active: true, rows: 3, title: true, avatar: false, varyRows: true },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'loading', label: '显示占位', type: 'boolean' },
+      { key: 'active', label: '闪烁动画', type: 'boolean' },
+      { key: 'title', label: '显示标题占位', type: 'boolean' },
+      { key: 'avatar', label: '显示头像占位', type: 'boolean' },
+      { key: 'rows', label: '段落行数', type: 'number', min: 1, max: 10 },
+      { key: 'varyRows', label: '尾行更短', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'Progress',
+    label: 'Progress 进度条',
+    icon: <Ico n="loading" />,
+    category: '反馈',
+    component: Progress,
+    defaultProps: { percent: 60, type: 'line', status: 'normal', showInfo: true },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      { key: 'percent', label: '百分比', type: 'number', min: 0, max: 100 },
+      {
+        key: 'type',
+        label: '类型',
+        type: 'select',
+        options: [
+          { label: 'line (线性)', value: 'line' },
+          { label: 'circle (圆形)', value: 'circle' },
+          { label: 'dashboard (仪表)', value: 'dashboard' },
+        ],
+      },
+      {
+        key: 'status',
+        label: '状态',
+        type: 'select',
+        options: [
+          { label: 'normal', value: 'normal' },
+          { label: 'active (滚动条纹)', value: 'active' },
+          { label: 'success', value: 'success' },
+          { label: 'exception', value: 'exception' },
+        ],
+      },
+      {
+        key: 'size',
+        label: '线粗 (line)',
+        type: 'select',
+        options: [
+          { label: 'small', value: 'small' },
+          { label: 'default', value: 'default' },
+          { label: 'large', value: 'large' },
+        ],
+      },
+      { key: 'width', label: '直径 (circle/dashboard)', type: 'number', min: 40, max: 300 },
+      { key: 'strokeWidth', label: '环宽 (circle/dashboard)', type: 'number', min: 2, max: 20 },
+      { key: 'showInfo', label: '显示百分比文字', type: 'boolean' },
+    ],
+  },
+  {
+    type: 'Result',
+    label: 'Result 结果页',
+    icon: <Ico n="info" />,
+    category: '反馈',
+    component: Result,
+    defaultProps: {
+      status: 'success',
+      title: '操作成功',
+      subTitle: '订单 #2026-0419 已提交, 预计 24 小时内审批完成',
+    },
+    previewWrapperStyle: { width: '100%' },
+    fields: [
+      {
+        key: 'status',
+        label: '状态',
+        type: 'select',
+        options: [
+          { label: 'success (成功)', value: 'success' },
+          { label: 'error (失败)', value: 'error' },
+          { label: 'info (提示)', value: 'info' },
+          { label: 'warning (警告)', value: 'warning' },
+          { label: '404', value: '404' },
+          { label: '403', value: '403' },
+          { label: '500', value: '500' },
+        ],
+      },
+      { key: 'title', label: '标题', type: 'text' },
+      { key: 'subTitle', label: '副标题', type: 'textarea' },
     ],
   },
 
@@ -1676,6 +2069,83 @@ ${outPad}</Form>`,
   },
 
   /* ---------- 布局 ---------- */
+  {
+    type: 'Split',
+    label: 'Split 可拖拽分割面板',
+    icon: <Ico n="editor-three-column" />,
+    category: '布局',
+    component: Split,
+    isContainer: true,
+    slots: ['left', 'right'],
+    slotLabels: {
+      left: '← 左 / 上 面板',
+      right: '→ 右 / 下 面板',
+    },
+    defaultProps: {
+      direction: 'horizontal',
+      defaultSize: '50%',
+      min: 80,
+      resizerSize: 6,
+      _minHeight: 320,
+    },
+    previewWrapperStyle: { width: '100%' },
+    transformProps: (props) => {
+      const { _minHeight, style: oldStyle, ...rest } = props;
+      const style: React.CSSProperties = { ...(oldStyle as object), width: '100%' };
+      if (typeof _minHeight === 'number') style.minHeight = _minHeight;
+      return { ...rest, style };
+    },
+    fields: [
+      {
+        key: 'direction',
+        label: '分割方向',
+        type: 'select',
+        options: [
+          { label: 'horizontal (左右)', value: 'horizontal' },
+          { label: 'vertical (上下)', value: 'vertical' },
+        ],
+      },
+      { key: 'defaultSize', label: '初始尺寸', type: 'text', help: '数字 = px, 字符串 = "50%"' },
+      { key: 'min', label: '最小尺寸 (px)', type: 'number', min: 0, max: 800 },
+      { key: 'max', label: '最大尺寸 (px)', type: 'number', min: 0, max: 1600 },
+      { key: 'resizerSize', label: '分隔条宽度 (px)', type: 'number', min: 2, max: 16 },
+      { key: 'disabled', label: '禁止拖拽', type: 'boolean' },
+      {
+        key: '_minHeight',
+        label: '容器最小高度 (px)',
+        type: 'number',
+        min: 80,
+        max: 1200,
+        step: 20,
+        help: '没明确高度时给个保底, 不然横向分割看不出效果',
+      },
+    ],
+    serialize: (props, slotJsx, indent = 2) => {
+      const attrs: string[] = [];
+      if (props.direction && props.direction !== 'horizontal')
+        attrs.push(`direction="${props.direction}"`);
+      if (props.defaultSize !== undefined && props.defaultSize !== '50%') {
+        const ds = props.defaultSize;
+        attrs.push(typeof ds === 'number' ? `defaultSize={${ds}}` : `defaultSize="${ds}"`);
+      }
+      if (typeof props.min === 'number' && props.min !== 40) attrs.push(`min={${props.min}}`);
+      if (typeof props.max === 'number') attrs.push(`max={${props.max}}`);
+      if (typeof props.resizerSize === 'number' && props.resizerSize !== 6)
+        attrs.push(`resizerSize={${props.resizerSize}}`);
+      if (props.disabled) attrs.push('disabled');
+      if (typeof props._minHeight === 'number')
+        attrs.push(`style={{ minHeight: ${props._minHeight} }}`);
+      const attrStr = attrs.length ? ' ' + attrs.join(' ') : '';
+      const inPad = pad(indent + 1);
+      const outPad = pad(indent);
+      const left = slotJsx?.left ?? '';
+      const right = slotJsx?.right ?? '';
+      return {
+        jsx: `<Split${attrStr}>\n${left || `${inPad}{/* 左 / 上 面板 */}`}\n${right || `${inPad}{/* 右 / 下 面板 */}`}\n${outPad}</Split>`,
+        imports: ['Split'],
+      };
+    },
+  },
   {
     type: 'Flex',
     label: 'Flex 弹性容器 (自由布局)',
@@ -1999,11 +2469,11 @@ ${outPad}</Form>`,
     },
   },
   {
-    type: 'PageShell',
+    type: 'Layout',
     label: 'Layout 页面布局 (侧栏+顶栏+内容)',
     icon: <Ico n="layered-configuration" />,
     category: '布局',
-    component: PageShell,
+    component: Layout,
     isContainer: true,
     /** 根据 layout 模式决定出现哪些槽 */
     slots: (props) => {
@@ -2150,8 +2620,8 @@ ${outPad}</Form>`,
       if (slot('content')) emit('content');
       if (slot('footer')) emit('footer');
       return {
-        jsx: `<PageShell${attrStr}\n${slotLines.join('\n')}\n${outPad}/>`,
-        imports: ['PageShell'],
+        jsx: `<Layout${attrStr}\n${slotLines.join('\n')}\n${outPad}/>`,
+        imports: ['Layout'],
       };
     },
   },
@@ -2221,7 +2691,7 @@ ${outPad}</Form>`,
       defaultSelectedKeys: ['dashboard'],
       _width: 240,
       _collapsedWidth: 56,
-      /* 默认不设 _height — 让 Menu 自动填满父容器 (如 PageShell 侧栏).
+      /* 默认不设 _height — 让 Menu 自动填满父容器 (如 Layout 侧栏).
        * 单独拖在根画布上时内置 minHeight 保证还是像侧栏形态 */
     },
     previewWrapperStyle: { display: 'block' },
@@ -2377,7 +2847,7 @@ ${outPad}</Form>`,
 ];
 
 // 排序遵循典型搭页流程:
-// 1. 布局 — 先搭骨架 (PageShell / Grid / Row)
+// 1. 布局 — 先搭骨架 (Layout / Grid / Row)
 // 2. 导航 — 框架里先放菜单和面包屑
 // 3. 表单 — 表单页高频
 // 4. 通用 / 数据录入 / 数据展示 — 往里面填组件
@@ -2594,7 +3064,7 @@ export interface BlockConfig {
   props: Record<string, unknown>;
   /**
    * 容器块的具名插槽 -> 子块数组
-   * 单插槽容器 (Row) 用 slots.default; 多插槽容器 (PageShell) 用各自 slot 名
+   * 单插槽容器 (Row) 用 slots.default; 多插槽容器 (Layout) 用各自 slot 名
    */
   slots?: Record<string, BlockConfig[]>;
 }

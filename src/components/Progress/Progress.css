@@ -1,0 +1,64 @@
+.au-progress {
+  display: inline-block;
+  color: var(--au-text-1);
+  font-size: 13px;
+}
+
+/* line */
+.au-progress--line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.au-progress--line .au-progress__track {
+  flex: 1;
+  background: var(--au-bg-mute);
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 0;
+}
+.au-progress--line .au-progress__bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.au-progress--line .au-progress__bar.is-pulse::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: au-progress-pulse 1.4s ease-in-out infinite;
+}
+@keyframes au-progress-pulse {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.au-progress--line .au-progress__info {
+  flex-shrink: 0;
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--au-text-2);
+}
+.au-progress--line.is-success .au-progress__info { color: var(--au-success, #10b981); }
+.au-progress--line.is-exception .au-progress__info { color: var(--au-danger, #ef4444); }
+
+/* circle / dashboard */
+.au-progress--circle,
+.au-progress--dashboard {
+  position: relative;
+}
+.au-progress__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--au-text-1);
+}
+.au-progress.is-success .au-progress__center { color: var(--au-success, #10b981); }
+.au-progress.is-exception .au-progress__center { color: var(--au-danger, #ef4444); }

@@ -1,0 +1,80 @@
+.au-desc {
+  color: var(--au-text-1);
+  font-size: 14px;
+  width: 100%;
+}
+.au-desc__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.au-desc__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.au-desc__extra {
+  display: inline-flex;
+  gap: 8px;
+}
+.au-desc__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+.au-desc__table th,
+.au-desc__table td {
+  text-align: left;
+  vertical-align: top;
+  font-weight: normal;
+}
+
+/* horizontal */
+.au-desc--horizontal .au-desc__label {
+  color: var(--au-text-2);
+  padding: 8px 12px 8px 0;
+  white-space: nowrap;
+}
+.au-desc--horizontal .au-desc__value {
+  color: var(--au-text-1);
+  padding: 8px 24px 8px 0;
+}
+
+/* vertical */
+.au-desc--vertical .au-desc__label {
+  color: var(--au-text-2);
+  padding: 6px 12px 4px 0;
+  font-size: 12.5px;
+}
+.au-desc--vertical .au-desc__value {
+  color: var(--au-text-1);
+  padding: 0 12px 12px 0;
+}
+
+/* sizes */
+.au-desc--small  .au-desc__label, .au-desc--small  .au-desc__value { padding: 6px 10px 6px 0; font-size: 13px; }
+.au-desc--large  .au-desc__label, .au-desc--large  .au-desc__value { padding: 12px 16px 12px 0; }
+
+/* bordered */
+.au-desc.is-bordered .au-desc__table {
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius);
+  overflow: hidden;
+}
+.au-desc.is-bordered .au-desc__label,
+.au-desc.is-bordered .au-desc__value {
+  border-bottom: 1px solid var(--au-border);
+  border-right: 1px solid var(--au-border);
+  padding: 12px 16px;
+}
+.au-desc.is-bordered .au-desc__label {
+  background: var(--au-bg-mute);
+}
+.au-desc.is-bordered tr:last-child .au-desc__label,
+.au-desc.is-bordered tr:last-child .au-desc__value {
+  border-bottom: 0;
+}
+.au-desc.is-bordered tr > *:last-child {
+  border-right: 0;
+}

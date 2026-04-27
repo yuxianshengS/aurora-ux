@@ -1,0 +1,30 @@
+.au-statistic {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.au-statistic__title {
+  font-size: 13px;
+  color: var(--au-text-3);
+  line-height: 1.4;
+}
+.au-statistic__value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--au-text-1);
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.au-statistic__prefix,
+.au-statistic__suffix {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--au-text-2);
+}
+.au-statistic__skeleton {
+  color: var(--au-text-3);
+  opacity: 0.5;
+}

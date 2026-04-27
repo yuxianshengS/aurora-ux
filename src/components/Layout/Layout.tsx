@@ -1,9 +1,9 @@
 import React from 'react';
-import './PageShell.css';
+import './Layout.css';
 
-export type PageShellLayout = 'side' | 'top-side' | 'top' | 'clean';
+export type LayoutMode = 'side' | 'top-side' | 'top' | 'clean';
 
-export interface PageShellProps {
+export interface LayoutProps {
   header?: React.ReactNode;
   sider?: React.ReactNode;
   content?: React.ReactNode;
@@ -15,7 +15,7 @@ export interface PageShellProps {
    * - top: 顶栏 + 内容 + 页脚 (无侧栏)
    * - clean: 内容居中容器 (可选顶栏 + 页脚)
    */
-  layout?: PageShellLayout;
+  layout?: LayoutMode;
   /** 侧栏位置 */
   siderPlacement?: 'left' | 'right';
   /** 侧栏宽度 (px 或 CSS 宽度) */
@@ -36,7 +36,7 @@ export interface PageShellProps {
   style?: React.CSSProperties;
 }
 
-const PageShell: React.FC<PageShellProps> = ({
+const Layout: React.FC<LayoutProps> = ({
   header,
   sider,
   content,
@@ -54,10 +54,10 @@ const PageShell: React.FC<PageShellProps> = ({
   style,
 }) => {
   const cls = [
-    'au-shell',
-    `au-shell--layout-${layout}`,
-    `au-shell--sider-${siderPlacement}`,
-    `au-shell--sider-${siderTheme}`,
+    'au-layout',
+    `au-layout--mode-${layout}`,
+    `au-layout--sider-${siderPlacement}`,
+    `au-layout--sider-${siderTheme}`,
     fill ? 'is-fill' : '',
     className,
   ]
@@ -70,7 +70,6 @@ const PageShell: React.FC<PageShellProps> = ({
   const headerStyle: React.CSSProperties = {
     height: typeof headerHeight === 'number' ? `${headerHeight}px` : headerHeight,
   };
-  // headerPadding 设了就用用户值, 没设保留 CSS 里的默认 `0 24px`
   if (headerPadding != null) {
     const v = typeof headerPadding === 'number' ? `${headerPadding}px` : headerPadding;
     headerStyle.paddingLeft = v;
@@ -88,66 +87,63 @@ const PageShell: React.FC<PageShellProps> = ({
   const maxW =
     typeof maxContentWidth === 'number' ? `${maxContentWidth}px` : maxContentWidth;
 
-  // top-side: 顶栏通宽, 下方是侧栏+主区
   if (layout === 'top-side') {
     return (
       <div className={cls} style={style}>
         {header && (
-          <header className="au-shell__header au-shell__header--full" style={headerStyle}>
+          <header className="au-layout__header au-layout__header--full" style={headerStyle}>
             {header}
           </header>
         )}
-        <div className="au-shell__body">
+        <div className="au-layout__body">
           {sider && (
-            <aside className="au-shell__sider" style={siderStyle}>
+            <aside className="au-layout__sider" style={siderStyle}>
               {sider}
             </aside>
           )}
-          <div className="au-shell__main">
-            <div className="au-shell__content" style={contentStyle}>{content}</div>
-            {footer && <footer className="au-shell__footer">{footer}</footer>}
+          <div className="au-layout__main">
+            <div className="au-layout__content" style={contentStyle}>{content}</div>
+            {footer && <footer className="au-layout__footer">{footer}</footer>}
           </div>
         </div>
       </div>
     );
   }
 
-  // top: 仅顶栏 + 内容
   if (layout === 'top') {
     return (
       <div className={cls} style={style}>
         {header && (
-          <header className="au-shell__header au-shell__header--full" style={headerStyle}>
+          <header className="au-layout__header au-layout__header--full" style={headerStyle}>
             {header}
           </header>
         )}
-        <div className="au-shell__main">
-          <div className="au-shell__content" style={contentStyle}>{content}</div>
-          {footer && <footer className="au-shell__footer">{footer}</footer>}
+        <div className="au-layout__main">
+          <div className="au-layout__content" style={contentStyle}>{content}</div>
+          {footer && <footer className="au-layout__footer">{footer}</footer>}
         </div>
       </div>
     );
   }
 
-  // clean: 居中容器 + 可选顶栏/页脚
   if (layout === 'clean') {
     return (
       <div className={cls} style={style}>
         {header && (
-          <header className="au-shell__header au-shell__header--full" style={headerStyle}>
-            <div className="au-shell__center" style={{ maxWidth: maxW }}>
+          <header className="au-layout__header au-layout__header--full" style={headerStyle}>
+            <div className="au-layout__center" style={{ maxWidth: maxW }}>
               {header}
             </div>
           </header>
         )}
-        <div className="au-shell__content au-shell__content--center" style={contentStyle}>
-          <div className="au-shell__center" style={{ maxWidth: maxW }}>
+        <div className="au-layout__content au-layout__content--center" style={contentStyle}>
+          <div className="au-layout__center" style={{ maxWidth: maxW }}>
             {content}
           </div>
         </div>
         {footer && (
-          <footer className="au-shell__footer au-shell__footer--center">
-            <div className="au-shell__center" style={{ maxWidth: maxW }}>
+          <footer className="au-layout__footer au-layout__footer--center">
+            <div className="au-layout__center" style={{ maxWidth: maxW }}>
               {footer}
             </div>
           </footer>
@@ -156,25 +152,25 @@ const PageShell: React.FC<PageShellProps> = ({
     );
   }
 
-  // side (默认): 侧栏通高 + 主区
+  // side (默认)
   return (
     <div className={cls} style={style}>
       {sider && (
-        <aside className="au-shell__sider" style={siderStyle}>
+        <aside className="au-layout__sider" style={siderStyle}>
           {sider}
         </aside>
       )}
-      <div className="au-shell__main">
+      <div className="au-layout__main">
         {header && (
-          <header className="au-shell__header" style={headerStyle}>
+          <header className="au-layout__header" style={headerStyle}>
             {header}
           </header>
         )}
-        <div className="au-shell__content" style={contentStyle}>{content}</div>
-        {footer && <footer className="au-shell__footer">{footer}</footer>}
+        <div className="au-layout__content" style={contentStyle}>{content}</div>
+        {footer && <footer className="au-layout__footer">{footer}</footer>}
       </div>
     </div>
   );
 };
 
-export default PageShell;
+export default Layout;

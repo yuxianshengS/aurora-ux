@@ -1,0 +1,45 @@
+.au-result {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--au-text-1);
+}
+.au-result__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: var(--au-text-2);
+}
+.au-result--success .au-result__icon { color: var(--au-success, #10b981); }
+.au-result--error   .au-result__icon { color: var(--au-danger, #ef4444); }
+.au-result--info    .au-result__icon { color: var(--au-primary); }
+.au-result--warning .au-result__icon { color: var(--au-warning, #f59e0b); }
+.au-result--404 .au-result__icon,
+.au-result--403 .au-result__icon,
+.au-result--500 .au-result__icon { color: var(--au-text-3); }
+
+.au-result__title {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.au-result__subtitle {
+  font-size: 14px;
+  color: var(--au-text-3);
+  line-height: 1.55;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.au-result__content {
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: var(--au-bg-mute);
+  border-radius: var(--au-radius);
+  text-align: left;
+}
+.au-result__extra {
+  margin-top: 24px;
+  display: inline-flex;
+  gap: 12px;
+}

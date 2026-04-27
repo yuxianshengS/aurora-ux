@@ -81,10 +81,17 @@
   background: var(--au-bg-soft);
 }
 .au-table.is-striped .au-table__tbody .au-table__row:nth-child(even):not(.is-selected) {
-  background: var(--au-bg-soft);
+  /* 用混色确保亮/暗主题下都跟奇数行有可见对比 (默认 var(--au-bg-soft) 在亮色下太接近白) */
+  background: color-mix(in srgb, var(--au-text-1) 5%, var(--au-bg));
 }
 .au-table.is-striped .au-table__tbody .au-table__row:nth-child(even):not(.is-selected):hover {
-  background: var(--au-bg-mute);
+  background: color-mix(in srgb, var(--au-text-1) 9%, var(--au-bg));
+}
+[data-theme="dark"] .au-table.is-striped .au-table__tbody .au-table__row:nth-child(even):not(.is-selected) {
+  background: color-mix(in srgb, #fff 6%, var(--au-bg));
+}
+[data-theme="dark"] .au-table.is-striped .au-table__tbody .au-table__row:nth-child(even):not(.is-selected):hover {
+  background: color-mix(in srgb, #fff 12%, var(--au-bg));
 }
 .au-table__row.is-selected {
   background: var(--au-primary-soft);

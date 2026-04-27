@@ -630,14 +630,14 @@ const PageBuilder: React.FC<PageBuilderProps> = ({
       return props;
     }
 
-    // 多 slot 容器 (PageShell)
+    // 多 slot 容器 (Layout)
     for (const name of slotNames) {
       const children = b.slots?.[name] ?? [];
       const label = schema.slotLabels?.[name];
       props[name] = renderSlot(b.id, name, label, children, 'vertical', 'au-pb__slot--nested');
     }
-    // PageShell 特例: sider 有内容就按内容宽度撑开, 空时保留用户配的像素宽度
-    if (b.type === 'PageShell' && (b.slots?.sider?.length ?? 0) > 0) {
+    // Layout 特例: sider 有内容就按内容宽度撑开, 空时保留用户配的像素宽度
+    if (b.type === 'Layout' && (b.slots?.sider?.length ?? 0) > 0) {
       props.siderWidth = 'auto';
     }
     // 容器也支持 transformProps (把 _minHeight / _width 之类注入 style)
@@ -928,7 +928,13 @@ class BlockErrorBoundary extends React.Component<BlockErrorProps, BlockErrorStat
     return { error };
   }
   componentDidUpdate(prev: BlockErrorProps) {
-    if (prev.type !== this.props.type && this.state.error) this.setState({ error: null });
+    // 类型变了 (换了块) 或 props/children 引用变了 (用户改了配置) 自动清掉错误重试一次
+    if (
+      this.state.error &&
+      (prev.type !== this.props.type || prev.children !== this.props.children)
+    ) {
+      this.setState({ error: null });
+    }
   }
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // eslint-disable-next-line no-console
@@ -938,11 +944,34 @@ class BlockErrorBoundary extends React.Component<BlockErrorProps, BlockErrorStat
     if (this.state.error) {
       return (
         <div className="au-pb__block-error">
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--au-danger)' }}>
-            ⚠ {this.props.type} 渲染失败
-          </span>
-          <div style={{ fontSize: 12, color: 'var(--au-text-3)', marginTop: 4, fontFamily: 'var(--au-mono)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--au-danger)' }}>
+              ⚠ {this.props.type} 渲染失败
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                this.setState({ error: null });
+              }}
+              style={{
+                padding: '4px 12px',
+                border: '1px solid var(--au-border)',
+                borderRadius: 4,
+                background: 'var(--au-bg)',
+                color: 'var(--au-text-1)',
+                cursor: 'pointer',
+                fontSize: 12,
+              }}
+            >
+              重试渲染
+            </button>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--au-text-3)', marginTop: 6, fontFamily: 'var(--au-mono)' }}>
             {this.state.error.message}
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--au-text-3)', marginTop: 4 }}>
+            改完属性后会自动重试,也可以点上面按钮强制重新渲染
           </div>
         </div>
       );
@@ -1001,7 +1030,7 @@ const PropertyPanel: React.FC<{
     (f) => !f.visibleWhen || f.visibleWhen(value),
   );
   // FormItem.* 块已经用自己的 _width / _label 等元数据, 不追加通用 meta
-  const hasOwnMeta = schema.type.startsWith('FormItem.') || schema.type === 'Menu' || schema.type === 'PageShell';
+  const hasOwnMeta = schema.type.startsWith('FormItem.') || schema.type === 'Menu' || schema.type === 'Layout';
   const [metaOpen, setMetaOpen] = useState(false);
   return (
     <div className="au-pb__form">

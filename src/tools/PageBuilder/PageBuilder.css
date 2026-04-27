@@ -482,48 +482,55 @@
   overflow: auto;
 }
 
-/* ==== slot (统一的 drop 区, root 画布 + 每个容器 slot 都用) ==== */
+/* ==== slot (统一的 drop 区, root 画布 + 每个容器 slot 都用) ====
+ * 关键约束: 非空 slot 不加 padding / gap, 让编辑态布局跟预览态 + Copy JSX 输出一致;
+ * 空 slot 才显示 padding + min-height 撑出可拖入的区域 + 占位文案
+ */
 .au-pb__slot {
   height: 100%;
   position: relative;
-  padding: 16px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 60px;
+  gap: 0;
   border-radius: inherit;
   transition: background 0.15s var(--au-ease);
+}
+.au-pb__slot.is-empty {
+  padding: 16px;
+  min-height: 60px;
 }
 .au-pb__slot--row {
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0;
+}
+.au-pb__slot--row.is-empty {
   min-height: 80px;
 }
-/* 嵌套 slot (容器内部的 slot) — 跟宿主容器样式区分 */
-.au-pb__slot--nested {
+/* 嵌套 slot (容器内部的 slot) — 空态时跟宿主容器视觉区分 */
+.au-pb__slot--nested.is-empty {
   padding: 6px;
   min-height: 40px;
   background: rgba(0, 0, 0, 0.015);
   border-radius: 4px;
 }
-[data-theme="dark"] .au-pb__slot--nested {
+[data-theme="dark"] .au-pb__slot--nested.is-empty {
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* PageShell 顶栏 / 内容 / 页脚的 slot: 强制占满整行, 否则 Flex / Breadcrumb 等子块会按内容缩到一小块 */
-.au-shell__header > .au-pb__slot,
-.au-shell__content > .au-pb__slot,
-.au-shell__footer > .au-pb__slot {
+/* Layout 顶栏 / 内容 / 页脚的 slot: 强制占满整行, 否则 Flex / Breadcrumb 等子块会按内容缩到一小块 */
+.au-layout__header > .au-pb__slot,
+.au-layout__content > .au-pb__slot,
+.au-layout__footer > .au-pb__slot {
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
 }
 
 /* 顶栏里的块/预览/Flex 都撑满高度, 这样 Flex 的 align (垂直居中) 才有足够空间真正表现出来 */
-.au-shell__header > .au-pb__slot > .au-pb__block,
-.au-shell__header > .au-pb__slot > .au-pb__block > .au-pb__block-preview,
-.au-shell__header .au-pb__block-preview > .au-flex {
+.au-layout__header > .au-pb__slot > .au-pb__block,
+.au-layout__header > .au-pb__slot > .au-pb__block > .au-pb__block-preview,
+.au-layout__header .au-pb__block-preview > .au-flex {
   height: 100%;
   min-height: 0;
 }
@@ -652,10 +659,14 @@
   /* align-items: center;
   justify-content: center; */
 }
-.au-pb__slot--nested.is-empty {
+/* 所有非根 / 非 Grid cell 的空 slot 都给主色虚线 + 浅底, 让用户看清"这里是可拖入区域"
+ * (覆盖 Layout 的具名 slot, 也覆盖 Flex / Row / Grid auto 的 default slot) */
+.au-pb__slot.is-empty:not(.au-pb__slot--root):not(.au-pb__slot--cell) {
   outline: 1.5px dashed color-mix(in srgb, var(--au-primary) 30%, transparent);
+  outline-offset: -2px;
   min-height: 60px;
   background: color-mix(in srgb, var(--au-primary) 4%, transparent);
+  border-radius: 4px;
 }
 .au-pb__slot.is-preview.is-empty {
   outline: 0;
@@ -700,25 +711,25 @@
   width: 100%;
 }
 /*
- * Layout (PageShell) 专属: 在竖向槽里默认拉伸铺满画布.
+ * Layout 专属: 在竖向槽里默认拉伸铺满画布.
  * Flex / Row / Grid 按内容高度自适应, 不强制拉高, 所以用 data-type 精确锁定.
  */
-.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="PageShell"] {
+.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="Layout"] {
   flex: 1 1 auto;
   min-height: 0;
   align-self: stretch;
   display: flex;
   flex-direction: column;
 }
-.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="PageShell"] > .au-pb__block-toolbar {
+.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="Layout"] > .au-pb__block-toolbar {
   flex-shrink: 0;
 }
-.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="PageShell"] > * {
+.au-pb__slot:not(.au-pb__slot--row) > .au-pb__block[data-type="Layout"] > * {
   flex: 1 1 auto;
   min-height: 0;
 }
 
-/* Menu: 让父链撑满高度, 才能让 Menu 自身的 height: 100% 真正生效 (跟 PageShell 侧栏同高) */
+/* Menu: 让父链撑满高度, 才能让 Menu 自身的 height: 100% 真正生效 (跟 Layout 侧栏同高) */
 .au-pb__block[data-type="Menu"],
 .au-pb__block[data-type="Menu"] > .au-pb__block-preview {
   height: 100%;

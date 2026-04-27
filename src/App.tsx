@@ -58,6 +58,19 @@ import DashboardExample from './examples/DashboardExample';
 import BuilderWorkspace from './pages/BuilderWorkspace';
 import IconDoc from './pages/IconDoc';
 import FormDoc from './pages/FormDoc';
+import FlexDoc from './pages/FlexDoc';
+import TextDoc from './pages/TextDoc';
+import LayoutDoc from './pages/LayoutDoc';
+import GridDoc from './pages/GridDoc';
+import RowDoc from './pages/RowDoc';
+import SkeletonDoc from './pages/SkeletonDoc';
+import StatisticDoc from './pages/StatisticDoc';
+import ProgressDoc from './pages/ProgressDoc';
+import DescriptionDoc from './pages/DescriptionDoc';
+import ResultDoc from './pages/ResultDoc';
+import UploadDoc from './pages/UploadDoc';
+import TreeDoc from './pages/TreeDoc';
+import TreeSelectDoc from './pages/TreeSelectDoc';
 
 const AppShell: React.FC = () => {
   const loc = useLocation();
@@ -130,6 +143,19 @@ const AppRoutes: React.FC = () => (
         <Route path="activity-feed" element={<ActivityFeedDoc />} />
         <Route path="icon" element={<IconDoc />} />
         <Route path="form" element={<FormDoc />} />
+        <Route path="flex" element={<FlexDoc />} />
+        <Route path="text" element={<TextDoc />} />
+        <Route path="layout" element={<LayoutDoc />} />
+        <Route path="grid" element={<GridDoc />} />
+        <Route path="row" element={<RowDoc />} />
+        <Route path="skeleton" element={<SkeletonDoc />} />
+        <Route path="statistic" element={<StatisticDoc />} />
+        <Route path="progress" element={<ProgressDoc />} />
+        <Route path="description" element={<DescriptionDoc />} />
+        <Route path="result" element={<ResultDoc />} />
+        <Route path="upload" element={<UploadDoc />} />
+        <Route path="tree" element={<TreeDoc />} />
+        <Route path="tree-select" element={<TreeSelectDoc />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

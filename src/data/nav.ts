@@ -20,6 +20,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { title: 'Button 按钮', path: '/docs/button' },
       { title: 'Icon 图标', path: '/docs/icon' },
+      { title: 'Text 文本', path: '/docs/text' },
     ],
   },
   {
@@ -35,6 +36,9 @@ export const navGroups: NavGroup[] = [
       { title: 'Form 表单', path: '/docs/form' },
       { title: 'ThemeSwitch 主题切换', path: '/docs/theme-switch' },
       { title: 'DatePicker 日期选择器', path: '/docs/date-picker' },
+      { title: 'Upload 文件上传', path: '/docs/upload' },
+      { title: 'Tree 树形控件', path: '/docs/tree' },
+      { title: 'TreeSelect 树形选择', path: '/docs/tree-select' },
     ],
   },
   {
@@ -51,6 +55,8 @@ export const navGroups: NavGroup[] = [
       { title: 'Wallet 钱包', path: '/docs/wallet' },
       { title: 'Timeline 时间轴', path: '/docs/timeline' },
       { title: 'DayTimeline 时间刻度', path: '/docs/day-timeline' },
+      { title: 'Statistic 数值', path: '/docs/statistic' },
+      { title: 'Description 描述列表', path: '/docs/description' },
     ],
   },
   {
@@ -73,6 +79,9 @@ export const navGroups: NavGroup[] = [
       { title: 'Popconfirm 气泡确认框', path: '/docs/popconfirm' },
       { title: 'Spin 加载中', path: '/docs/spin' },
       { title: 'Tooltip 文字提示', path: '/docs/tooltip' },
+      { title: 'Skeleton 骨架屏', path: '/docs/skeleton' },
+      { title: 'Progress 进度条', path: '/docs/progress' },
+      { title: 'Result 结果页', path: '/docs/result' },
     ],
   },
   {
@@ -90,6 +99,10 @@ export const navGroups: NavGroup[] = [
   {
     title: '布局',
     items: [
+      { title: 'Layout 页面布局', path: '/docs/layout' },
+      { title: 'Flex 弹性容器', path: '/docs/flex' },
+      { title: 'Grid 方格布局', path: '/docs/grid' },
+      { title: 'Row 行容器', path: '/docs/row' },
       { title: 'Space 间距', path: '/docs/space' },
       { title: 'Divider 分割线', path: '/docs/divider' },
       { title: 'Split 分割面板', path: '/docs/split' },
