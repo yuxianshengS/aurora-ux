@@ -168,36 +168,71 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== CTA ===== */}
-      <AuroraBg preset="cosmic" intensity={0.85} blur={130} className="home-final-cta">
-        <div className="home-final-cta__inner">
-          <GradientText
-            preset="cosmic"
-            size={48}
-            weight={800}
-            as="h2"
-            style={{ margin: 0 }}
-          >
-            准备好让你的看板自带光感了吗?
-          </GradientText>
-          <p className="home-final-cta__desc">
-            一行命令开始, 看板搭建从未如此轻松.
-          </p>
-          <pre className="home-final-cta__code">
-            <code>npm install aurora-ux</code>
-          </pre>
-          <div className="home-final-cta__buttons">
-            <Link to="/docs/getting-started">
-              <Button type="primary" size="large">
-                立即开始 →
-              </Button>
-            </Link>
-            <Link to="/builder">
-              <Button size="large">打开搭建器</Button>
-            </Link>
+      {/* ===== 代码面板 (反差: 深色 IDE 风) ===== */}
+      <section className="home-code">
+        <div className="home-code__inner">
+          <div className="home-code__left">
+            <h2 className="home-code__title">写起来就像看上去一样轻</h2>
+            <p className="home-code__sub">
+              所有组件即插即用, TypeScript 全套类型, IDE 里 hover 就知道每个 prop 干什么.
+            </p>
+            <div className="home-code__install">
+              <CopyLine prefix="$" command="pnpm add aurora-ux" />
+              <CopyLine prefix="#" command='import "aurora-ux/style.css"' />
+            </div>
+            <div className="home-code__links">
+              <Link to="/docs/getting-started">
+                <Button size="medium">阅读快速开始 →</Button>
+              </Link>
+              <a
+                href="https://github.com/yuxianshengS/aurora-ux"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button type="ghost" size="medium">GitHub</Button>
+              </a>
+              <a
+                href="https://www.npmjs.com/package/aurora-ux"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button type="ghost" size="medium">npm</Button>
+              </a>
+            </div>
+          </div>
+          <div className="home-code__right">
+            <div className="home-code__window">
+              <div className="home-code__window-bar">
+                <span className="home-code__dot home-code__dot--r" />
+                <span className="home-code__dot home-code__dot--y" />
+                <span className="home-code__dot home-code__dot--g" />
+                <span className="home-code__filename">Dashboard.tsx</span>
+              </div>
+              <pre className="home-code__editor">
+{`import { AuroraBg, GradientText, NumberRoll, KpiCard } from 'aurora-ux';
+
+export default function Dashboard() {
+  return (
+    <AuroraBg preset="aurora" style={{ minHeight: 320 }}>
+      <GradientText size={56} weight={800}>
+        本月销售额
+      </GradientText>
+      <NumberRoll value={1284560} prefix="¥" size={64} />
+
+      <KpiCard
+        title="新增用户"
+        value="8,624"
+        delta={{ value: 5.2, suffix: '%' }}
+        trend={{ data: [3, 5, 4, 6, 8, 9, 11, 13], type: 'area' }}
+      />
+    </AuroraBg>
+  );
+}`}
+              </pre>
+            </div>
           </div>
         </div>
-      </AuroraBg>
+      </section>
     </div>
   );
 };
@@ -311,6 +346,26 @@ const ShowcaseNumberRoll: React.FC = () => {
         <span>翻牌器式数字滚动</span>
       </div>
     </Link>
+  );
+};
+
+const CopyLine: React.FC<{ prefix: string; command: string }> = ({ prefix, command }) => {
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* noop */
+    }
+  };
+  return (
+    <button type="button" className="home-code__copy-line" onClick={onCopy}>
+      <span className="home-code__copy-prefix">{prefix}</span>
+      <code className="home-code__copy-cmd">{command}</code>
+      <span className="home-code__copy-status">{copied ? '已复制 ✓' : '点击复制'}</span>
+    </button>
   );
 };
 
