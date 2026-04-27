@@ -55,6 +55,32 @@
 
 .demo-block__code {
   margin: 0;
-  border-top: 1px solid var(--au-border);
+  padding: 18px 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 0;
+  background: #14161e;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
 }
+.demo-block__code code {
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* === 极光 token 配色 (与首页代码片段同源, AuroraBg 'aurora' 预设原色) === */
+.demo-block__code .hl-k    { color: #a855f7; }                          /* 关键字 紫 */
+.demo-block__code .hl-t    { color: #22d3ee; font-weight: 600; }        /* 组件名 青 */
+.demo-block__code .hl-h    { color: #5eead4; }                          /* HTML 标签 蓝绿 */
+.demo-block__code .hl-a    { color: #f472b6; font-style: italic; }      /* attr 粉斜 */
+.demo-block__code .hl-s    { color: #fde68a; }                          /* 字符串 暖金 */
+.demo-block__code .hl-n    { color: #10b981; }                          /* 数字 极光绿 */
+.demo-block__code .hl-f    { color: #6366f1; font-weight: 600; }        /* 函数名 极光靛 */
+.demo-block__code .hl-com  { color: #6b7280; font-style: italic; }      /* 注释 */
+.demo-block__code .hl-p    { color: rgba(255, 255, 255, 0.42); }        /* 标点 dim */
