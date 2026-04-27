@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 import './Connector.css';
 import {
   type ConnectorType,
+  type ObstacleRect,
   type Pt,
   type Side,
   type SideOpt,
@@ -23,6 +24,7 @@ import {
   pathCurve,
   pathOrthogonal,
   pathStep,
+  pathStepAvoiding,
   pathStraight,
   pickSide,
 } from './geometry';
@@ -73,6 +75,12 @@ export interface ConnectorSpec {
       };
   /** orthogonal 类型的拐角圆角 */
   radius?: number;
+  /**
+   * 自动绕开其它节点 (仅 step / orthogonal 生效).
+   * - true: 用 group 收集的所有节点作为障碍 (排除自己 from/to)
+   * - 数组: 只把传入的几个 ref/element 视作障碍
+   */
+  avoid?: boolean | AnchorRef[];
   label?: React.ReactNode;
   /** 起点/终点端的接出延伸 (避免紧贴 dom 边) */
   offset?: number;
@@ -336,9 +344,14 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     });
 
     // === 计算锚点 + 路径 ===
+    // SVG 是 container 的 absolute 子元素, 跟节点共用 container 的"内容坐标系"(随 scroll 走).
+    // getBoundingClientRect 返回视口坐标, 减掉容器视口位置后还是视口坐标 (受 scroll 影响).
+    // 必须加回 container 的 scrollLeft/Top, 才能换算到内容坐标系, 跟节点 CSS left 对齐.
     const containerRect = containerEl?.getBoundingClientRect();
-    const offsetX = containerRect ? -containerRect.left : 0;
-    const offsetY = containerRect ? -containerRect.top : 0;
+    const scrollLeft = containerEl?.scrollLeft ?? 0;
+    const scrollTop = containerEl?.scrollTop ?? 0;
+    const offsetX = containerRect ? -containerRect.left + scrollLeft : 0;
+    const offsetY = containerRect ? -containerRect.top + scrollTop : 0;
 
     const drawnLines: DrawnLine[] = lines.map((line, idx) => {
       const fromEp = endpoints.find((e) => e.lineIdx === idx && e.role === 'from')!;
