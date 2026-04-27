@@ -534,12 +534,14 @@ const MiniTopologyShowcase: React.FC = () => {
           color={['#22d3ee', '#a855f7']}
           thickness={2}
           animated
+          flow={{ count: 2, speed: 1.8, size: 3 }}
         />
         <Connector
           from={[svc1, svc2, svc3]}
           to={db}
           color="#10b981"
           thickness={1.5}
+          flow={{ count: 1, speed: 2.4, size: 2.5 }}
         />
       </ConnectorGroup>
     </div>

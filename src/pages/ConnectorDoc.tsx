@@ -193,6 +193,7 @@ const stageRef = useRef(null);
           { prop: 'thickness', desc: '线宽 (px)', type: 'number', default: '2' },
           { prop: 'dashed', desc: '虚线', type: 'boolean', default: 'false' },
           { prop: 'animated', desc: '流动虚线 (像数据在跑)', type: 'boolean', default: 'false' },
+          { prop: 'flow', desc: '沿线滚动的小圆点 (粒子). true / N / 自定义对象 { count, speed, size, color }', type: 'boolean | number | object', default: '-' },
           { prop: 'radius', desc: 'orthogonal 拐角半径', type: 'number', default: '12' },
           { prop: 'label', desc: '中点 label', type: 'ReactNode', default: '-' },
           { prop: 'offset', desc: '从锚点延伸的距离 (避免紧贴 dom 边)', type: 'number', default: '0' },
@@ -561,24 +562,33 @@ const NetworkTopologyDemo: React.FC = () => {
 
         {/* === 连线: 全部 step 直角折线, 网络拓扑标准画法 === */}
 
-        {/* Edge → Gateway 主链路 */}
+        {/* Edge → Gateway 主链路 — 沿线跑数据包 */}
         <Connector
           from={inet}
           to={fw}
           color="aurora"
           thickness={2.5}
           animated
+          flow={{ count: 2, speed: 2, size: 4 }}
           label="HTTPS"
         />
-        <Connector from={fw} to={lb} color="aurora" thickness={2.5} animated />
+        <Connector
+          from={fw}
+          to={lb}
+          color="aurora"
+          thickness={2.5}
+          animated
+          flow={{ count: 2, speed: 1.6, size: 4 }}
+        />
 
-        {/* Gateway → Web: 1-to-many 扇出 */}
+        {/* Gateway → Web: 1-to-many 扇出 + 多包并行 */}
         <Connector
           from={lb}
           to={[web1, web2, web3]}
           color={['#a855f7', '#22d3ee']}
           thickness={2}
           animated
+          flow={3}
         />
 
         {/* Web → Service: mesh 3×2 网状 */}
@@ -609,7 +619,7 @@ const NetworkTopologyDemo: React.FC = () => {
           label="只读"
         />
 
-        {/* Master ↔ Replica: 主从同步 双向箭头 流动虚线 */}
+        {/* Master ↔ Replica: 主从同步 双向箭头 流动虚线 + 同步包 */}
         <Connector
           from={dbm}
           to={dbr}
@@ -620,6 +630,7 @@ const NetworkTopologyDemo: React.FC = () => {
           thickness={2}
           dashed
           animated
+          flow={{ count: 2, speed: 3, size: 3, color: '#a855f7' }}
           label="主从同步"
         />
       </ConnectorGroup>

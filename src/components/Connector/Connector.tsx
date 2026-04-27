@@ -56,6 +56,21 @@ export interface ConnectorSpec {
   dashed?: boolean;
   /** 虚线流动 (像数据在跑) */
   animated?: boolean;
+  /**
+   * 沿线移动的小圆点 (像数据包在线上跑):
+   * - true / 1 = 1 个点
+   * - 数字 N = N 个点等间距
+   * - 对象 = 完整自定义
+   */
+  flow?:
+    | boolean
+    | number
+    | {
+        count?: number;   // 圆点个数, 默认 1
+        speed?: number;   // 一圈秒数, 默认 2
+        size?: number;    // 圆点半径 (px), 默认 3
+        color?: string;   // 圆点颜色, 默认跟随线色 (渐变取末端色)
+      };
   /** orthogonal 类型的拐角圆角 */
   radius?: number;
   label?: React.ReactNode;
@@ -565,31 +580,60 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
         const showEnd = arrow === 'end' || arrow === 'both';
         const showStart = arrow === 'start' || arrow === 'both';
         const dashed = line.spec.dashed || line.spec.animated;
+        const flowDots = resolveFlow(line.spec.flow);
+        const flowColor =
+          flowDots && (typeof line.spec.flow === 'object' ? line.spec.flow.color : undefined)
+            ? (line.spec.flow as { color?: string }).color!
+            : colors[colors.length - 1];
+        const pathId = `au-conn-path-${line.id}`;
         return (
-          <path
-            key={line.id}
-            ref={(el) => {
-              if (el) pathRefs.current.set(line.id, el);
-              else pathRefs.current.delete(line.id);
-            }}
-            d={line.d}
-            fill="none"
-            stroke={stroke}
-            strokeWidth={line.spec.thickness ?? 2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray={dashed ? '6 5' : undefined}
-            className={[
-              'au-connector__path',
-              line.spec.animated ? 'is-animated' : '',
-              line.spec.className ?? '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            markerEnd={showEnd ? `url(#au-conn-mke-${line.id})` : undefined}
-            markerStart={showStart ? `url(#au-conn-mks-${line.id})` : undefined}
-            style={line.spec.style}
-          />
+          <React.Fragment key={line.id}>
+            <path
+              id={pathId}
+              ref={(el) => {
+                if (el) pathRefs.current.set(line.id, el);
+                else pathRefs.current.delete(line.id);
+              }}
+              d={line.d}
+              fill="none"
+              stroke={stroke}
+              strokeWidth={line.spec.thickness ?? 2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={dashed ? '6 5' : undefined}
+              className={[
+                'au-connector__path',
+                line.spec.animated ? 'is-animated' : '',
+                line.spec.className ?? '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              markerEnd={showEnd ? `url(#au-conn-mke-${line.id})` : undefined}
+              markerStart={showStart ? `url(#au-conn-mks-${line.id})` : undefined}
+              style={line.spec.style}
+            />
+            {flowDots &&
+              Array.from({ length: flowDots.count }).map((_, i) => (
+                <circle
+                  key={`dot-${line.id}-${i}`}
+                  r={flowDots.size}
+                  fill={flowColor}
+                  className="au-connector__dot"
+                  style={{
+                    filter: `drop-shadow(0 0 ${flowDots.size * 2}px ${flowColor})`,
+                  }}
+                >
+                  <animateMotion
+                    dur={`${flowDots.speed}s`}
+                    repeatCount="indefinite"
+                    rotate="auto"
+                    begin={`-${(flowDots.speed * i) / flowDots.count}s`}
+                  >
+                    <mpath href={`#${pathId}`} />
+                  </animateMotion>
+                </circle>
+              ))}
+          </React.Fragment>
         );
       })}
       {drawn.map((line) => {
@@ -696,6 +740,19 @@ const Connector: React.FC<ConnectorProps> = (props) => {
 };
 
 /* =================== Helper: 颜色解析 =================== */
+
+function resolveFlow(
+  flow: ConnectorSpec['flow'],
+): { count: number; speed: number; size: number } | null {
+  if (!flow) return null;
+  if (flow === true) return { count: 1, speed: 2, size: 3 };
+  if (typeof flow === 'number') return { count: flow, speed: 2, size: 3 };
+  return {
+    count: Math.max(1, flow.count ?? 1),
+    speed: flow.speed ?? 2,
+    size: flow.size ?? 3,
+  };
+}
 
 function resolveColors(color: string | string[]): string[] {
   if (Array.isArray(color)) return color;
