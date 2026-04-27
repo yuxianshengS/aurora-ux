@@ -482,9 +482,12 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
   }, [drawn, containerEl, schedule]);
 
   // === SVG 渲染 ===
+  // container 模式: z-index: -1 沉到底, 节点的 absolute (z-index auto/0) 自动压在线上
+  // 要求 container 有 isolation: isolate 或 z-index, 否则 -1 会逃出去
+  // portal-到-body 模式: z-index: 1 浮在视口, 没法做到压在节点下 (跨多 stacking ctx)
   const svgStyle: React.CSSProperties = containerEl
-    ? { position: 'absolute', inset: 0, pointerEvents: 'none', ...style }
-    : { position: 'fixed', inset: 0, pointerEvents: 'none', ...style };
+    ? { position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: -1, ...style }
+    : { position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1, ...style };
 
   const svg = (
     <svg

@@ -243,6 +243,7 @@
 }
 .home-connector__stage {
   position: relative;
+  isolation: isolate; /* 让 SVG 的 z-index:-1 沉到节点下面 */
   width: 100%;
   height: 320px;
   background:

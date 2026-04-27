@@ -1,5 +1,5 @@
 .au-connector {
-  z-index: 1;
+  /* z-index 由 Connector.tsx 内联设置 (container 模式 -1, body-portal 模式 1) */
 }
 
 .au-connector__path {

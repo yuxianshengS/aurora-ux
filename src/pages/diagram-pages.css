@@ -1,6 +1,7 @@
 /* === 通用 diagram 舞台 === */
 .diag-stage {
   position: relative;
+  isolation: isolate; /* 让 SVG 的 z-index:-1 沉到节点下面 */
   width: 100%;
   background:
     radial-gradient(60% 50% at 30% 0%, color-mix(in srgb, #6366f1 6%, transparent), transparent 60%),
