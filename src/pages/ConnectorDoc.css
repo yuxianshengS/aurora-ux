@@ -1,0 +1,15 @@
+.cd-stage {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: var(--au-bg-soft);
+  border: 1px solid var(--au-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cd-stage--tall {
+  height: 320px;
+}
+.cd-stage--mesh {
+  height: 280px;
+}

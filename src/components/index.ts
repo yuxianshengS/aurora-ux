@@ -216,3 +216,14 @@ export { default as TickerTape } from './TickerTape';
 export type { TickerTapeProps, TickerItem } from './TickerTape';
 export { default as ScrambleText } from './ScrambleText';
 export type { ScrambleTextProps } from './ScrambleText';
+export { Connector, ConnectorGroup } from './Connector';
+export type {
+  ConnectorProps,
+  ConnectorGroupProps,
+  ConnectorSpec,
+  ConnectorType,
+  AnchorRef,
+  ArrowKind,
+  Side,
+  SideOpt,
+} from './Connector';

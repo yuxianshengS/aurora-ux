@@ -80,6 +80,7 @@ const GlowCardDoc = lazy(() => import('./pages/GlowCardDoc'));
 const PulseDotDoc = lazy(() => import('./pages/PulseDotDoc'));
 const TickerTapeDoc = lazy(() => import('./pages/TickerTapeDoc'));
 const ScrambleTextDoc = lazy(() => import('./pages/ScrambleTextDoc'));
+const ConnectorDoc = lazy(() => import('./pages/ConnectorDoc'));
 
 const AppShell: React.FC = () => {
   const loc = useLocation();
@@ -189,6 +190,7 @@ const AppRoutes: React.FC = () => (
         <Route path="pulse-dot" element={<PulseDotDoc />} />
         <Route path="ticker-tape" element={<TickerTapeDoc />} />
         <Route path="scramble-text" element={<ScrambleTextDoc />} />
+        <Route path="connector" element={<ConnectorDoc />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
