@@ -1,0 +1,39 @@
+/* === 通用 diagram 舞台 === */
+.diag-stage {
+  position: relative;
+  width: 100%;
+  background:
+    radial-gradient(60% 50% at 30% 0%, color-mix(in srgb, #6366f1 6%, transparent), transparent 60%),
+    radial-gradient(60% 50% at 70% 100%, color-mix(in srgb, #a855f7 5%, transparent), transparent 60%),
+    var(--au-bg-soft);
+  border: 1px solid var(--au-border);
+  border-radius: 14px;
+  overflow: auto;
+}
+
+.diag-stage--flowchart {
+  height: 640px;
+  min-width: 680px;
+}
+.diag-stage--depgraph {
+  height: 640px;
+  min-width: 880px;
+}
+.diag-stage--lineage {
+  height: 460px;
+  min-width: 980px;
+}
+.diag-stage--mindmap {
+  height: 600px;
+  min-width: 880px;
+}
+
+.diag-node-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--au-text-1);
+  white-space: nowrap;
+}
