@@ -67,7 +67,66 @@
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
+  margin-bottom: 18px;
+}
+
+.home-hero__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(15, 17, 24, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 6px 6px 6px 18px;
   margin-bottom: 56px;
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.home-hero__pill-prompt {
+  color: #22d3ee;
+  font-weight: 700;
+  margin-right: 8px;
+  user-select: none;
+}
+.home-hero__pill-cmd {
+  color: white;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0;
+  margin-right: 12px;
+  letter-spacing: 0.2px;
+}
+.home-hero__pill-copy {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-right: 6px;
+}
+.home-hero__pill-copy:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.home-hero__pill-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: inherit;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.home-hero__pill-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .home-hero__stats {

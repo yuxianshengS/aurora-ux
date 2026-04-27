@@ -50,16 +50,9 @@ const Home: React.FC = () => {
             <Link to="/builder">
               <Button size="large">打开搭建器</Button>
             </Link>
-            <a
-              href="https://www.npmjs.com/package/aurora-ux"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button type="ghost" size="large">
-                <span style={{ fontFamily: 'monospace' }}>npm i aurora-ux</span>
-              </Button>
-            </a>
           </div>
+          <HeroInstallPill />
+
           <HomeStats />
         </div>
       </AuroraBg>
@@ -346,6 +339,44 @@ const ShowcaseNumberRoll: React.FC = () => {
         <span>翻牌器式数字滚动</span>
       </div>
     </Link>
+  );
+};
+
+const HeroInstallPill: React.FC = () => {
+  const cmd = 'npm i aurora-ux';
+  const [copied, setCopied] = useState(false);
+  const onCopy = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(cmd);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* noop */
+    }
+  };
+  return (
+    <div className="home-hero__pill">
+      <span className="home-hero__pill-prompt">$</span>
+      <code className="home-hero__pill-cmd">{cmd}</code>
+      <button
+        type="button"
+        className="home-hero__pill-copy"
+        onClick={onCopy}
+        aria-label="复制命令"
+      >
+        {copied ? '✓ 已复制' : '复制'}
+      </button>
+      <a
+        className="home-hero__pill-link"
+        href="https://www.npmjs.com/package/aurora-ux"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        npmjs ↗
+      </a>
+    </div>
   );
 };
 
