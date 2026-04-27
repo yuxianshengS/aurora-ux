@@ -26,13 +26,18 @@ const ConnectorDoc: React.FC = () => {
 
       <DemoBlock
         title="基础: 一对一"
-        description="两个 ref 拿到 DOM 后, 在 ConnectorGroup 里写一个 Connector 即可."
-        code={`const refA = useRef(null), refB = useRef(null);
-<ConnectorGroup>
-  <div ref={refA}>Box A</div>
-  <div ref={refB}>Box B</div>
-  <Connector from={refA} to={refB} />
-</ConnectorGroup>`}
+        description="两个 ref 拿到 DOM, 用 container 把 SVG 钉在同一个滚动容器里 — 滚动时线和 DOM 同步移动. 不传 container 默认 portal 到 body fixed, 跨视口能用但页面滚动会抖."
+        code={`const refA = useRef(null);
+const refB = useRef(null);
+const stageRef = useRef(null);
+
+<div ref={stageRef} style={{ position: 'relative', height: 220 }}>
+  <ConnectorGroup container={stageRef}>
+    <div ref={refA} style={{ position: 'absolute', left: 30, top: 40 }}>A</div>
+    <div ref={refB} style={{ position: 'absolute', right: 30, top: 120 }}>B</div>
+    <Connector from={refA} to={refB} color="aurora" thickness={2.5} />
+  </ConnectorGroup>
+</div>`}
       >
         <BasicDemo />
       </DemoBlock>
@@ -40,60 +45,111 @@ const ConnectorDoc: React.FC = () => {
       <DemoBlock
         title="一对多"
         description="from 单个, to 数组. 同一边出多线时自动沿边均匀分布, 不会堆在中点."
-        code={`<Connector
-  from={refRoot}
-  to={[refA, refB, refC, refD]}
-  type="curve"
-  color="aurora"
-  arrow="end"
-/>`}
+        code={`<div ref={stageRef} style={{ position: 'relative', height: 320 }}>
+  <ConnectorGroup container={stageRef}>
+    <div ref={refRoot} style={{ position: 'absolute', top: 30, left: '50%' }}>Root</div>
+    <div ref={refA} style={{ position: 'absolute', bottom: 40, left: '8%' }}>子 A</div>
+    <div ref={refB} style={{ position: 'absolute', bottom: 40, left: '32%' }}>子 B</div>
+    <div ref={refC} style={{ position: 'absolute', bottom: 40, right: '32%' }}>子 C</div>
+    <div ref={refD} style={{ position: 'absolute', bottom: 40, right: '8%' }}>子 D</div>
+    <Connector
+      from={refRoot}
+      to={[refA, refB, refC, refD]}
+      type="curve"
+      color="aurora"
+      animated
+    />
+  </ConnectorGroup>
+</div>`}
       >
         <OneToManyDemo />
       </DemoBlock>
 
       <DemoBlock
         title="多对多 (mesh)"
-        description="from 和 to 都是数组, 默认笛卡尔积全连. mode='pairs' 改为一一配对."
-        code={`<Connector
-  from={[refA, refB, refC]}
-  to={[refX, refY]}
-  mode="mesh"
-  type="step"
-  color="#a855f7"
-  thickness={1.5}
-/>`}
+        description="from 和 to 都是数组, 默认笛卡尔积全连 (3×2 = 6 条). mode='pairs' 改为一一配对."
+        code={`<ConnectorGroup container={stageRef}>
+  {/* 左列 3 个 + 右列 2 个 */}
+  <div ref={a1}>A1</div><div ref={a2}>A2</div><div ref={a3}>A3</div>
+  <div ref={b1}>B1</div><div ref={b2}>B2</div>
+
+  <Connector
+    from={[a1, a2, a3]}
+    to={[b1, b2]}
+    mode="mesh"
+    type="step"
+    color={['#22d3ee', '#a855f7']}
+    thickness={1.5}
+  />
+</ConnectorGroup>`}
       >
         <MeshDemo />
       </DemoBlock>
 
       <DemoBlock
         title="可拖动 + 自动追踪"
-        description="任意拖动节点, 连线实时跟随; ResizeObserver + scroll 监听都自动挂好."
-        code={`// 节点用 Draggable 包裹, ref 不变
-<Draggable defaultPosition={{x:0,y:0}}><div ref={refA}>A</div></Draggable>
-<Connector from={refA} to={refB} type="orthogonal" animated />`}
+        description="任意拖动节点, 连线实时跟随; ResizeObserver + scroll 监听都自动挂好. Draggable 内部用 transform, getBoundingClientRect 拿到的是变换后的真实位置."
+        code={`<div ref={stageRef} style={{ position: 'relative', height: 320 }}>
+  <ConnectorGroup container={stageRef}>
+    <Draggable defaultPosition={{ x: 30, y: 30 }} bounds="parent">
+      <div ref={refA} style={{ position: 'relative' }}>拖我 A</div>
+    </Draggable>
+    <Draggable defaultPosition={{ x: 240, y: 80 }} bounds="parent">
+      <div ref={refB} style={{ position: 'relative' }}>拖我 B</div>
+    </Draggable>
+    <Draggable defaultPosition={{ x: 380, y: 200 }} bounds="parent">
+      <div ref={refC} style={{ position: 'relative' }}>拖我 C</div>
+    </Draggable>
+    <Connector from={refA} to={[refB, refC]} type="orthogonal" color="aurora" animated />
+    <Connector from={refB} to={refC} type="curve" color="#f472b6" dashed label="依赖" />
+  </ConnectorGroup>
+</div>`}
       >
         <DraggableDemo />
       </DemoBlock>
 
       <DemoBlock
         title="4 种 type 切换"
-        description="curve (默认) / step / orthogonal (圆角折线) / straight."
-        code={`<Connector type="curve | step | orthogonal | straight" />`}
+        description="curve (默认, 三次贝塞尔) / step (3 段直角) / orthogonal (圆角折线) / straight (直线)."
+        code={`const [type, setType] = useState('curve');
+
+<div ref={stageRef} style={{ position: 'relative', height: 220 }}>
+  <ConnectorGroup container={stageRef}>
+    <div ref={a} style={{ position: 'absolute', left: 30, top: 30 }}>起点</div>
+    <div ref={b} style={{ position: 'absolute', right: 30, bottom: 30 }}>终点</div>
+    <Connector
+      from={a}
+      to={b}
+      type={type}
+      color="aurora"
+      thickness={2.5}
+      animated
+    />
+  </ConnectorGroup>
+</div>`}
       >
         <TypeSwitchDemo />
       </DemoBlock>
 
       <DemoBlock
         title="数据 API: connections + ids"
-        description="不写 JSX, 用一个数组配 ids 映射. 大批量场景."
-        code={`<ConnectorGroup
-  ids={{ root: refRoot, a: refA, b: refB, c: refC }}
-  connections={[
-    { from: 'root', to: ['a', 'b', 'c'], color: 'aurora', type: 'curve' },
-    { from: 'a', to: 'b', color: '#f472b6', dashed: true, label: '依赖' },
-  ]}
-/>`}
+        description="不写 JSX, 用一个数组配 ids 映射. 大批量 / 数据驱动场景."
+        code={`<div ref={stageRef} style={{ position: 'relative', height: 320 }}>
+  <ConnectorGroup
+    container={stageRef}
+    ids={{ root, a, b, c }}
+    connections={[
+      { from: 'root', to: ['a', 'b', 'c'], color: 'aurora', type: 'curve', animated: true },
+      { from: 'a', to: 'b', color: '#f472b6', dashed: true, type: 'step' },
+      { from: 'b', to: 'c', color: '#10b981', type: 'orthogonal', label: '依赖' },
+    ]}
+  >
+    <div ref={root}>数据源</div>
+    <div ref={a}>处理 A</div>
+    <div ref={b}>处理 B</div>
+    <div ref={c}>输出 C</div>
+  </ConnectorGroup>
+</div>`}
       >
         <DataApiDemo />
       </DemoBlock>
@@ -148,9 +204,10 @@ const ConnectorDoc: React.FC = () => {
 const BasicDemo: React.FC = () => {
   const refA = useRef<HTMLDivElement>(null);
   const refB = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="cd-stage">
-      <ConnectorGroup>
+    <div className="cd-stage" ref={stageRef}>
+      <ConnectorGroup container={stageRef}>
         <Box ref={refA} style={{ left: 30, top: 40 }}>A</Box>
         <Box ref={refB} style={{ right: 30, top: 120 }}>B</Box>
         <Connector from={refA} to={refB} color="aurora" thickness={2.5} />
@@ -165,9 +222,10 @@ const OneToManyDemo: React.FC = () => {
   const b = useRef<HTMLDivElement>(null);
   const c = useRef<HTMLDivElement>(null);
   const d = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="cd-stage cd-stage--tall">
-      <ConnectorGroup>
+    <div className="cd-stage cd-stage--tall" ref={stageRef}>
+      <ConnectorGroup container={stageRef}>
         <Box ref={root} style={{ left: '50%', top: 30, transform: 'translateX(-50%)' }} variant="hub">
           Root
         </Box>
@@ -194,9 +252,10 @@ const MeshDemo: React.FC = () => {
   const a3 = useRef<HTMLDivElement>(null);
   const b1 = useRef<HTMLDivElement>(null);
   const b2 = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="cd-stage cd-stage--mesh">
-      <ConnectorGroup>
+    <div className="cd-stage cd-stage--mesh" ref={stageRef}>
+      <ConnectorGroup container={stageRef}>
         <Box ref={a1} style={{ left: 20, top: 20 }}>A1</Box>
         <Box ref={a2} style={{ left: 20, top: 110 }}>A2</Box>
         <Box ref={a3} style={{ left: 20, top: 200 }}>A3</Box>
@@ -249,6 +308,7 @@ const TypeSwitchDemo: React.FC = () => {
   const [type, setType] = useState<ConnectorType>('curve');
   const a = useRef<HTMLDivElement>(null);
   const b = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   return (
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
@@ -263,8 +323,8 @@ const TypeSwitchDemo: React.FC = () => {
           </Tag>
         ))}
       </div>
-      <div className="cd-stage">
-        <ConnectorGroup>
+      <div className="cd-stage" ref={stageRef}>
+        <ConnectorGroup container={stageRef}>
           <Box ref={a} style={{ left: 30, top: 30 }}>起点</Box>
           <Box ref={b} style={{ right: 30, bottom: 30 }}>终点</Box>
           <Connector
@@ -286,9 +346,11 @@ const DataApiDemo: React.FC = () => {
   const a = useRef<HTMLDivElement>(null);
   const b = useRef<HTMLDivElement>(null);
   const c = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="cd-stage cd-stage--tall">
+    <div className="cd-stage cd-stage--tall" ref={stageRef}>
       <ConnectorGroup
+        container={stageRef}
         ids={{ root, a, b, c }}
         connections={[
           { from: 'root', to: ['a', 'b', 'c'], color: 'aurora', type: 'curve', animated: true },
