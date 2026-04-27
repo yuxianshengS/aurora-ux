@@ -81,11 +81,11 @@ const Lineage: React.FC = () => {
 
         {/* L6 消费 */}
         <LNode ref={bi} color="#fbbf24" icon="charts-bar" title="BI 报表"
-               sub="metabase" pos={{ left: 880, top: 30 }} />
+               sub="metabase" pos={{ left: 940, top: 30 }} />
         <LNode ref={reco} color="#fbbf24" icon="application-record" title="推荐模型"
-               sub="model v3.2" pos={{ left: 880, top: 130 }} />
+               sub="model v3.2" pos={{ left: 940, top: 130 }} />
         <LNode ref={risk} color="#ef4444" icon="trade-alert" title="风控"
-               sub="异常分支" pulse="danger" pos={{ left: 880, top: 230 }} />
+               sub="异常分支" pulse="danger" pos={{ left: 940, top: 230 }} />
 
         {/* === 流向连线 === */}
 
