@@ -14,37 +14,69 @@
   height: 280px;
 }
 
-/* === Flowchart 实战 demo === */
-.cd-flow-stage {
+/* === Network Topology demo === */
+.cd-net-stage {
   position: relative;
   width: 100%;
   min-width: 800px;
   height: 760px;
   background:
-    radial-gradient(70% 60% at 25% 10%, color-mix(in srgb, #6366f1 8%, transparent), transparent 65%),
-    radial-gradient(70% 60% at 80% 90%, color-mix(in srgb, #a855f7 6%, transparent), transparent 65%),
-    radial-gradient(50% 50% at 90% 30%, color-mix(in srgb, #ef4444 4%, transparent), transparent 65%),
+    radial-gradient(60% 40% at 50% 0%, color-mix(in srgb, #22d3ee 7%, transparent), transparent 60%),
+    radial-gradient(60% 40% at 50% 100%, color-mix(in srgb, #10b981 6%, transparent), transparent 60%),
+    radial-gradient(40% 40% at 0% 50%, color-mix(in srgb, #6366f1 5%, transparent), transparent 60%),
+    radial-gradient(40% 40% at 100% 50%, color-mix(in srgb, #f472b6 5%, transparent), transparent 60%),
     var(--au-bg-soft);
   border: 1px solid var(--au-border);
   border-radius: 14px;
   overflow: auto;
 }
 
-.flow-node__inner {
+/* 左侧 Tier 标签 */
+.net-tier-label {
+  position: absolute;
+  left: 14px;
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--au-text-3);
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* === NetNode 卡片内部 === */
+.net-node__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  position: relative;
+}
+.net-node__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--au-text-1);
-  white-space: nowrap;
+  justify-content: center;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  flex-shrink: 0;
 }
-.flow-node--start .flow-node__inner,
-.flow-node--end-ok .flow-node__inner,
-.flow-node--end-fail .flow-node__inner {
-  font-size: 12.5px;
+.net-node__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
-.flow-node--decision .flow-node__inner {
+.net-node__text strong {
+  font-size: 13.5px;
+  font-weight: 700;
   color: var(--au-text-1);
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+}
+.net-node__text span {
+  font-size: 11px;
+  color: var(--au-text-3);
+  font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
 }

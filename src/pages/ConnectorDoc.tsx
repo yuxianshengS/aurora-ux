@@ -6,6 +6,7 @@ import {
   GlowCard,
   Tag,
   Icon,
+  PulseDot,
   type ConnectorType,
 } from '../components';
 import DemoBlock from '../site-components/DemoBlock';
@@ -26,11 +27,11 @@ const ConnectorDoc: React.FC = () => {
       <h2>代码演示</h2>
 
       <DemoBlock
-        title="实战: 订单履约流程图"
-        description="10 节点真实电商场景: 开始 → 接收订单 → 库存判断 → 创建支付 → 支付判断 → 发货 → 完成. 失败路径单独走右栏, 支付失败回到等待重试再循环回创建支付单. 节点用 GlowCard 按语义着色 (蓝=流程, 橙=判断, 绿=成功端, 红=失败端). 连线极光渐变 + 流动虚线 + 中点 label."
-        code={FLOWCHART_CODE}
+        title="实战: 网络拓扑架构图"
+        description="5 层架构: Edge (Internet/Firewall) → Gateway (Load Balancer) → Web 层 (3 实例) → App 层 (2 实例) → Data 层 (主从). 串联用极光渐变流动虚线, 1-to-many 扇出, mesh 网状连接, 主从双向同步. 每层换一种 GlowCard 主色, 重要节点配 PulseDot 实时状态指示."
+        code={TOPOLOGY_CODE}
       >
-        <FlowchartDemo />
+        <NetworkTopologyDemo />
       </DemoBlock>
 
       <DemoBlock
@@ -380,233 +381,292 @@ const DataApiDemo: React.FC = () => {
 
 /* ===================== 小积木: Box ===================== */
 
-/* ===================== Flowchart 节点 ===================== */
+/* ===================== Network Topology 节点 ===================== */
 
-type FlowNodeKind =
-  | 'start'
-  | 'end-ok'
-  | 'end-fail'
-  | 'process'
-  | 'process-danger'
-  | 'process-soft'
-  | 'decision';
+type NetTier = 'edge' | 'gateway' | 'web' | 'service' | 'data';
 
-interface FlowNodeProps {
-  kind: FlowNodeKind;
-  icon?: string;
-  pos: { left?: number | string; right?: number | string; top: number };
-  children: React.ReactNode;
+interface NetNodeProps {
+  tier: NetTier;
+  icon: string;
+  title: string;
+  sub?: string;
+  /** 实时状态指示 (live/danger 等) */
+  pulse?: 'live' | 'danger' | 'warning';
+  pos: { left: number; top: number };
 }
 
-const NODE_CFG: Record<FlowNodeKind, { glow: string; pill: boolean; defaultIcon?: string }> = {
-  'start': { glow: '#10b981', pill: true },
-  'end-ok': { glow: '#10b981', pill: true, defaultIcon: 'catalog-check' },
-  'end-fail': { glow: '#ef4444', pill: true, defaultIcon: 'delete' },
-  'process': { glow: '#6366f1', pill: false },
-  'process-danger': { glow: '#ef4444', pill: false, defaultIcon: 'trade-alert' },
-  'process-soft': { glow: '#9ca3af', pill: false, defaultIcon: 'return' },
-  'decision': { glow: '#f59e0b', pill: false, defaultIcon: 'help' },
+const TIER_CFG: Record<NetTier, { glow: string; label: string }> = {
+  edge:    { glow: '#22d3ee', label: 'Edge' },
+  gateway: { glow: '#a855f7', label: 'Gateway' },
+  web:     { glow: '#6366f1', label: 'Web Tier' },
+  service: { glow: '#f472b6', label: 'Service Tier' },
+  data:    { glow: '#10b981', label: 'Data Tier' },
 };
 
-const FlowNode = React.forwardRef<HTMLDivElement, FlowNodeProps>(
-  ({ kind, icon, pos, children }, ref) => {
-    const cfg = NODE_CFG[kind];
-    const finalIcon = icon ?? cfg.defaultIcon;
+const NetNode = React.forwardRef<HTMLDivElement, NetNodeProps>(
+  ({ tier, icon, title, sub, pulse, pos }, ref) => {
+    const cfg = TIER_CFG[tier];
     return (
       <div
         ref={ref}
-        className={`flow-node flow-node--${kind}`}
+        className={`net-node net-node--${tier}`}
         style={{ position: 'absolute', ...pos }}
       >
-        <GlowCard
-          glowColor={cfg.glow}
-          intensity={0.6}
-          padding={cfg.pill ? '6px 18px' : '12px 16px'}
-          radius={cfg.pill ? 999 : 12}
-        >
-          <div className="flow-node__inner">
-            {finalIcon && (
-              <Icon name={finalIcon} size={cfg.pill ? 13 : 16} style={{ color: cfg.glow }} />
-            )}
-            <span>{children}</span>
+        <GlowCard glowColor={cfg.glow} intensity={0.65} padding="14px 18px" radius={12}>
+          <div className="net-node__row">
+            <div className="net-node__icon" style={{ color: cfg.glow }}>
+              <Icon name={icon} size={22} />
+            </div>
+            <div className="net-node__text">
+              <strong>{title}</strong>
+              {sub && <span>{sub}</span>}
+            </div>
+            {pulse && <PulseDot status={pulse} size={7} />}
           </div>
         </GlowCard>
       </div>
     );
   },
 );
-FlowNode.displayName = 'FlowNode';
+NetNode.displayName = 'NetNode';
 
-/* ===================== Flowchart Demo ===================== */
+/* ===================== Network Topology Demo ===================== */
 
-const FlowchartDemo: React.FC = () => {
+const NetworkTopologyDemo: React.FC = () => {
   const stageRef = useRef<HTMLDivElement>(null);
-  // 左栏 (主流程)
-  const start = useRef<HTMLDivElement>(null);
-  const recv = useRef<HTMLDivElement>(null);
-  const stockQ = useRef<HTMLDivElement>(null);
-  const createPay = useRef<HTMLDivElement>(null);
-  const payQ = useRef<HTMLDivElement>(null);
-  const ship = useRef<HTMLDivElement>(null);
-  const endOk = useRef<HTMLDivElement>(null);
-  // 右栏 (异常分支)
-  const cancel = useRef<HTMLDivElement>(null);
-  const endFail = useRef<HTMLDivElement>(null);
-  const retry = useRef<HTMLDivElement>(null);
+  // Edge tier
+  const inet = useRef<HTMLDivElement>(null);
+  const fw = useRef<HTMLDivElement>(null);
+  // Gateway
+  const lb = useRef<HTMLDivElement>(null);
+  // Web tier (3)
+  const web1 = useRef<HTMLDivElement>(null);
+  const web2 = useRef<HTMLDivElement>(null);
+  const web3 = useRef<HTMLDivElement>(null);
+  // Service tier (2)
+  const app1 = useRef<HTMLDivElement>(null);
+  const app2 = useRef<HTMLDivElement>(null);
+  // Data tier (master + replica)
+  const dbm = useRef<HTMLDivElement>(null);
+  const dbr = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={stageRef} className="cd-flow-stage">
+    <div ref={stageRef} className="cd-net-stage">
       <ConnectorGroup container={stageRef} defaultArrow="end">
-        {/* 左栏 (主流程) — 行距 110px */}
-        <FlowNode ref={start} kind="start" pos={{ left: 198, top: 30 }}>
-          开始
-        </FlowNode>
-        <FlowNode ref={recv} kind="process" icon="order" pos={{ left: 158, top: 130 }}>
-          接收订单
-        </FlowNode>
-        <FlowNode ref={stockQ} kind="decision" pos={{ left: 158, top: 240 }}>
-          库存充足?
-        </FlowNode>
-        <FlowNode
-          ref={createPay}
-          kind="process"
-          icon="checkstand"
-          pos={{ left: 158, top: 350 }}
-        >
-          创建支付单
-        </FlowNode>
-        <FlowNode ref={payQ} kind="decision" pos={{ left: 158, top: 460 }}>
-          支付成功?
-        </FlowNode>
-        <FlowNode ref={ship} kind="process" icon="logistics-airfreight" pos={{ left: 158, top: 570 }}>
-          发货
-        </FlowNode>
-        <FlowNode ref={endOk} kind="end-ok" pos={{ left: 192, top: 680 }}>
-          完成
-        </FlowNode>
+        {/* Tier 标签 (装饰用) */}
+        <div className="net-tier-label" style={{ top: 36 }}>EDGE</div>
+        <div className="net-tier-label" style={{ top: 230 }}>GATEWAY</div>
+        <div className="net-tier-label" style={{ top: 340 }}>WEB</div>
+        <div className="net-tier-label" style={{ top: 470 }}>SERVICE</div>
+        <div className="net-tier-label" style={{ top: 600 }}>DATA</div>
 
-        {/* 右栏 (异常分支) */}
-        <FlowNode
-          ref={cancel}
-          kind="process-danger"
-          pos={{ left: 580, top: 240 }}
-        >
-          取消并通知
-        </FlowNode>
-        <FlowNode ref={endFail} kind="end-fail" pos={{ left: 614, top: 350 }}>
-          结束
-        </FlowNode>
-        <FlowNode ref={retry} kind="process-soft" pos={{ left: 580, top: 460 }}>
-          等待重试
-        </FlowNode>
+        {/* Edge */}
+        <NetNode
+          ref={inet}
+          tier="edge"
+          icon="earth"
+          title="Internet"
+          sub="公网入口"
+          pos={{ left: 320, top: 30 }}
+        />
+        <NetNode
+          ref={fw}
+          tier="edge"
+          icon="lock"
+          title="Firewall · WAF"
+          sub="HTTPS 终结 + DDoS"
+          pulse="warning"
+          pos={{ left: 312, top: 130 }}
+        />
 
-        {/* 主流程连线 */}
-        <Connector from={start} to={recv} type="curve" color="aurora" thickness={2.5} animated />
-        <Connector from={recv} to={stockQ} type="curve" color="aurora" thickness={2.5} />
+        {/* Gateway */}
+        <NetNode
+          ref={lb}
+          tier="gateway"
+          icon="connections"
+          title="Load Balancer"
+          sub="L7 流量分发"
+          pulse="live"
+          pos={{ left: 308, top: 245 }}
+        />
+
+        {/* Web (3 个) */}
+        <NetNode
+          ref={web1}
+          tier="web"
+          icon="monitor"
+          title="Web · 01"
+          sub="nginx-1.27"
+          pulse="live"
+          pos={{ left: 80, top: 365 }}
+        />
+        <NetNode
+          ref={web2}
+          tier="web"
+          icon="monitor"
+          title="Web · 02"
+          sub="nginx-1.27"
+          pulse="live"
+          pos={{ left: 320, top: 365 }}
+        />
+        <NetNode
+          ref={web3}
+          tier="web"
+          icon="monitor"
+          title="Web · 03"
+          sub="nginx-1.27"
+          pulse="danger"
+          pos={{ left: 560, top: 365 }}
+        />
+
+        {/* Service (2 个) */}
+        <NetNode
+          ref={app1}
+          tier="service"
+          icon="application-record"
+          title="App Service A"
+          sub="node 20.x · :8080"
+          pulse="live"
+          pos={{ left: 180, top: 495 }}
+        />
+        <NetNode
+          ref={app2}
+          tier="service"
+          icon="application-record"
+          title="App Service B"
+          sub="node 20.x · :8080"
+          pulse="live"
+          pos={{ left: 460, top: 495 }}
+        />
+
+        {/* Data */}
+        <NetNode
+          ref={dbm}
+          tier="data"
+          icon="folder"
+          title="DB · Master"
+          sub="postgres-16 · rw"
+          pulse="live"
+          pos={{ left: 180, top: 625 }}
+        />
+        <NetNode
+          ref={dbr}
+          tier="data"
+          icon="folder"
+          title="DB · Replica"
+          sub="postgres-16 · ro"
+          pulse="live"
+          pos={{ left: 460, top: 625 }}
+        />
+
+        {/* === 连线 === */}
+
+        {/* Edge → Gateway: 主链路 极光渐变 + 流动 */}
         <Connector
-          from={stockQ}
-          to={createPay}
+          from={inet}
+          to={fw}
+          type="curve"
+          color="aurora"
+          thickness={2.5}
+          animated
+          label="HTTPS"
+        />
+        <Connector from={fw} to={lb} type="curve" color="aurora" thickness={2.5} animated />
+
+        {/* Gateway → Web: 1-to-many 扇出 */}
+        <Connector
+          from={lb}
+          to={[web1, web2, web3]}
+          type="curve"
+          color={['#a855f7', '#22d3ee']}
+          thickness={2}
+          animated
+        />
+
+        {/* Web → Service: mesh 3×2 网状 */}
+        <Connector
+          from={[web1, web2, web3]}
+          to={[app1, app2]}
+          mode="mesh"
+          type="curve"
+          color="#6366f1"
+          thickness={1.5}
+        />
+
+        {/* Service → Data Master: many-to-one (读写) */}
+        <Connector
+          from={[app1, app2]}
+          to={dbm}
           type="curve"
           color="#10b981"
           thickness={2}
-          label="充足"
+          label="读写"
         />
-        <Connector from={createPay} to={payQ} type="curve" color="aurora" thickness={2} />
+
+        {/* Service → Data Replica: many-to-one (只读, 虚线) */}
         <Connector
-          from={payQ}
-          to={ship}
+          from={[app1, app2]}
+          to={dbr}
           type="curve"
           color="#10b981"
-          thickness={2}
-          label="成功"
-        />
-        <Connector from={ship} to={endOk} type="curve" color="#10b981" thickness={2.5} />
-
-        {/* 异常分支 */}
-        <Connector
-          from={stockQ}
-          to={cancel}
-          type="step"
-          startSide="right"
-          endSide="left"
-          color="#ef4444"
-          thickness={2}
-          label="不足"
-        />
-        <Connector
-          from={cancel}
-          to={endFail}
-          type="curve"
-          color="#ef4444"
-          thickness={2}
-        />
-        <Connector
-          from={payQ}
-          to={retry}
-          type="step"
-          startSide="right"
-          endSide="left"
-          color="#f59e0b"
-          thickness={2}
-          dashed
-          label="失败"
-        />
-
-        {/* 重试回流 (orthogonal U 型, 流动虚线) */}
-        <Connector
-          from={retry}
-          to={createPay}
-          type="orthogonal"
-          startSide="left"
-          endSide="right"
-          color="#9ca3af"
           thickness={1.5}
           dashed
+          label="只读"
+        />
+
+        {/* Master ↔ Replica: 主从同步 双向箭头 流动虚线 */}
+        <Connector
+          from={dbm}
+          to={dbr}
+          type="step"
+          startSide="right"
+          endSide="left"
+          arrow="both"
+          color={['#a855f7', '#10b981']}
+          thickness={2}
+          dashed
           animated
-          label="重试"
+          label="主从同步"
         />
       </ConnectorGroup>
     </div>
   );
 };
 
-const FLOWCHART_CODE = `// 1. 给每个节点准备 ref
+const TOPOLOGY_CODE = `// 5 层网络拓扑: Edge / Gateway / Web / Service / Data
 const stageRef = useRef(null);
-const start = useRef(null);
-const stockQ = useRef(null);
-const createPay = useRef(null);
-const payQ = useRef(null);
-const cancel = useRef(null);
-const retry = useRef(null);
-// ... 等等
+const inet = useRef(null), fw = useRef(null), lb = useRef(null);
+const web1 = useRef(null), web2 = useRef(null), web3 = useRef(null);
+const app1 = useRef(null), app2 = useRef(null);
+const dbm = useRef(null), dbr = useRef(null);
 
-// 2. 容器 + 节点 + 连线写在 ConnectorGroup 里
-<div ref={stageRef} style={{ position: 'relative', height: 580 }}>
+<div ref={stageRef} style={{ position: 'relative', height: 720 }}>
   <ConnectorGroup container={stageRef} defaultArrow="end">
-    {/* 节点 (每个 ref 指向定位 div) */}
-    <FlowNode ref={start} kind="start" pos={{ left: 170, top: 18 }}>
-      开始
-    </FlowNode>
-    <FlowNode ref={stockQ} kind="decision" pos={{ left: 130, top: 168 }}>
-      库存充足?
-    </FlowNode>
-    {/* ... 其他节点 ... */}
+    {/* 节点 — 每层换主色, 重要节点配 PulseDot */}
+    <NetNode ref={inet} tier="edge"    icon="earth"       title="Internet" />
+    <NetNode ref={fw}   tier="edge"    icon="lock"        title="Firewall" pulse="warning" />
+    <NetNode ref={lb}   tier="gateway" icon="connections" title="Load Balancer" pulse="live" />
+    <NetNode ref={web1} tier="web"     icon="monitor"     title="Web · 01" pulse="live" />
+    <NetNode ref={web2} tier="web"     icon="monitor"     title="Web · 02" pulse="live" />
+    <NetNode ref={web3} tier="web"     icon="monitor"     title="Web · 03" pulse="danger" />
+    <NetNode ref={app1} tier="service" icon="application-record" title="App A" />
+    <NetNode ref={app2} tier="service" icon="application-record" title="App B" />
+    <NetNode ref={dbm}  tier="data"    icon="folder"      title="DB Master" />
+    <NetNode ref={dbr}  tier="data"    icon="folder"      title="DB Replica" />
 
-    {/* 连线 — 4 种 type 混用 */}
-    <Connector from={start} to={recv} type="curve" color="aurora" animated />
-    <Connector from={stockQ} to={createPay} color="#10b981" label="充足" />
-    <Connector from={stockQ} to={cancel} type="step"
+    {/* 连线: 主链路 → 1-to-many → mesh → many-to-one → 主从双向 */}
+    <Connector from={inet} to={fw} color="aurora" animated label="HTTPS" />
+    <Connector from={fw}   to={lb} color="aurora" animated />
+    <Connector from={lb}   to={[web1, web2, web3]} color={['#a855f7', '#22d3ee']} animated />
+    <Connector from={[web1, web2, web3]} to={[app1, app2]} mode="mesh" color="#6366f1" />
+    <Connector from={[app1, app2]} to={dbm} color="#10b981" label="读写" />
+    <Connector from={[app1, app2]} to={dbr} color="#10b981" dashed label="只读" />
+    <Connector from={dbm} to={dbr} type="step" arrow="both" dashed animated
                startSide="right" endSide="left"
-               color="#ef4444" label="不足" />
-    <Connector from={payQ} to={retry} type="step" dashed
-               startSide="right" endSide="left"
-               color="#f59e0b" label="失败" />
-    {/* 重试回流: orthogonal U 型 */}
-    <Connector from={retry} to={createPay} type="orthogonal"
-               startSide="left" endSide="right"
-               color="#9ca3af" dashed animated label="重试" />
+               color={['#a855f7', '#10b981']} label="主从同步" />
   </ConnectorGroup>
 </div>`;
+
 
 const Box = React.forwardRef<
   HTMLDivElement,
