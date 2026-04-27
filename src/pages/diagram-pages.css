@@ -14,19 +14,15 @@
 
 .diag-stage--flowchart {
   height: 640px;
-  min-width: 680px;
 }
 .diag-stage--depgraph {
   height: 640px;
-  min-width: 880px;
 }
 .diag-stage--lineage {
   height: 460px;
-  min-width: 980px;
 }
 .diag-stage--mindmap {
   height: 600px;
-  min-width: 880px;
 }
 
 .diag-node-row {
