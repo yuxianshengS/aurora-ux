@@ -498,26 +498,56 @@ const AvoidDemo: React.FC = () => {
   );
 };
 
-const AVOID_CODE = `<ConnectorGroup
-  container={stageRef}
-  defaultType="step"
-  autoAvoid                       /* 全组开启自动绕行 */
-  obstacles={[obstacle]}          /* 显式注册非连线节点为障碍 */
->
-  <div ref={a} style={{ position:'absolute', left: 30, top: 30 }}>A</div>
-  <div ref={obstacle} style={{ position:'absolute', left:'50%', top:'50%' }}>障碍</div>
-  <div ref={b} style={{ position:'absolute', right: 30, bottom: 30 }}>B</div>
+const AVOID_CODE = `// 切换 autoAvoid 看前后对比
+const [avoid, setAvoid] = useState(true);
+const stageRef = useRef(null);
+const a = useRef(null), obstacle = useRef(null), b = useRef(null);
 
-  {/* A→B 默认 step 路径会撞 obstacle, 自动绕到 obstacle 外侧 */}
-  <Connector from={a} to={b} color="aurora" />
-</ConnectorGroup>
+<>
+  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+    <Tag
+      color={avoid ? 'success' : 'default'}
+      onClick={() => setAvoid(true)}
+      style={{ cursor: 'pointer' }}
+    >
+      autoAvoid: ON
+    </Tag>
+    <Tag
+      color={!avoid ? 'danger' : 'default'}
+      onClick={() => setAvoid(false)}
+      style={{ cursor: 'pointer' }}
+    >
+      autoAvoid: OFF (穿过障碍)
+    </Tag>
+  </div>
 
-// 注: autoAvoid 默认只把"参与连线"的节点当障碍.
-// 像上图中 obstacle 没连任何线, 必须用 obstacles 显式登记.
+  <div ref={stageRef} style={{ position: 'relative', height: 320 }}>
+    <ConnectorGroup
+      container={stageRef}
+      defaultArrow="end"
+      defaultType="step"
+      autoAvoid={avoid}
+      obstacles={[obstacle]}     /* 障碍卡没连任何线, 显式登记 */
+    >
+      {/* 三个节点, 用绝对定位 */}
+      <div ref={a} style={{ position: 'absolute', left: 30, top: 30 }}>起点 A</div>
+      <div ref={obstacle} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+        障碍 (中间)
+      </div>
+      <div ref={b} style={{ position: 'absolute', right: 30, bottom: 30 }}>终点 B</div>
 
-// 或单条线独立指定 (不开 autoAvoid):
-<Connector from={a} to={b} avoid={[obstacle]} />
-<Connector from={a} to={b} avoid={true} />  // 用 group 里 connected + obstacles`;
+      <Connector
+        from={a}
+        to={b}
+        color="aurora"
+        thickness={2.5}
+        animated
+        flow={2}
+        label={avoid ? '绕行' : '穿过'}
+      />
+    </ConnectorGroup>
+  </div>
+</>`;
 
 const NetworkTopologyDemo: React.FC = () => {
   const stageRef = useRef<HTMLDivElement>(null);

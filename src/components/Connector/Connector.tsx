@@ -430,20 +430,28 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
       }
 
       let d: string;
+      let midOverride: Pt | null = null;
       switch (type) {
         case 'straight':
           d = pathStraight(a, b);
           break;
         case 'step':
-          d = wantAvoid
-            ? pathStepAvoiding(a, fromEp.side, b, obstacles)
-            : pathStep(a, fromEp.side, b);
+          if (wantAvoid) {
+            const r = pathStepAvoiding(a, fromEp.side, b, obstacles);
+            d = r.d;
+            midOverride = r.midSegCenter;
+          } else {
+            d = pathStep(a, fromEp.side, b);
+          }
           break;
         case 'orthogonal':
-          // 圆角折线复用 step 的避让 + 圆角 (简化: 当前先用 step 的 d, 视觉上没拐角圆但避开了障碍)
-          d = wantAvoid
-            ? pathStepAvoiding(a, fromEp.side, b, obstacles)
-            : pathOrthogonal(a, fromEp.side, b, line.spec.radius ?? 12);
+          if (wantAvoid) {
+            const r = pathStepAvoiding(a, fromEp.side, b, obstacles);
+            d = r.d;
+            midOverride = r.midSegCenter;
+          } else {
+            d = pathOrthogonal(a, fromEp.side, b, line.spec.radius ?? 12);
+          }
           break;
         case 'curve':
         default:
@@ -457,7 +465,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
         endSide: toEp.side,
         start: a,
         end: b,
-        mid: midPoint(a, b, type, fromEp.side),
+        mid: midOverride ?? midPoint(a, b, type, fromEp.side),
       };
     });
 

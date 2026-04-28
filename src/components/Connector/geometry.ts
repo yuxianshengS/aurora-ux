@@ -161,6 +161,7 @@ const stepVHits = (
 /**
  * 带绕行的 step 路径: 默认 mid 撞到障碍时, 把 mid 推到障碍边外侧.
  * MVP 单障碍处理 — 多个障碍取离原 mid 最近那个绕开.
+ * 返回 path d 字符串 + 中段中点 (label 用)
  */
 export function pathStepAvoiding(
   a: Pt,
@@ -168,8 +169,13 @@ export function pathStepAvoiding(
   b: Pt,
   obstacles: ObstacleRect[],
   margin = 14,
-): string {
-  if (obstacles.length === 0) return pathStep(a, sa, b);
+): { d: string; midSegCenter: Pt } {
+  if (obstacles.length === 0) {
+    return {
+      d: pathStep(a, sa, b),
+      midSegCenter: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+    };
+  }
   const horizontal = sa === 'left' || sa === 'right';
   if (horizontal) {
     let mid = (a.x + b.x) / 2;
@@ -189,7 +195,11 @@ export function pathStepAvoiding(
       mid =
         Math.abs(rightOf - mid) < Math.abs(leftOf - mid) ? rightOf : leftOf;
     }
-    return `M ${a.x} ${a.y} L ${mid} ${a.y} L ${mid} ${b.y} L ${b.x} ${b.y}`;
+    // H-V-H: 中段是 V (在 x=mid), 中点 = (mid, 平均 y)
+    return {
+      d: `M ${a.x} ${a.y} L ${mid} ${a.y} L ${mid} ${b.y} L ${b.x} ${b.y}`,
+      midSegCenter: { x: mid, y: (a.y + b.y) / 2 },
+    };
   } else {
     let mid = (a.y + b.y) / 2;
     const hits = stepVHits(a, mid, b, obstacles);
@@ -208,7 +218,11 @@ export function pathStepAvoiding(
       mid =
         Math.abs(belowOf - mid) < Math.abs(aboveOf - mid) ? belowOf : aboveOf;
     }
-    return `M ${a.x} ${a.y} L ${a.x} ${mid} L ${b.x} ${mid} L ${b.x} ${b.y}`;
+    // V-H-V: 中段是 H (在 y=mid), 中点 = (平均 x, mid)
+    return {
+      d: `M ${a.x} ${a.y} L ${a.x} ${mid} L ${b.x} ${mid} L ${b.x} ${b.y}`,
+      midSegCenter: { x: (a.x + b.x) / 2, y: mid },
+    };
   }
 }
 
