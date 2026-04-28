@@ -5,7 +5,11 @@
 **为中后台而生的极光感 React 组件库 + 可视化拖拽搭建器**
 
 [![npm](https://img.shields.io/npm/v/aurora-ux?color=a855f7&label=npm)](https://www.npmjs.com/package/aurora-ux)
+[![downloads](https://img.shields.io/npm/dm/aurora-ux?color=a855f7)](https://www.npmjs.com/package/aurora-ux)
+[![bundle](https://img.shields.io/bundlephobia/minzip/aurora-ux?color=a855f7&label=minzip)](https://bundlephobia.com/package/aurora-ux)
+[![types](https://img.shields.io/npm/types/aurora-ux?color=22d3ee)](https://www.typescriptlang.org/)
 [![license](https://img.shields.io/npm/l/aurora-ux?color=22d3ee)](./LICENSE)
+[![stars](https://img.shields.io/github/stars/yuxianshengS/aurora-ux?color=22d3ee&style=flat)](https://github.com/yuxianshengS/aurora-ux)
 [![docs](https://img.shields.io/badge/docs-online-22d3ee)](https://yuxianshengs.github.io/aurora-ux/)
 
 [🌐 在线预览](https://yuxianshengs.github.io/aurora-ux/) · [📦 npm](https://www.npmjs.com/package/aurora-ux) · [🧩 拖拽搭建器](https://yuxianshengs.github.io/aurora-ux/#/builder)
