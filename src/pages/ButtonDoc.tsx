@@ -103,8 +103,14 @@ const ButtonDoc: React.FC = () => (
     <path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18 22l-6-3.7L6 22l1.5-7.2L2 10l7.1-1.1z"/>
   </svg>
 );
+const Check = (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M10 19l-7-7 1.4-1.4L10 16.2 19.6 6.6 21 8z"/>
+  </svg>
+);
 
-<Button type="like" defaultCount={128} icon={Star}>Star</Button>`}
+<Button type="like" defaultCount={128} icon={Star}>Star</Button>
+<Button type="like" defaultLiked defaultCount={7} icon={Check}>Done</Button>`}
     >
       <Button
         type="like"
