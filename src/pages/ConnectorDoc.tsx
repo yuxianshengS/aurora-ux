@@ -444,32 +444,34 @@ NetNode.displayName = 'NetNode';
 
 /* ===================== Network Topology Demo ===================== */
 
-/* === Avoid Demo === */
+/* === Avoid Demo (代码与下方 AVOID_CODE 1:1 一致, 复制即可用) === */
 const AvoidDemo: React.FC = () => {
   const [avoid, setAvoid] = useState(true);
   const stageRef = useRef<HTMLDivElement>(null);
   const a = useRef<HTMLDivElement>(null);
   const obstacle = useRef<HTMLDivElement>(null);
   const b = useRef<HTMLDivElement>(null);
+  const nodeStyle: React.CSSProperties = {
+    position: 'absolute',
+    padding: '10px 16px',
+    background: 'var(--au-bg)',
+    border: '1px solid var(--au-border)',
+    borderRadius: 10,
+    fontSize: 13,
+    fontWeight: 600,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+  };
   return (
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <Tag
-          color={avoid ? 'success' : 'default'}
-          onClick={() => setAvoid(true)}
-          style={{ cursor: 'pointer' }}
-        >
+        <Tag color={avoid ? 'success' : 'default'} onClick={() => setAvoid(true)} style={{ cursor: 'pointer' }}>
           autoAvoid: ON
         </Tag>
-        <Tag
-          color={!avoid ? 'danger' : 'default'}
-          onClick={() => setAvoid(false)}
-          style={{ cursor: 'pointer' }}
-        >
+        <Tag color={!avoid ? 'danger' : 'default'} onClick={() => setAvoid(false)} style={{ cursor: 'pointer' }}>
           autoAvoid: OFF (穿过障碍)
         </Tag>
       </div>
-      <div ref={stageRef} className="cd-stage cd-stage--tall">
+      <div ref={stageRef} style={{ position: 'relative', height: 320, background: 'var(--au-bg-soft)', border: '1px solid var(--au-border)', borderRadius: 12, isolation: 'isolate' }}>
         <ConnectorGroup
           container={stageRef}
           defaultArrow="end"
@@ -477,11 +479,11 @@ const AvoidDemo: React.FC = () => {
           autoAvoid={avoid}
           obstacles={[obstacle]}
         >
-          <Box ref={a} style={{ left: 30, top: 30 }}>起点 A</Box>
-          <Box ref={obstacle} variant="hub" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+          <div ref={a} style={{ ...nodeStyle, left: 30, top: 30 }}>起点 A</div>
+          <div ref={obstacle} style={{ ...nodeStyle, left: '50%', top: '50%', transform: 'translate(-50%, -50%)', borderColor: 'var(--au-primary)' }}>
             障碍 (中间)
-          </Box>
-          <Box ref={b} style={{ right: 30, bottom: 30 }}>终点 B</Box>
+          </div>
+          <div ref={b} style={{ ...nodeStyle, right: 30, bottom: 30 }}>终点 B</div>
 
           <Connector
             from={a}
@@ -498,56 +500,23 @@ const AvoidDemo: React.FC = () => {
   );
 };
 
-const AVOID_CODE = `// 切换 autoAvoid 看前后对比
-const [avoid, setAvoid] = useState(true);
-const stageRef = useRef(null);
+const AVOID_CODE = `const stageRef = useRef(null);
 const a = useRef(null), obstacle = useRef(null), b = useRef(null);
 
-<>
-  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-    <Tag
-      color={avoid ? 'success' : 'default'}
-      onClick={() => setAvoid(true)}
-      style={{ cursor: 'pointer' }}
-    >
-      autoAvoid: ON
-    </Tag>
-    <Tag
-      color={!avoid ? 'danger' : 'default'}
-      onClick={() => setAvoid(false)}
-      style={{ cursor: 'pointer' }}
-    >
-      autoAvoid: OFF (穿过障碍)
-    </Tag>
-  </div>
+<div ref={stageRef} style={{ position: 'relative', isolation: 'isolate' }}>
+  <ConnectorGroup
+    container={stageRef}
+    defaultType="step"
+    autoAvoid                     /* 全组开自动绕行 */
+    obstacles={[obstacle]}        /* 没连线的障碍节点必须显式登记 */
+  >
+    <div ref={a}        style={{ position: 'absolute', left: 30,  top: 30 }}>起点 A</div>
+    <div ref={obstacle} style={{ position: 'absolute', left: '50%', top: '50%' }}>障碍 (中间)</div>
+    <div ref={b}        style={{ position: 'absolute', right: 30, bottom: 30 }}>终点 B</div>
 
-  <div ref={stageRef} style={{ position: 'relative', height: 320 }}>
-    <ConnectorGroup
-      container={stageRef}
-      defaultArrow="end"
-      defaultType="step"
-      autoAvoid={avoid}
-      obstacles={[obstacle]}     /* 障碍卡没连任何线, 显式登记 */
-    >
-      {/* 三个节点, 用绝对定位 */}
-      <div ref={a} style={{ position: 'absolute', left: 30, top: 30 }}>起点 A</div>
-      <div ref={obstacle} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-        障碍 (中间)
-      </div>
-      <div ref={b} style={{ position: 'absolute', right: 30, bottom: 30 }}>终点 B</div>
-
-      <Connector
-        from={a}
-        to={b}
-        color="aurora"
-        thickness={2.5}
-        animated
-        flow={2}
-        label={avoid ? '绕行' : '穿过'}
-      />
-    </ConnectorGroup>
-  </div>
-</>`;
+    <Connector from={a} to={b} color="aurora" animated flow={2} label="绕行" />
+  </ConnectorGroup>
+</div>`;
 
 const NetworkTopologyDemo: React.FC = () => {
   const stageRef = useRef<HTMLDivElement>(null);
