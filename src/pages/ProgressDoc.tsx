@@ -11,7 +11,13 @@ const ProgressDoc: React.FC = () => {
 
       <h2>代码演示</h2>
 
-      <DemoBlock title="线性进度" code={`<Progress percent={60} />`}>
+      <DemoBlock
+        title="线性进度"
+        code={`<Progress percent={30} />
+<Progress percent={60} status="active" />
+<Progress percent={100} />
+<Progress percent={50} status="exception" />`}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 480 }}>
           <Progress percent={30} />
           <Progress percent={60} status="active" />
@@ -20,7 +26,13 @@ const ProgressDoc: React.FC = () => {
         </div>
       </DemoBlock>
 
-      <DemoBlock title="圆形进度" code={`<Progress type="circle" percent={75} />`}>
+      <DemoBlock
+        title="圆形进度"
+        code={`<Progress type="circle" percent={30} />
+<Progress type="circle" percent={75} />
+<Progress type="circle" percent={100} />
+<Progress type="circle" percent={50} status="exception" />`}
+      >
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           <Progress type="circle" percent={30} />
           <Progress type="circle" percent={75} />
@@ -29,7 +41,12 @@ const ProgressDoc: React.FC = () => {
         </div>
       </DemoBlock>
 
-      <DemoBlock title="仪表盘" code={`<Progress type="dashboard" percent={75} />`}>
+      <DemoBlock
+        title="仪表盘"
+        code={`<Progress type="dashboard" percent={30} />
+<Progress type="dashboard" percent={75} />
+<Progress type="dashboard" percent={100} />`}
+      >
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           <Progress type="dashboard" percent={30} />
           <Progress type="dashboard" percent={75} />
@@ -37,7 +54,11 @@ const ProgressDoc: React.FC = () => {
         </div>
       </DemoBlock>
 
-      <DemoBlock title="自定义颜色" code={`<Progress strokeColor={['#a855f7', '#3b82f6']} percent={70} />`}>
+      <DemoBlock
+        title="自定义颜色"
+        code={`<Progress percent={70} strokeColor="#a855f7" />
+<Progress percent={70} strokeColor={['#a855f7', '#3b82f6']} />`}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 480 }}>
           <Progress percent={70} strokeColor="#a855f7" />
           <Progress percent={70} strokeColor={['#a855f7', '#3b82f6']} />

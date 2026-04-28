@@ -16,9 +16,9 @@ const BadgeDoc: React.FC = () => {
       <DemoBlock
         title="基础用法 · 附着在元素上"
         description="包裹任意元素,count 显示数字。"
-        code={`<Badge count={5}>
-  <Avatar shape="square" size={40} />
-</Badge>`}
+        code={`<Badge count={5}><Avatar shape="square" size={40} /></Badge>
+<Badge count={28}><Avatar shape="square" size={40} /></Badge>
+<Badge count={0} showZero><Avatar shape="square" size={40} /></Badge>`}
       >
         <div style={{ display: 'flex', gap: 20 }}>
           <Badge count={5}>
@@ -63,7 +63,10 @@ const BadgeDoc: React.FC = () => {
         title="小红点"
         description="dot 只显示小红点,不展示数字。"
         code={`<Badge dot>
-  <span>消息</span>
+  <span style={{ fontSize: 20 }}>🔔</span>
+</Badge>
+<Badge dot>
+  <a href="#">你的消息</a>
 </Badge>`}
       >
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
@@ -81,6 +84,7 @@ const BadgeDoc: React.FC = () => {
         description="不包子元素时,badge 作为独立的数字标或状态点。"
         code={`<Badge count={25} />
 <Badge count="new" />
+<Badge count={0} showZero />
 <Badge dot />`}
       >
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -94,9 +98,11 @@ const BadgeDoc: React.FC = () => {
       <DemoBlock
         title="状态点 + 文字"
         description="status 模式作为状态指示器,带呼吸动画的 processing。"
-        code={`<Badge status="success" text="运行中" />
+        code={`<Badge status="success"    text="运行中" />
 <Badge status="processing" text="部署中" />
-<Badge status="error" text="服务异常" />`}
+<Badge status="warning"    text="等待中" />
+<Badge status="error"      text="服务异常" />
+<Badge status="default"    text="已停止" />`}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <Badge status="success" text="运行中" />
@@ -110,7 +116,10 @@ const BadgeDoc: React.FC = () => {
       <DemoBlock
         title="自定义颜色 · 偏移"
         description="color 换颜色,offset 微调位置。"
-        code={`<Badge count={8} color="#8b5cf6" offset={[-4, 4]}>
+        code={`<Badge count={8} color="#8b5cf6">
+  <Avatar shape="square" size={40} />
+</Badge>
+<Badge count={3} color="#14b8a6" offset={[-4, 4]}>
   <Avatar shape="square" size={40} />
 </Badge>`}
       >

@@ -13,11 +13,12 @@ const AvatarDoc: React.FC = () => {
 
       <DemoBlock
         title="基础用法"
-        description="三种尺寸 × 两种形状。"
-        code={`<Avatar size="small" src="https://i.pravatar.cc/80?u=1" />
+        description="三种尺寸 × 两种形状; size 也可传具体像素数。"
+        code={`<Avatar size="small"  src="https://i.pravatar.cc/80?u=1" />
 <Avatar size="medium" src="https://i.pravatar.cc/80?u=2" />
-<Avatar size="large" src="https://i.pravatar.cc/80?u=3" />
-<Avatar shape="square" src="..." />`}
+<Avatar size="large"  src="https://i.pravatar.cc/80?u=3" />
+<Avatar size={56}     src="https://i.pravatar.cc/80?u=4" />
+<Avatar shape="square" size="large" src="https://i.pravatar.cc/80?u=5" />`}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <Avatar size="small" src="https://i.pravatar.cc/80?u=1" />
@@ -30,10 +31,12 @@ const AvatarDoc: React.FC = () => {
 
       <DemoBlock
         title="文字与图标占位"
-        description="未提供 src 时自动回退到文字 / 图标。长文字会自动缩放。"
+        description="未提供 src 时自动回退到文字 / 图标。长文字会自动缩放。background/color 可自定义颜色。"
         code={`<Avatar>U</Avatar>
 <Avatar>USR</Avatar>
 <Avatar>USER</Avatar>
+<Avatar background="var(--au-primary)" color="#fff">Y</Avatar>
+<Avatar background="var(--au-success)" color="#fff">Me</Avatar>
 <Avatar icon={<span>😀</span>} />`}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -51,7 +54,8 @@ const AvatarDoc: React.FC = () => {
       <DemoBlock
         title="自动回退"
         description="图片加载失败时自动显示 children 文字 / 图标。"
-        code={`<Avatar src="https://example.com/non-existent.png">FB</Avatar>`}
+        code={`<Avatar src="https://example.com/non-existent.png">FB</Avatar>
+<Avatar src="https://example.com/non-existent.png" icon={<span>🙂</span>} />`}
       >
         <div style={{ display: 'flex', gap: 12 }}>
           <Avatar src="https://example.com/non-existent.png">FB</Avatar>
@@ -62,12 +66,29 @@ const AvatarDoc: React.FC = () => {
       <DemoBlock
         title="头像组"
         description="Avatar.Group 自动堆叠; maxCount 折叠多余,以 +N 展示。"
-        code={`<Avatar.Group maxCount={3}>
-  <Avatar src="..." />
-  <Avatar src="..." />
-  <Avatar>K</Avatar>
-  <Avatar>L</Avatar>
-  <Avatar>M</Avatar>
+        code={`{/* 默认 */}
+<Avatar.Group>
+  <Avatar src="https://i.pravatar.cc/80?u=11" />
+  <Avatar src="https://i.pravatar.cc/80?u=12" />
+  <Avatar background="var(--au-success)" color="#fff">K</Avatar>
+  <Avatar background="var(--au-warning)" color="#fff">L</Avatar>
+</Avatar.Group>
+
+{/* 大号 + maxCount 折叠 */}
+<Avatar.Group maxCount={3} size="large">
+  <Avatar src="https://i.pravatar.cc/80?u=21" />
+  <Avatar src="https://i.pravatar.cc/80?u=22" />
+  <Avatar src="https://i.pravatar.cc/80?u=23" />
+  <Avatar>D</Avatar>
+  <Avatar>E</Avatar>
+  <Avatar>F</Avatar>
+</Avatar.Group>
+
+{/* 方形 + 小号 */}
+<Avatar.Group shape="square" size="small">
+  <Avatar shape="square" background="var(--au-primary)" color="#fff">A</Avatar>
+  <Avatar shape="square" background="var(--au-success)" color="#fff">B</Avatar>
+  <Avatar shape="square" background="var(--au-warning)" color="#fff">C</Avatar>
 </Avatar.Group>`}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

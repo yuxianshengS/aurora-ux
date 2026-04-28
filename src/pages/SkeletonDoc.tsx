@@ -20,7 +20,20 @@ const SkeletonDoc: React.FC = () => {
         <Skeleton avatar rows={3} />
       </DemoBlock>
 
-      <DemoBlock title="切换" code={`<Skeleton loading={loading}>{真实内容}</Skeleton>`}>
+      <DemoBlock
+        title="切换"
+        code={`const [loading, setLoading] = useState(true);
+
+<Button onClick={() => setLoading(v => !v)}>切换 loading</Button>
+<Card>
+  <Skeleton avatar loading={loading}>
+    <div>
+      <h4>赵子龙</h4>
+      <p>北京 · 资深前端</p>
+    </div>
+  </Skeleton>
+</Card>`}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <Button onClick={() => setLoading((v) => !v)}>切换 loading</Button>
           <Card>

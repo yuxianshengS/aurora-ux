@@ -38,7 +38,8 @@ const EmptyDoc: React.FC = () => {
         title="带操作按钮"
         description={`children 放在底部, 常用于 "创建一个" 场景。`}
         code={`<Empty description="还没有任何项目">
-  <button className="au-btn au-btn--primary au-btn--medium">新建项目</button>
+  <Button type="primary">新建项目</Button>
+  <Button>查看模板</Button>
 </Empty>`}
       >
         <Empty description="还没有任何项目">
@@ -50,8 +51,8 @@ const EmptyDoc: React.FC = () => {
       <DemoBlock
         title="自定义图片"
         description="image 传 URL 或任意 ReactNode。"
-        code={`<Empty image="https://..." description="自定义图片" />
-<Empty image={<span style={{ fontSize: 60 }}>📭</span>} description="收件箱为空" />`}
+        code={`<Empty image={<span style={{ fontSize: 60 }}>📭</span>} description="收件箱为空" />
+<Empty image={<span style={{ fontSize: 60 }}>🔍</span>} description="没有搜索结果" />`}
       >
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
           <Empty

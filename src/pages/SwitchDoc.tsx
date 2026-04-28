@@ -15,7 +15,8 @@ const SwitchDoc: React.FC = () => {
 
       <DemoBlock
         title="基础用法"
-        code={`<Switch defaultChecked />`}
+        code={`<Switch defaultChecked />
+<Switch />`}
       >
         <Switch defaultChecked />
         <Switch />
@@ -23,7 +24,8 @@ const SwitchDoc: React.FC = () => {
 
       <DemoBlock
         title="小尺寸"
-        code={`<Switch size="small" defaultChecked />`}
+        code={`<Switch size="small" defaultChecked />
+<Switch size="small" />`}
       >
         <Switch size="small" defaultChecked />
         <Switch size="small" />

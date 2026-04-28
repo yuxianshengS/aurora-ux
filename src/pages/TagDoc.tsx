@@ -20,7 +20,11 @@ const TagDoc: React.FC = () => {
 <Tag color="primary">主色</Tag>
 <Tag color="success">成功</Tag>
 <Tag color="warning">警告</Tag>
-<Tag color="danger">危险</Tag>`}
+<Tag color="danger">危险</Tag>
+<Tag color="info">信息</Tag>
+<Tag color="purple">purple</Tag>
+<Tag color="magenta">magenta</Tag>
+<Tag color="cyan">cyan</Tag>`}
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Tag>默认</Tag>
@@ -38,8 +42,11 @@ const TagDoc: React.FC = () => {
       <DemoBlock
         title="实心样式"
         description="bordered={false} 切换到实心填充。"
-        code={`<Tag bordered={false} color="primary">主色</Tag>
-<Tag bordered={false} color="success">成功</Tag>`}
+        code={`<Tag bordered={false}>默认</Tag>
+<Tag bordered={false} color="primary">主色</Tag>
+<Tag bordered={false} color="success">成功</Tag>
+<Tag bordered={false} color="warning">警告</Tag>
+<Tag bordered={false} color="danger">危险</Tag>`}
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Tag bordered={false}>默认</Tag>
@@ -55,7 +62,9 @@ const TagDoc: React.FC = () => {
         description="color 传任意 CSS 颜色值 (hex / rgb / hsl)。"
         code={`<Tag color="#f97316">orange</Tag>
 <Tag color="#0ea5e9">sky</Tag>
-<Tag bordered={false} color="#6366f1">indigo</Tag>`}
+<Tag color="#84cc16">lime</Tag>
+<Tag bordered={false} color="#6366f1">indigo</Tag>
+<Tag bordered={false} color="#db2777">rose</Tag>`}
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Tag color="#f97316">orange</Tag>
@@ -78,7 +87,8 @@ const TagDoc: React.FC = () => {
         title="带图标"
         description="icon 放在文字前,适合标识来源、类型。"
         code={`<Tag color="primary" icon={<span>⭐</span>}>精选</Tag>
-<Tag color="success" icon={<span>✓</span>}>已完成</Tag>`}
+<Tag color="success" icon={<span>✓</span>}>已完成</Tag>
+<Tag color="danger"  icon={<span>🔥</span>}>热门</Tag>`}
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Tag color="primary" icon={<span>⭐</span>}>精选</Tag>

@@ -17,7 +17,10 @@ const StatisticDoc: React.FC = () => {
 
       <DemoBlock
         title="多组指标"
-        code={`<Card><Statistic ... /></Card>`}
+        code={`<Card><Statistic title="今日订单"  value={1842} /></Card>
+<Card><Statistic title="转化率"   value={4.82}  suffix="%" precision={2} /></Card>
+<Card><Statistic title="客单价"   value={69.78} prefix="¥" precision={2} /></Card>
+<Card><Statistic title="活跃用户" value={12350} /></Card>`}
       >
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
           <Card><Statistic title="今日订单" value={1842} /></Card>
@@ -27,7 +30,13 @@ const StatisticDoc: React.FC = () => {
         </div>
       </DemoBlock>
 
-      <DemoBlock title="自定义颜色" code={`<Statistic valueStyle={{ color: 'var(--au-success)' }} />`}>
+      <DemoBlock
+        title="自定义颜色"
+        code={`<Statistic title="环比" value={12.4}  suffix="%"
+           valueStyle={{ color: 'var(--au-success)' }} />
+<Statistic title="同比" value={-3.6} suffix="%"
+           valueStyle={{ color: 'var(--au-danger)' }} />`}
+      >
         <div style={{ display: 'flex', gap: 32 }}>
           <Statistic title="环比" value={12.4} suffix="%" valueStyle={{ color: 'var(--au-success, #10b981)' }} />
           <Statistic title="同比" value={-3.6} suffix="%" valueStyle={{ color: 'var(--au-danger, #ef4444)' }} />
