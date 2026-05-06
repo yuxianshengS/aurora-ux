@@ -42,6 +42,17 @@ export interface TableColumn<T = any> {
     record: T,
     index: number,
   ) => (React.TdHTMLAttributes<HTMLTableCellElement> & { rowSpan?: number; colSpan?: number }) | undefined;
+  /**
+   * 多级表头 — 父列只渲染 title, 不取 dataIndex. 子列才真正映射到 body 单元格.
+   * 例:
+   *   { title: '个人信息', children: [
+   *       { title: '姓名', dataIndex: 'name' },
+   *       { title: '年龄', dataIndex: 'age' },
+   *     ]
+   *   }
+   * 任意深度嵌套. body 始终按"最深叶子列"渲染.
+   */
+  children?: TableColumn<T>[];
 }
 
 export interface RowSelection<T = any> {
@@ -169,6 +180,44 @@ const getCellValue = <T,>(record: T, col: TableColumn<T>, index: number): any =>
 const colKeyOf = (c: TableColumn<any>, fallbackIndex: number) =>
   c.key ?? String(c.dataIndex ?? `__col_${fallbackIndex}`);
 
+/* ============ 多级表头辅助 ============ */
+/** 拍平到最深叶子列 — body 单元格按这个渲染 */
+function getLeafColumns<T>(cols: TableColumn<T>[]): TableColumn<T>[] {
+  const out: TableColumn<T>[] = [];
+  cols.forEach((c) => {
+    if (c.children?.length) out.push(...getLeafColumns(c.children));
+    else out.push(c);
+  });
+  return out;
+}
+/** 整棵列树最大深度 — 决定 thead 渲染几行 */
+function getColumnDepth<T>(cols: TableColumn<T>[]): number {
+  let max = 1;
+  cols.forEach((c) => {
+    if (c.children?.length) max = Math.max(max, 1 + getColumnDepth(c.children));
+  });
+  return max;
+}
+/** 单列下面的叶子数 — 决定 colSpan */
+function getLeafCount<T>(col: TableColumn<T>): number {
+  if (!col.children?.length) return 1;
+  return col.children.reduce((s, c) => s + getLeafCount(c), 0);
+}
+/** 把列树按深度切成多行, rows[depth] = 该层的列 (按从左到右)
+ *  叶子列在自己的层挂出来, 跨剩余层用 rowSpan, 父列每层占一行 */
+function buildHeaderRows<T>(cols: TableColumn<T>[]): TableColumn<T>[][] {
+  const maxDepth = getColumnDepth(cols);
+  const rows: TableColumn<T>[][] = Array.from({ length: maxDepth }, () => []);
+  function walk(list: TableColumn<T>[], depth: number) {
+    list.forEach((c) => {
+      rows[depth].push(c);
+      if (c.children?.length) walk(c.children, depth + 1);
+    });
+  }
+  walk(cols, 0);
+  return rows;
+}
+
 function Table<T = any>({
   columns,
   dataSource,
@@ -208,6 +257,7 @@ function Table<T = any>({
     setColOrder(columns.map((c, i) => colKeyOf(c, i)));
   }, [columnsKeySig]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /** 顶层列 (经过 drag 排序) — drag 只对顶层生效, 不打散分组 */
   const orderedColumns = useMemo(() => {
     if (!draggableColumns) return columns;
     const byKey = new Map<string, TableColumn<T>>();
@@ -220,6 +270,12 @@ function Table<T = any>({
     });
     return ordered;
   }, [columns, colOrder, draggableColumns]);
+
+  /** 拍平到叶子列 — body cell 用这个; 多级表头时叶子才真正承载 dataIndex / 数据 */
+  const leafColumns = useMemo(() => getLeafColumns(orderedColumns), [orderedColumns]);
+  /** thead 行结构, 多级表头会有多行 */
+  const headerRows = useMemo(() => buildHeaderRows(orderedColumns), [orderedColumns]);
+  const headerDepth = headerRows.length;
 
   /* ============ 行顺序 (本地排序) ============ */
   const [rowOrderKeys, setRowOrderKeys] = useState<React.Key[] | null>(null);
@@ -274,7 +330,8 @@ function Table<T = any>({
 
   const sorted = useMemo(() => {
     if (!sortKey || !sortOrder) return orderedDataSource;
-    const col = orderedColumns.find((c) => (c.key ?? String(c.dataIndex ?? '')) === sortKey);
+    // 排序根据当前 sortKey 在所有叶子列里找 — 多级表头里可排序的一定是叶子
+    const col = leafColumns.find((c) => (c.key ?? String(c.dataIndex ?? '')) === sortKey);
     if (!col || !col.sorter) return orderedDataSource;
     const arr = [...orderedDataSource];
     if (typeof col.sorter === 'function') {
@@ -543,70 +600,83 @@ function Table<T = any>({
         {rowSelection && (
           <col style={{ width: rowSelection.columnWidth ?? 48 }} />
         )}
-        {orderedColumns.map((c, i) => (
+        {showExpandColumn && <col style={{ width: 36 }} />}
+        {leafColumns.map((c, i) => (
           <col key={colKeyOf(c, i)} style={c.width ? { width: c.width } : undefined} />
         ))}
       </colgroup>
       {showHeader && (
         <thead className="au-table__thead">
-          <tr>
-            {draggableRows && (
-              <th className="au-table__th au-table__th--drag" aria-label="拖拽列" />
-            )}
-            {rowSelection && (
-              <th className="au-table__th au-table__th--selection">
-                {selType === 'checkbox' && !rowSelection.hideSelectAll && (
-                  <Checkbox
-                    checked={allChecked}
-                    indeterminate={indeterminate}
-                    disabled={pageSelectable.length === 0}
-                    onChange={toggleAll}
-                  />
-                )}
-                {rowSelection.columnTitle}
-              </th>
-            )}
-            {showExpandColumn && (
-              <th className="au-table__th au-table__th--expand" aria-label="展开列" />
-            )}
-            {orderedColumns.map((col, i) => {
-              const k = colKeyOf(col, i);
-              const isSorted = sortKey === k ? sortOrder : null;
-              const colDraggable = draggableColumns && col.draggable !== false;
-              const isDraggingThis = dragColKey === k;
-              const dropIndicator = dragOverCol?.key === k ? dragOverCol.pos : null;
-              const thCls = [
-                'au-table__th',
-                col.align ? `au-table__cell--${col.align}` : '',
-                col.sorter ? 'has-sorter' : '',
-                isSorted ? 'is-sorted' : '',
-                colDraggable ? 'is-col-draggable' : '',
-                isDraggingThis ? 'is-dragging' : '',
-                dropIndicator === 'before' ? 'is-drop-before' : '',
-                dropIndicator === 'after' ? 'is-drop-after' : '',
-                col.className ?? '',
-              ]
-                .filter(Boolean)
-                .join(' ');
-              return (
-                <th
-                  key={k}
-                  className={thCls}
-                  onClick={() => col.sorter && toggleSort(col)}
-                  draggable={colDraggable}
-                  onDragStart={colDraggable ? (e) => handleColDragStart(k, e) : undefined}
-                  onDragOver={colDraggable ? (e) => handleColDragOver(k, e) : undefined}
-                  onDrop={colDraggable ? (e) => handleColDrop(k, e) : undefined}
-                  onDragEnd={colDraggable ? handleColDragEnd : undefined}
-                >
-                  <div className="au-table__th-inner">
-                    <span className="au-table__th-title">{col.title}</span>
-                    {col.sorter && <SortIcon order={isSorted} />}
-                  </div>
+          {headerRows.map((rowCols, depth) => (
+            <tr key={`hd-${depth}`}>
+              {/* 这些固定列只在第一行出现, 跨整个表头高度 */}
+              {depth === 0 && draggableRows && (
+                <th className="au-table__th au-table__th--drag" rowSpan={headerDepth} aria-label="拖拽列" />
+              )}
+              {depth === 0 && rowSelection && (
+                <th className="au-table__th au-table__th--selection" rowSpan={headerDepth}>
+                  {selType === 'checkbox' && !rowSelection.hideSelectAll && (
+                    <Checkbox
+                      checked={allChecked}
+                      indeterminate={indeterminate}
+                      disabled={pageSelectable.length === 0}
+                      onChange={toggleAll}
+                    />
+                  )}
+                  {rowSelection.columnTitle}
                 </th>
-              );
-            })}
-          </tr>
+              )}
+              {depth === 0 && showExpandColumn && (
+                <th className="au-table__th au-table__th--expand" rowSpan={headerDepth} aria-label="展开列" />
+              )}
+              {rowCols.map((col, i) => {
+                const k = colKeyOf(col, i);
+                const isSorted = sortKey === k ? sortOrder : null;
+                const isLeaf = !col.children?.length;
+                // 拖拽 / 排序只对顶层列开放; 子列(分组里)不允许拖, 排序仍可在叶子上
+                const isTopLevel = depth === 0;
+                const colDraggable = isTopLevel && draggableColumns && col.draggable !== false;
+                const isDraggingThis = dragColKey === k;
+                const dropIndicator = dragOverCol?.key === k ? dragOverCol.pos : null;
+                const thCls = [
+                  'au-table__th',
+                  col.align ? `au-table__cell--${col.align}` : '',
+                  col.sorter ? 'has-sorter' : '',
+                  isSorted ? 'is-sorted' : '',
+                  colDraggable ? 'is-col-draggable' : '',
+                  isDraggingThis ? 'is-dragging' : '',
+                  dropIndicator === 'before' ? 'is-drop-before' : '',
+                  dropIndicator === 'after' ? 'is-drop-after' : '',
+                  !isLeaf ? 'au-table__th--group' : '',
+                  col.className ?? '',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+                // 叶子列跨剩余表头行 (rowSpan); 父列 colSpan = 它下面的叶子数
+                const rowSpan = isLeaf ? headerDepth - depth : 1;
+                const colSpan = isLeaf ? 1 : getLeafCount(col);
+                return (
+                  <th
+                    key={k}
+                    className={thCls}
+                    rowSpan={rowSpan > 1 ? rowSpan : undefined}
+                    colSpan={colSpan > 1 ? colSpan : undefined}
+                    onClick={() => col.sorter && toggleSort(col)}
+                    draggable={colDraggable}
+                    onDragStart={colDraggable ? (e) => handleColDragStart(k, e) : undefined}
+                    onDragOver={colDraggable ? (e) => handleColDragOver(k, e) : undefined}
+                    onDrop={colDraggable ? (e) => handleColDrop(k, e) : undefined}
+                    onDragEnd={colDraggable ? handleColDragEnd : undefined}
+                  >
+                    <div className="au-table__th-inner">
+                      <span className="au-table__th-title">{col.title}</span>
+                      {col.sorter && <SortIcon order={isSorted} />}
+                    </div>
+                  </th>
+                );
+              })}
+            </tr>
+          ))}
         </thead>
       )}
       <tbody className="au-table__tbody">
@@ -614,7 +684,7 @@ function Table<T = any>({
           <tr className="au-table__row au-table__row--empty">
             <td
               colSpan={
-                orderedColumns.length +
+                leafColumns.length +
                 (rowSelection ? 1 : 0) +
                 (draggableRows ? 1 : 0) +
                 (showExpandColumn ? 1 : 0)
@@ -719,7 +789,7 @@ function Table<T = any>({
                     )}
                   </td>
                 )}
-                {orderedColumns.map((col, j) => {
+                {leafColumns.map((col, j) => {
                   const v = getCellValue(record, col, i);
                   const content = col.render ? col.render(v, record, i) : (v as React.ReactNode);
                   const cellAttrs = col.onCell?.(record, i) ?? {};
@@ -780,7 +850,7 @@ function Table<T = any>({
                 <tr key={`${key}__expanded`} className="au-table__row au-table__row--expanded">
                   <td
                     colSpan={
-                      orderedColumns.length +
+                      leafColumns.length +
                       (rowSelection ? 1 : 0) +
                       (draggableRows ? 1 : 0) +
                       1 /* expand col */

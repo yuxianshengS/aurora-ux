@@ -299,6 +299,38 @@ const columns = [
       </DemoBlock>
 
       <DemoBlock
+        title="多级表头 (column.children)"
+        description="父列只渲染 title, 子列才真正映射到 body 单元格. 任意深度嵌套, 适合 '个人信息 / 公司信息' 这种分组表头. 排序仍可在叶子列上 (sorter 设在叶子列)."
+        code={`const data = [
+  { id: 1, name: '小李', age: 28, addr: '北京', dept: '前端', title: '工程师' },
+  { id: 2, name: '小张', age: 32, addr: '上海', dept: '后端', title: 'TL' },
+  { id: 3, name: '小王', age: 25, addr: '广州', dept: 'QA',   title: '工程师' },
+];
+
+const columns = [
+  {
+    title: '个人信息',
+    children: [
+      { title: '姓名', dataIndex: 'name', key: 'name' },
+      { title: '年龄', dataIndex: 'age',  key: 'age', sorter: true, align: 'right' },
+      { title: '地址', dataIndex: 'addr', key: 'addr' },
+    ],
+  },
+  {
+    title: '公司',
+    children: [
+      { title: '部门', dataIndex: 'dept',  key: 'dept' },
+      { title: '职级', dataIndex: 'title', key: 'title' },
+    ],
+  },
+];
+
+<Table columns={columns} dataSource={data} rowKey="id" pagination={false} bordered />`}
+      >
+        <GroupedHeaderDemo />
+      </DemoBlock>
+
+      <DemoBlock
         title="合并单元格 (column.onCell)"
         description="onCell 返回 { rowSpan } 决定合并几行, rowSpan: 0 表示这格被上面合并掉不渲染. 同理 colSpan 横向合并. 适合 '相同分组合并 / 总计行 / 跨列表头'."
         code={`const data = [
@@ -631,6 +663,40 @@ const TreeDataDemo: React.FC = () => {
       dataSource={data}
       rowKey="id"
       pagination={false}
+    />
+  );
+};
+
+const GroupedHeaderDemo: React.FC = () => {
+  const data = [
+    { id: 1, name: '小李', age: 28, addr: '北京', dept: '前端', title: '工程师' },
+    { id: 2, name: '小张', age: 32, addr: '上海', dept: '后端', title: 'TL' },
+    { id: 3, name: '小王', age: 25, addr: '广州', dept: 'QA', title: '工程师' },
+    { id: 4, name: '小赵', age: 30, addr: '深圳', dept: '设计', title: '资深' },
+  ];
+  return (
+    <Table
+      columns={[
+        {
+          title: '个人信息',
+          children: [
+            { title: '姓名', dataIndex: 'name', key: 'name' },
+            { title: '年龄', dataIndex: 'age', key: 'age', sorter: true, align: 'right' as const },
+            { title: '地址', dataIndex: 'addr', key: 'addr' },
+          ],
+        },
+        {
+          title: '公司',
+          children: [
+            { title: '部门', dataIndex: 'dept', key: 'dept' },
+            { title: '职级', dataIndex: 'title', key: 'title' },
+          ],
+        },
+      ]}
+      dataSource={data}
+      rowKey="id"
+      pagination={false}
+      bordered
     />
   );
 };

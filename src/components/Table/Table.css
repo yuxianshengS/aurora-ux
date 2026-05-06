@@ -242,6 +242,13 @@
 
 /* ============ 展开行 (expandable) + 树形数据 (childrenColumnName) ============ */
 
+/* 多级表头 — 父分组 th 用 column 显示, 字体居中, 底色稍深 */
+.au-table__th--group {
+  text-align: center;
+  background: color-mix(in srgb, var(--au-text-1) 4%, var(--au-bg-soft, var(--au-bg)));
+  border-bottom: 1px solid var(--au-border);
+}
+
 /* expand 列 — th 跟 td 同宽避免错位 */
 .au-table__cell--expand,
 .au-table__th--expand {
