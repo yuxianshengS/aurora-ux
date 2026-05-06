@@ -137,6 +137,12 @@ const enUS: Locale = {
     packing: 'Packing...',
     fitWidth: 'Fit width',
   },
+  Carousel: {
+    prev: 'Previous slide',
+    next: 'Next slide',
+    slideOfTotal: 'Slide {n} of {total}',
+    goToSlide: 'Go to slide {n}',
+  },
   Common: {
     close: 'Close',
     clear: 'Clear',

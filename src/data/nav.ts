@@ -67,6 +67,7 @@ export const navGroups: NavGroup[] = [
       { title: 'Statistic 数值', path: '/docs/statistic' },
       { title: 'Description 描述列表', path: '/docs/description' },
       { title: 'JsonView JSON 展示', path: '/docs/json-view' },
+      { title: 'Carousel 轮播图', path: '/docs/carousel' },
     ],
   },
   {

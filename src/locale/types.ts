@@ -153,6 +153,14 @@ export interface Locale {
     packing: string;
     fitWidth: string;
   };
+  Carousel: {
+    prev: string;
+    next: string;
+    /** "第 {n} 张 / 共 {total}" — 给屏幕阅读器播报用 */
+    slideOfTotal: string;
+    /** "跳到第 {n} 张" — 指示点 aria-label */
+    goToSlide: string;
+  };
   Common: {
     close: string;
     clear: string;

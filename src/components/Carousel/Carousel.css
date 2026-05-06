@@ -1,0 +1,164 @@
+/* ============================================================
+   Carousel — 轮播图
+   - effect='slide': 横向 translateX 平移轨道
+   - effect='fade':  所有 slide 叠在一起靠 opacity 切
+   - 容器自定义 height 时给 viewport / slide 拉满
+   - dots / arrows 居中浮在底/两侧, 用 token 跟主题
+   ============================================================ */
+.au-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--au-radius);
+  outline: none;
+  background: var(--au-bg-soft);
+}
+.au-carousel:focus-visible {
+  box-shadow: var(--au-focus-ring);
+}
+
+.au-carousel__viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* 拖拽时 cursor 提示 */
+  cursor: grab;
+  user-select: none;
+  /* 阻止浏览器默认的水平滑动手势 (回退/前进), 让我们自己处理 */
+  touch-action: pan-y;
+}
+.au-carousel__viewport:active {
+  cursor: grabbing;
+}
+
+/* ===== slide 模式: 轨道 + 横排 ===== */
+.au-carousel--slide .au-carousel__track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  /* transition 由 inline style 控制 (拖动期间为 none) */
+  will-change: transform;
+}
+.au-carousel--slide .au-carousel__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  /* 防止内部 img 被拖出 */
+  pointer-events: auto;
+}
+
+/* ===== fade 模式: 叠在一起 ===== */
+.au-carousel--fade .au-carousel__slide--fade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition-property: opacity;
+  transition-timing-function: var(--au-ease, ease);
+}
+.au-carousel--fade .au-carousel__slide--fade.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+/* fade 模式 viewport 必须有高度才能让 slide absolute 撑开 — 用户给 height
+   或者最外层 .au-carousel 自带 height; 没给的话用 min-height 兜底 */
+.au-carousel--fade {
+  min-height: 200px;
+}
+.au-carousel--fade .au-carousel__viewport {
+  height: 100%;
+  min-height: inherit;
+}
+
+/* ===== 左右箭头 ===== */
+.au-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.18s var(--au-ease, ease), background 0.18s var(--au-ease, ease);
+}
+.au-carousel:hover .au-carousel__arrow,
+.au-carousel:focus-within .au-carousel__arrow {
+  opacity: 1;
+}
+.au-carousel__arrow:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+.au-carousel__arrow--prev { left: 12px; }
+.au-carousel__arrow--next { right: 12px; }
+
+/* ===== 指示点 ===== */
+.au-carousel__dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+.au-carousel--dots-bottom .au-carousel__dots { bottom: 12px; }
+.au-carousel--dots-top .au-carousel__dots { top: 12px; }
+
+.au-carousel__dot {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  transition: width 0.18s var(--au-ease, ease), background 0.18s var(--au-ease, ease);
+}
+.au-carousel__dot:hover { background: rgba(255, 255, 255, 0.8); }
+.au-carousel__dot.is-active {
+  width: 28px;
+  background: #fff;
+}
+
+/* 暗色 / 浅色场景下 dot 反色兜底 — 当容器底色是浅色时白点看不见,
+   按容器自身底色推断很难, 这里用 mix-blend 兜一手让 dots 总能看见 */
+.au-carousel__dot,
+.au-carousel__dot.is-active {
+  mix-blend-mode: difference;
+}
+
+/* ===== 屏幕阅读器播报区, 视觉上隐藏 ===== */
+.au-carousel__sr-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* prefers-reduced-motion: 关掉 transition (全局 reduced-motion.css 已经兜了,
+   这里写一份精确版供有自定义 transition 的元素) */
+@media (prefers-reduced-motion: reduce) {
+  .au-carousel__track,
+  .au-carousel__slide--fade {
+    transition: none !important;
+  }
+}

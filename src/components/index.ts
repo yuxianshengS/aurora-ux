@@ -6,6 +6,8 @@ export { default as Input, TextArea } from './Input';
 export type { InputProps, TextAreaProps, AutoSizeOption } from './Input';
 export { default as Card } from './Card';
 export type { CardProps } from './Card';
+export { default as Carousel } from './Carousel';
+export type { CarouselProps, CarouselRef, CarouselEffect, CarouselDotPosition } from './Carousel';
 export { default as Switch } from './Switch';
 export type { SwitchProps } from './Switch';
 export { default as ThemeSwitch } from './ThemeSwitch';

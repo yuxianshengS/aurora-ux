@@ -137,6 +137,12 @@ const zhCN: Locale = {
     packing: '打包中...',
     fitWidth: '适合宽度',
   },
+  Carousel: {
+    prev: '上一张',
+    next: '下一张',
+    slideOfTotal: '第 {n} 张 / 共 {total}',
+    goToSlide: '跳到第 {n} 张',
+  },
   Common: {
     close: '关闭',
     clear: '清除',

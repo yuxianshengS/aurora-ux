@@ -47,6 +47,7 @@ const AutoCompleteDoc = lazy(() => import('./pages/AutoCompleteDoc'));
 const ColorPickerDoc = lazy(() => import('./pages/ColorPickerDoc'));
 const ConfigProviderDoc = lazy(() => import('./pages/ConfigProviderDoc'));
 const MentionsDoc = lazy(() => import('./pages/MentionsDoc'));
+const CarouselDoc = lazy(() => import('./pages/CarouselDoc'));
 const RateDoc = lazy(() => import('./pages/RateDoc'));
 const AlertDoc = lazy(() => import('./pages/AlertDoc'));
 const SpinDoc = lazy(() => import('./pages/SpinDoc'));
@@ -187,6 +188,7 @@ const AppRoutes: React.FC = () => (
         <Route path="color-picker" element={<ColorPickerDoc />} />
         <Route path="config-provider" element={<ConfigProviderDoc />} />
         <Route path="mentions" element={<MentionsDoc />} />
+        <Route path="carousel" element={<CarouselDoc />} />
         <Route path="rate" element={<RateDoc />} />
         <Route path="alert" element={<AlertDoc />} />
         <Route path="spin" element={<SpinDoc />} />
