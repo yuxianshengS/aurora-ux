@@ -13,6 +13,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { title: '快速开始', path: '/docs/getting-started' },
       { title: '设计理念', path: '/docs/design' },
+      { title: 'ConfigProvider 全局配置', path: '/docs/config-provider' },
     ],
   },
   {
@@ -43,6 +44,9 @@ export const navGroups: NavGroup[] = [
       { title: 'Tree 树形控件', path: '/docs/tree' },
       { title: 'TreeSelect 树形选择', path: '/docs/tree-select' },
       { title: 'Cascader 级联选择', path: '/docs/cascader' },
+      { title: 'AutoComplete 自动完成', path: '/docs/auto-complete' },
+      { title: 'Mentions @ 提及', path: '/docs/mentions' },
+      { title: 'ColorPicker 颜色选择', path: '/docs/color-picker' },
     ],
   },
   {
@@ -71,6 +75,7 @@ export const navGroups: NavGroup[] = [
       { title: 'Menu 导航菜单', path: '/docs/menu' },
       { title: 'Dropdown 下拉菜单', path: '/docs/dropdown' },
       { title: 'Breadcrumb 面包屑', path: '/docs/breadcrumb' },
+      { title: 'Anchor 锚点', path: '/docs/anchor' },
       { title: 'Steps 步骤条', path: '/docs/steps' },
     ],
   },

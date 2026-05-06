@@ -42,6 +42,11 @@ const AuroraCursorDoc = lazy(() => import('./pages/AuroraCursorDoc'));
 const WatermarkDoc = lazy(() => import('./pages/WatermarkDoc'));
 const KbdDoc = lazy(() => import('./pages/KbdDoc'));
 const FloatButtonDoc = lazy(() => import('./pages/FloatButtonDoc'));
+const AnchorDoc = lazy(() => import('./pages/AnchorDoc'));
+const AutoCompleteDoc = lazy(() => import('./pages/AutoCompleteDoc'));
+const ColorPickerDoc = lazy(() => import('./pages/ColorPickerDoc'));
+const ConfigProviderDoc = lazy(() => import('./pages/ConfigProviderDoc'));
+const MentionsDoc = lazy(() => import('./pages/MentionsDoc'));
 const RateDoc = lazy(() => import('./pages/RateDoc'));
 const AlertDoc = lazy(() => import('./pages/AlertDoc'));
 const SpinDoc = lazy(() => import('./pages/SpinDoc'));
@@ -177,6 +182,11 @@ const AppRoutes: React.FC = () => (
         <Route path="watermark" element={<WatermarkDoc />} />
         <Route path="kbd" element={<KbdDoc />} />
         <Route path="float-button" element={<FloatButtonDoc />} />
+        <Route path="anchor" element={<AnchorDoc />} />
+        <Route path="auto-complete" element={<AutoCompleteDoc />} />
+        <Route path="color-picker" element={<ColorPickerDoc />} />
+        <Route path="config-provider" element={<ConfigProviderDoc />} />
+        <Route path="mentions" element={<MentionsDoc />} />
         <Route path="rate" element={<RateDoc />} />
         <Route path="alert" element={<AlertDoc />} />
         <Route path="spin" element={<SpinDoc />} />
