@@ -89,6 +89,48 @@ const CarouselDoc: React.FC = () => {
       </DemoBlock>
 
       <DemoBlock
+        title="一屏 3 张 (slidesPerView)"
+        description="slidesPerView={3} 把可视区均分给 3 张, 配 gap 控制间距."
+        code={`<Carousel slidesPerView={3} gap={16} arrows loop>
+  {/* 6 张卡片 */}
+</Carousel>`}
+      >
+        <Carousel slidesPerView={3} gap={16} arrows loop autoplay={3500} style={{ width: '100%' }}>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <Slide key={i} idx={i} text={`Card ${i + 1}`} />
+          ))}
+        </Carousel>
+      </DemoBlock>
+
+      <DemoBlock
+        title="居中模式 — 中间 1 张 + 左右各半张"
+        description="centerMode + slidesPerView=1: active slide 居中, 左右各露出半张相邻 slide. 经典的'瀑布流卡片'布局."
+        code={`<Carousel slidesPerView={1} centerMode gap={16} arrows>
+  {/* 多张图片 / 卡片 */}
+</Carousel>`}
+      >
+        <Carousel slidesPerView={1} centerMode gap={16} arrows autoplay={4000} loop style={{ width: '100%' }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Slide key={i} idx={i} text={`Center ${i + 1}`} />
+          ))}
+        </Carousel>
+      </DemoBlock>
+
+      <DemoBlock
+        title="居中模式 + 一屏 3 张"
+        description="slidesPerView=3 + centerMode: 中间 3 张全展示, 左右各露出半张邻近 slide. 跟 slick / swiper 的经典 carousel 视觉一致."
+        code={`<Carousel slidesPerView={3} centerMode gap={12} arrows loop>
+  {/* 8 张图 */}
+</Carousel>`}
+      >
+        <Carousel slidesPerView={3} centerMode gap={12} arrows loop autoplay={3000} style={{ width: '100%' }}>
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+            <Slide key={i} idx={i} text={`${i + 1}`} />
+          ))}
+        </Carousel>
+      </DemoBlock>
+
+      <DemoBlock
         title="命令式控制 (ref API)"
         description="ref 拿到 { goTo, next, prev },从外部按钮 / 业务事件触发翻页。"
         code={`function Demo() {
@@ -123,6 +165,9 @@ const CarouselDoc: React.FC = () => {
           { prop: 'keyboard', desc: '容器 focus 时 ←/→ 切换', type: 'boolean', default: 'true' },
           { prop: 'draggable', desc: '触摸 / 鼠标拖拽切换', type: 'boolean', default: 'true' },
           { prop: 'swipeThreshold', desc: '拖动多少 px 触发翻页', type: 'number', default: '50' },
+          { prop: 'slidesPerView', desc: '同时显示几张 (slide 模式), 1 = 单张, 3 = 一屏 3 张', type: 'number', default: '1' },
+          { prop: 'centerMode', desc: 'active slide 居中, 左右两侧露出邻近 slide', type: 'boolean', default: 'false' },
+          { prop: 'gap', desc: '幻灯片之间的间隔 px (slide 模式)', type: 'number', default: '0' },
           { prop: 'onChange', desc: '切换时触发', type: '(index, prev) => void', default: '-' },
         ]}
       />

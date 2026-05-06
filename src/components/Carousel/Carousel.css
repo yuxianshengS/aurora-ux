@@ -36,15 +36,22 @@
   display: flex;
   width: 100%;
   height: 100%;
-  /* transition 由 inline style 控制 (拖动期间为 none) */
+  /* transition + gap 由 inline style 控制 (拖动期间 transition: none) */
   will-change: transform;
 }
 .au-carousel--slide .au-carousel__slide {
+  /* perView=1 默认值; perView>1 时组件用 inline style 给精确像素宽度覆盖这条 */
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
   /* 防止内部 img 被拖出 */
   pointer-events: auto;
+}
+/* 多张视图 + centerMode 时, 非 active 邻片轻微缩小 + 半透明, 视觉上突出中间.
+   不需要的话用户可以 className 覆盖或外层加 .au-carousel--no-dim */
+.au-carousel--slide .au-carousel__slide:not(.is-visible) {
+  opacity: 0.55;
+  transition: opacity 0.3s var(--au-ease, ease);
 }
 
 /* ===== fade 模式: 叠在一起 ===== */

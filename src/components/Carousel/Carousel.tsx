@@ -47,6 +47,15 @@ export interface CarouselProps {
   draggable?: boolean;
   /** 拖动多少 px 触发翻页 (默认 50) */
   swipeThreshold?: number;
+  /**
+   * 同时显示几张 (默认 1). slide 模式生效, fade 模式被忽略.
+   * 整数: 把可视区均分; 比如 3 = 一屏 3 张.
+   */
+  slidesPerView?: number;
+  /** 居中模式 — active slide 居中显示, 左右两侧露出邻近 slide. 配合 slidesPerView 用 */
+  centerMode?: boolean;
+  /** 幻灯片之间的间隔 px, 默认 0 */
+  gap?: number;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -92,6 +101,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       keyboard = true,
       draggable = true,
       swipeThreshold = 50,
+      slidesPerView = 1,
+      centerMode = false,
+      gap = 0,
       className = '',
       style,
     },
@@ -100,10 +112,33 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const locale = useLocale();
     const slides = useMemo(() => Children.toArray(children).filter(Boolean), [children]);
     const total = slides.length;
+    const perView = Math.max(1, Math.floor(slidesPerView));
+    /** 多张视图下, 最大可达下标 — 不循环时不允许超过这个值 (会留空白) */
+    const maxIndex = loop ? total - 1 : Math.max(0, total - perView);
 
     const isCtrl = ctrl !== undefined;
     const [inner, setInner] = useState(defaultCurrent);
-    const active = Math.max(0, Math.min(total - 1, isCtrl ? ctrl! : inner));
+    const active = Math.max(0, Math.min(maxIndex, isCtrl ? ctrl! : inner));
+
+    /** 视口宽度 (px) — 用 ResizeObserver 跟随, 计算每张 slide 的精确像素宽度 */
+    const viewportRef = useRef<HTMLDivElement>(null);
+    const [viewportW, setViewportW] = useState(0);
+    useEffect(() => {
+      const el = viewportRef.current;
+      if (!el || effect !== 'slide') return;
+      const update = () => setViewportW(el.clientWidth);
+      update();
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }, [effect]);
+
+    /** 单张 slide 宽度 — 把可视区按 perView 均分, 留 (perView-1) 个 gap */
+    const slideW = perView > 0 ? (viewportW - (perView - 1) * gap) / perView : viewportW;
+    /** 每相邻两张实际位移 = slide 宽 + gap */
+    const step = slideW + gap;
+    /** centerMode 时把 active 居中需要的偏移 */
+    const centerOffset = centerMode ? (viewportW - slideW) / 2 : 0;
 
     /** 是否处于交互(hover / 拖动)— 暂停自动播放 */
     const [interacting, setInteracting] = useState(false);
@@ -122,13 +157,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         if (loop) {
           target = ((next % total) + total) % total;
         } else {
-          target = Math.max(0, Math.min(total - 1, next));
+          target = Math.max(0, Math.min(maxIndex, next));
         }
         if (target === active) return;
         if (!isCtrl) setInner(target);
         onChange?.(target, active);
       },
-      [active, isCtrl, loop, onChange, total],
+      [active, isCtrl, loop, maxIndex, onChange, total],
     );
 
     const next = useCallback(() => goTo(active + 1), [active, goTo]);
@@ -196,12 +231,17 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       }
     };
 
-    /* ---------------- 视觉位置 ---------------- */
+    /* ---------------- 视觉位置 ----------------
+     * 像素位移: -active * step + centerOffset + 拖动偏移.
+     * step = slideWidth + gap (perView 决定 slideWidth).
+     * viewportW=0 时 (尚未测量出尺寸) translate 为 0, 视觉上 perView 张并列, 不会闪.
+     */
     const trackStyle: React.CSSProperties =
       effect === 'slide'
         ? {
-            transform: `translateX(calc(${-active * 100}% + ${dragOffset}px))`,
+            transform: `translateX(${-active * step + centerOffset + dragOffset}px)`,
             transition: dragRef.current.active ? 'none' : `transform ${duration}ms var(--au-ease, ease)`,
+            gap: `${gap}px`,
           }
         : {};
 
@@ -231,6 +271,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         onMouseLeave={pauseOnHover ? () => setInteracting(false) : undefined}
       >
         <div
+          ref={viewportRef}
           className="au-carousel__viewport"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -239,18 +280,24 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
         >
           {effect === 'slide' ? (
             <div className="au-carousel__track" style={trackStyle}>
-              {slides.map((slide, i) => (
-                <div
-                  key={i}
-                  className="au-carousel__slide"
-                  role="group"
-                  aria-roledescription="slide"
-                  aria-hidden={i !== active}
-                  aria-label={tpl(locale.Carousel.slideOfTotal, { n: i + 1, total })}
-                >
-                  {slide}
-                </div>
-              ))}
+              {slides.map((slide, i) => {
+                /* 多张视图下 active 范围内的算 active(露出); centerMode 下还要把
+                   active 前后 (perView-1)/2 张也算 "可见" 让屏幕阅读器更友好 */
+                const isVisible = i >= active && i < active + perView;
+                return (
+                  <div
+                    key={i}
+                    className={['au-carousel__slide', isVisible ? 'is-visible' : ''].filter(Boolean).join(' ')}
+                    style={viewportW > 0 ? { flex: `0 0 ${slideW}px`, width: slideW } : undefined}
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-hidden={!isVisible}
+                    aria-label={tpl(locale.Carousel.slideOfTotal, { n: i + 1, total })}
+                  >
+                    {slide}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             // fade — 所有 slide 叠在一起, 用 opacity 切
