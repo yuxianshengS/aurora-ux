@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './JsonView.css';
 
 export type JsonValue =
@@ -100,6 +101,7 @@ interface CopyButtonProps {
 }
 
 const CopyButton: React.FC<CopyButtonProps> = ({ value, path, onCopy }) => {
+  const locale = useLocale();
   const [done, setDone] = useState(false);
   const handle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -116,7 +118,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value, path, onCopy }) => {
       type="button"
       className={['au-jsonview__copy', done ? 'is-done' : ''].filter(Boolean).join(' ')}
       onClick={handle}
-      aria-label={done ? '已复制' : '复制'}
+      aria-label={done ? locale.JsonView.copied : locale.JsonView.copy}
       tabIndex={-1}
     >
       {done ? <CheckIcon /> : <CopyIcon />}
@@ -180,6 +182,7 @@ const Node: React.FC<NodeProps> = ({
   onCopy,
   isLast,
 }) => {
+  const locale = useLocale();
   const kind = kindOf(value);
   const container = isContainer(kind);
   const [open, setOpen] = useState(depth < defaultExpandDepth);
@@ -264,7 +267,7 @@ const Node: React.FC<NodeProps> = ({
           type="button"
           className="au-jsonview__caret"
           onClick={() => setOpen((o) => !o)}
-          aria-label={open ? '收起' : '展开'}
+          aria-label={open ? locale.JsonView.collapse : locale.JsonView.expand}
           aria-expanded={open}
         >
           <Caret open={open} />
@@ -348,6 +351,7 @@ const JsonView: React.FC<JsonViewProps> = ({
   className = '',
   style,
 }) => {
+  const locale = useLocale();
   const parsed = useMemo<{ value: unknown; error: Error | null }>(() => {
     if (typeof data !== 'string') return { value: data, error: null };
     try {
@@ -381,7 +385,7 @@ const JsonView: React.FC<JsonViewProps> = ({
         style={style}
         role="alert"
       >
-        <span className="au-jsonview__error-title">JSON 解析失败</span>
+        <span className="au-jsonview__error-title">{locale.JsonView.parseError}</span>
         <span className="au-jsonview__error-msg">{parsed.error.message}</span>
       </div>
     );
@@ -397,10 +401,10 @@ const JsonView: React.FC<JsonViewProps> = ({
           type="button"
           className={['au-jsonview__copy-all', topCopied ? 'is-done' : ''].filter(Boolean).join(' ')}
           onClick={handleTopCopy}
-          aria-label={topCopied ? '已复制全部' : '复制全部'}
+          aria-label={topCopied ? locale.JsonView.copiedAll : locale.JsonView.copyAll}
         >
           {topCopied ? <CheckIcon /> : <CopyIcon />}
-          <span>{topCopied ? '已复制' : '复制全部'}</span>
+          <span>{topCopied ? locale.JsonView.copied : locale.JsonView.copyAll}</span>
         </button>
       )}
       <Node

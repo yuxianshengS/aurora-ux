@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './AutoComplete.css';
 
 export interface AutoCompleteOption {
@@ -69,11 +70,13 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
   allowClear,
   size = 'medium',
   maxHeight = 240,
-  notFoundContent = '无匹配项',
+  notFoundContent,
   inputProps,
   className = '',
   style,
 }) => {
+  const locale = useLocale();
+  const notFoundText = notFoundContent ?? locale.AutoComplete.notFoundContent;
   const isCtrl = ctrlValue !== undefined;
   const [innerValue, setInnerValue] = useState(defaultValue);
   const value = isCtrl ? ctrlValue! : innerValue;
@@ -204,7 +207,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
             }}
           >
             {filtered.length === 0 ? (
-              <div className="au-autocomplete__empty">{notFoundContent}</div>
+              <div className="au-autocomplete__empty">{notFoundText}</div>
             ) : (
               <ul className="au-autocomplete__list" role="listbox">
                 {filtered.map((opt, i) => (

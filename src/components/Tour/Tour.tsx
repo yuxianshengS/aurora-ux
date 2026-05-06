@@ -485,7 +485,7 @@ const Tour: React.FC<TourProps> = ({
       ref={cardRef}
       role="dialog"
       aria-modal="true"
-      aria-label={typeof step.title === 'string' ? step.title : '引导步骤'}
+      aria-label={typeof step.title === 'string' ? step.title : locale.Tour.stepAriaLabel}
       tabIndex={-1}
       className={[
         'au-tour__card',
@@ -508,7 +508,7 @@ const Tour: React.FC<TourProps> = ({
             type="button"
             className="au-tour__close"
             onClick={close}
-            aria-label="关闭"
+            aria-label={locale.Common.close}
           >
             <CloseIcon />
           </button>

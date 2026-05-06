@@ -9,6 +9,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Select.css';
 
 export type SelectSize = 'small' | 'medium' | 'large';
@@ -85,7 +86,7 @@ function Select<V extends SelectValue = SelectValue>({
   value,
   defaultValue,
   options,
-  placeholder = '请选择',
+  placeholder,
   disabled,
   size = 'medium',
   allowClear,
@@ -100,8 +101,11 @@ function Select<V extends SelectValue = SelectValue>({
   onChange,
   onSearch,
   onOpenChange,
-  notFoundContent = '无匹配项',
+  notFoundContent,
 }: SelectProps<V>) {
+  const locale = useLocale();
+  const placeholderText = placeholder ?? locale.Select.placeholder;
+  const notFoundText = notFoundContent ?? locale.Select.notFoundContent;
   const isControlled = value !== undefined;
   const defaultInner: V[] = useMemo(() => {
     if (defaultValue == null) return [];
@@ -323,7 +327,7 @@ function Select<V extends SelectValue = SelectValue>({
   const showClear = allowClear && !disabled && hasValue;
 
   const renderSingleLabel = () => {
-    if (!hasValue) return <span className="au-select__ph">{placeholder}</span>;
+    if (!hasValue) return <span className="au-select__ph">{placeholderText}</span>;
     const opt = options.find((o) => o.value === current[0]);
     return <span className="au-select__value">{opt?.label ?? String(current[0])}</span>;
   };
@@ -352,7 +356,7 @@ function Select<V extends SelectValue = SelectValue>({
   const renderTags = () => {
     if (!hasValue && !keyword) {
       return !filterable || !open ? (
-        <span className="au-select__ph">{placeholder}</span>
+        <span className="au-select__ph">{placeholderText}</span>
       ) : null;
     }
     // maxTagCount 显式设置 = 固定 cap, 走老路;
@@ -456,7 +460,7 @@ function Select<V extends SelectValue = SelectValue>({
             onMouseDown={(e) => e.preventDefault()}
           >
             {filtered.length === 0 ? (
-              <div className="au-select__empty">{notFoundContent}</div>
+              <div className="au-select__empty">{notFoundText}</div>
             ) : (
               <ul className="au-select__list" role="listbox">
                 {filtered.map((opt, i) => {

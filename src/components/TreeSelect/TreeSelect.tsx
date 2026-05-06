@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import Tree, { type TreeNode } from '../Tree/Tree';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './TreeSelect.css';
 
 export interface TreeSelectProps {
@@ -39,7 +40,7 @@ const TreeSelect: React.FC<TreeSelectProps> = ({
   treeData,
   value: ctrlValue,
   defaultValue,
-  placeholder = '请选择',
+  placeholder,
   disabled,
   allowClear,
   treeDefaultExpandAll,
@@ -49,6 +50,8 @@ const TreeSelect: React.FC<TreeSelectProps> = ({
   className = '',
   style,
 }) => {
+  const locale = useLocale();
+  const placeholderText = placeholder ?? locale.TreeSelect.placeholder;
   const isCtrl = ctrlValue !== undefined;
   const [innerValue, setInnerValue] = useState<string | undefined>(defaultValue);
   const value = isCtrl ? ctrlValue! : innerValue;
@@ -122,7 +125,7 @@ const TreeSelect: React.FC<TreeSelectProps> = ({
         role="combobox"
         aria-expanded={open}
       >
-        <span className="au-tree-select__label">{label ?? placeholder}</span>
+        <span className="au-tree-select__label">{label ?? placeholderText}</span>
         {allowClear && value && (
           <span className="au-tree-select__clear" onClick={handleClear} aria-label="清除">✕</span>
         )}

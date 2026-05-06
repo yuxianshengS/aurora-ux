@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createPortal } from 'react-dom';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 
 export type ConfirmType = 'confirm' | 'info' | 'success' | 'error' | 'warning';
 
@@ -89,6 +90,7 @@ interface ConfirmViewProps {
 }
 
 const ConfirmView: React.FC<ConfirmViewProps> = ({ type, opts, onClose }) => {
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const closeTimer = useRef<number | null>(null);
@@ -169,7 +171,7 @@ const ConfirmView: React.FC<ConfirmViewProps> = ({ type, opts, onClose }) => {
                 onClick={handleCancel}
                 disabled={loading}
               >
-                {opts.cancelText ?? '取消'}
+                {opts.cancelText ?? locale.Modal.cancel}
               </button>
             )}
             <button
@@ -179,7 +181,7 @@ const ConfirmView: React.FC<ConfirmViewProps> = ({ type, opts, onClose }) => {
               disabled={loading}
             >
               {loading && <span className="au-btn__spinner" />}
-              {opts.okText ?? '确定'}
+              {opts.okText ?? locale.Modal.ok}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Upload.css';
 
 export type UploadStatus = 'uploading' | 'done' | 'error' | 'removed' | 'paused';
@@ -148,6 +149,7 @@ const Upload: React.FC<UploadProps> = ({
   chunkConcurrency = 3,
   chunkRetry = 2,
 }) => {
+  const locale = useLocale();
   const isControlled = ctrlList !== undefined;
   const [innerList, setInnerList] = useState<UploadFile[]>(defaultFileList);
   const list = isControlled ? ctrlList! : innerList;
@@ -477,13 +479,13 @@ const Upload: React.FC<UploadProps> = ({
                   <path d="M12 4v12M6 10l6-6 6 6M4 20h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <div className="au-upload__drag-text">点击或拖拽文件到此处上传</div>
-              <div className="au-upload__drag-hint">{accept ? `支持 ${accept}` : '支持单 / 批量上传'}</div>
+              <div className="au-upload__drag-text">{locale.Upload.dragText}</div>
+              <div className="au-upload__drag-hint">{accept ? `${locale.Upload.dragHint} (${accept})` : locale.Upload.dragHint}</div>
             </div>
           ) : (
             <button type="button" className="au-upload__btn" disabled={disabled}>
               <span className="au-upload__btn-icon">＋</span>
-              <span>选择文件</span>
+              <span>{locale.Upload.selectFile}</span>
             </button>
           )
         )}
@@ -524,8 +526,8 @@ const Upload: React.FC<UploadProps> = ({
                       type="button"
                       className="au-upload__action"
                       onClick={() => handlePause(f)}
-                      aria-label="暂停"
-                      title="暂停"
+                      aria-label={locale.Upload.pause}
+                      title={locale.Upload.pause}
                     >
                       ⏸
                     </button>
@@ -535,8 +537,8 @@ const Upload: React.FC<UploadProps> = ({
                       type="button"
                       className="au-upload__action"
                       onClick={() => handleResume(f)}
-                      aria-label="继续"
-                      title="继续"
+                      aria-label={locale.Upload.resume}
+                      title={locale.Upload.resume}
                     >
                       ▶
                     </button>
@@ -546,8 +548,8 @@ const Upload: React.FC<UploadProps> = ({
                       type="button"
                       className="au-upload__action"
                       onClick={() => handleRetry(f)}
-                      aria-label="重试"
-                      title="重试"
+                      aria-label={locale.Upload.retry}
+                      title={locale.Upload.retry}
                     >
                       ↻
                     </button>
@@ -556,7 +558,7 @@ const Upload: React.FC<UploadProps> = ({
                     type="button"
                     className="au-upload__remove"
                     onClick={() => handleRemove(f)}
-                    aria-label="移除"
+                    aria-label={locale.Upload.remove}
                   >
                     ✕
                   </button>

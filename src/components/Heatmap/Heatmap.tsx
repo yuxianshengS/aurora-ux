@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Heatmap.css';
 
 export interface HeatmapDatum {
@@ -42,8 +43,7 @@ const toDate = (v: string | Date): Date => {
 const fmt = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-const MONTH_LABELS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-const WEEKDAY_LABELS = ['一', '三', '五'];
+/* MONTH_LABELS / WEEKDAY_LABELS 走 locale, 见组件内部读 useLocale().Heatmap */
 
 const Heatmap: React.FC<HeatmapProps> = ({
   data,
@@ -68,6 +68,9 @@ const Heatmap: React.FC<HeatmapProps> = ({
   className = '',
   style,
 }) => {
+  const locale = useLocale();
+  const MONTH_LABELS = locale.Heatmap.months;
+  const WEEKDAY_LABELS = locale.Heatmap.weekdays;
   const now = new Date();
   const end = endDate ? toDate(endDate) : toDate(now);
   const start = startDate
@@ -242,7 +245,7 @@ const Heatmap: React.FC<HeatmapProps> = ({
 
       {showLegend && (
         <div className="au-heatmap__legend">
-          <span className="au-heatmap__legend-text">低</span>
+          <span className="au-heatmap__legend-text">{locale.Heatmap.legendLow}</span>
           {colors.map((c, i) => (
             <span
               key={i}
@@ -250,7 +253,7 @@ const Heatmap: React.FC<HeatmapProps> = ({
               style={{ background: c, width: cellSize, height: cellSize, borderRadius: cellRadius }}
             />
           ))}
-          <span className="au-heatmap__legend-text">高</span>
+          <span className="au-heatmap__legend-text">{locale.Heatmap.legendHigh}</span>
         </div>
       )}
 

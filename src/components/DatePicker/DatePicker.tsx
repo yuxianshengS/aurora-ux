@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
+import type { Locale } from '../../locale/types';
 import './DatePicker.css';
 import {
   addDays,
@@ -61,11 +63,8 @@ export interface RangeDatePickerProps extends DatePickerBaseProps {
 
 export type DatePickerProps = SingleDatePickerProps | RangeDatePickerProps;
 
-const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日'];
-const MONTHS = [
-  '1月', '2月', '3月', '4月', '5月', '6月',
-  '7月', '8月', '9月', '10月', '11月', '12月',
-];
+/* WEEKDAYS / MONTHS / 各 picker mode 的 placeholder 走 locale —
+   sub-component 自己读 useLocale, defaultPlaceholder 改成接 Locale 入参 */
 
 function getFormat(picker: PickerMode, showTime: boolean, custom?: string): string {
   if (custom) return custom;
@@ -73,13 +72,14 @@ function getFormat(picker: PickerMode, showTime: boolean, custom?: string): stri
   return defaultFormats[picker];
 }
 
-function defaultPlaceholder(picker: PickerMode, showTime: boolean): string {
-  if (picker === 'date') return showTime ? '选择日期时间' : '选择日期';
-  if (picker === 'year') return '选择年份';
-  if (picker === 'month') return '选择月份';
-  if (picker === 'quarter') return '选择季度';
-  if (picker === 'week') return '选择周';
-  return '选择时间';
+function defaultPlaceholder(picker: PickerMode, showTime: boolean, locale: Locale): string {
+  const dp = locale.DatePicker;
+  if (picker === 'date') return showTime ? dp.placeholderDateTime : dp.placeholderDate;
+  if (picker === 'year') return dp.placeholderYear;
+  if (picker === 'month') return dp.placeholderMonth;
+  if (picker === 'quarter') return dp.placeholderQuarter;
+  if (picker === 'week') return dp.placeholderWeek;
+  return dp.placeholderTime;
 }
 
 /** Commit the picked date per mode (e.g. month → 1st of month). */
@@ -127,6 +127,8 @@ function DateGrid(props: PanelBaseProps) {
     rangeStart, rangeEnd, hoverDate, setHoverDate, isRange, picker,
     onYearLabelClick, onMonthLabelClick,
   } = props;
+  const locale = useLocale();
+  const WEEKDAYS = locale.DatePicker.weekdays;
   const first = startOfMonth(viewDate);
   const offset = mondayIndex(first);
   const firstCell = addDays(first, -offset);
@@ -156,17 +158,17 @@ function DateGrid(props: PanelBaseProps) {
         <span className="au-dp__nav-label">
           {onYearLabelClick ? (
             <button type="button" className="au-dp__nav-link" onClick={onYearLabelClick}>
-              {viewDate.getFullYear()} 年
+              {locale.DatePicker.yearLabel.replace('{n}', String(viewDate.getFullYear()))}
             </button>
           ) : (
-            <span>{viewDate.getFullYear()} 年</span>
+            <span>{locale.DatePicker.yearLabel.replace('{n}', String(viewDate.getFullYear()))}</span>
           )}
           {onMonthLabelClick ? (
             <button type="button" className="au-dp__nav-link" onClick={onMonthLabelClick}>
-              {viewDate.getMonth() + 1} 月
+              {locale.DatePicker.monthLabel.replace('{n}', String(viewDate.getMonth() + 1))}
             </button>
           ) : (
-            <span>{viewDate.getMonth() + 1} 月</span>
+            <span>{locale.DatePicker.monthLabel.replace('{n}', String(viewDate.getMonth() + 1))}</span>
           )}
         </span>
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addMonths(viewDate, 1))}>›</button>
@@ -267,6 +269,8 @@ function YearGrid(props: PanelBaseProps) {
 
 function MonthGrid(props: PanelBaseProps) {
   const { viewDate, setViewDate, onPick, value, rangeStart, rangeEnd, hoverDate, isRange } = props;
+  const locale = useLocale();
+  const MONTHS = locale.DatePicker.months;
   const year = viewDate.getFullYear();
 
   const monthKey = (d: Date) => d.getFullYear() * 12 + d.getMonth();
@@ -284,7 +288,7 @@ function MonthGrid(props: PanelBaseProps) {
     <div className="au-dp__body">
       <div className="au-dp__nav">
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addYears(viewDate, -1))}>«</button>
-        <span className="au-dp__nav-label">{year} 年</span>
+        <span className="au-dp__nav-label">{locale.DatePicker.yearLabel.replace("{n}", String(year))}</span>
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addYears(viewDate, 1))}>»</button>
       </div>
       <div className="au-dp__grid au-dp__grid--month">
@@ -318,6 +322,7 @@ function MonthGrid(props: PanelBaseProps) {
 
 function WeekGrid(props: PanelBaseProps) {
   const { viewDate, setViewDate, onPick, value, rangeStart, rangeEnd, hoverDate, setHoverDate, isRange } = props;
+  const locale = useLocale();
   const year = viewDate.getFullYear();
   const weeks = weeksInISOYear(year);
 
@@ -369,7 +374,7 @@ function WeekGrid(props: PanelBaseProps) {
     <div className="au-dp__body">
       <div className="au-dp__nav">
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addYears(viewDate, -1))}>«</button>
-        <span className="au-dp__nav-label">{year} 年</span>
+        <span className="au-dp__nav-label">{locale.DatePicker.yearLabel.replace("{n}", String(year))}</span>
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addYears(viewDate, 1))}>»</button>
       </div>
       <div className="au-dp__grid au-dp__grid--weeks">{cells}</div>
@@ -379,6 +384,7 @@ function WeekGrid(props: PanelBaseProps) {
 
 function QuarterGrid(props: PanelBaseProps) {
   const { viewDate, setViewDate, onPick, value, rangeStart, rangeEnd, hoverDate, isRange } = props;
+  const locale = useLocale();
   const year = viewDate.getFullYear();
   const qKey = (d: Date) => d.getFullYear() * 4 + getQuarter(d) - 1;
   const inRange = (q: number) => {
@@ -395,7 +401,7 @@ function QuarterGrid(props: PanelBaseProps) {
     <div className="au-dp__body">
       <div className="au-dp__nav">
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addYears(viewDate, -1))}>«</button>
-        <span className="au-dp__nav-label">{year} 年</span>
+        <span className="au-dp__nav-label">{locale.DatePicker.yearLabel.replace("{n}", String(year))}</span>
         <button className="au-dp__nav-btn" onClick={() => setViewDate(addYears(viewDate, 1))}>»</button>
       </div>
       <div className="au-dp__grid au-dp__grid--quarter">
@@ -512,6 +518,7 @@ const ClockIcon = () => (
 );
 
 const DatePicker: React.FC<DatePickerProps> = (props) => {
+  const locale = useLocale();
   const picker: PickerMode = props.picker ?? 'date';
   const showTime = !!props.showTime && picker === 'date';
   const isRange = !!(props as RangeDatePickerProps).range;
@@ -677,9 +684,12 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
       : '';
 
   const placeholder = props.placeholder;
-  const phSingle = (placeholder as string) || defaultPlaceholder(picker, showTime);
+  const phSingle = (placeholder as string) || defaultPlaceholder(picker, showTime, locale);
   const phRange =
-    (placeholder as [string, string]) || ['开始' + defaultPlaceholder(picker, showTime), '结束' + defaultPlaceholder(picker, showTime)];
+    (placeholder as [string, string]) || [
+      locale.DatePicker.rangeStart + defaultPlaceholder(picker, showTime, locale),
+      locale.DatePicker.rangeEnd + defaultPlaceholder(picker, showTime, locale),
+    ];
 
   const wrapperClasses = [
     'au-dp',
@@ -798,14 +808,14 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
             isRange ? (
               <div className="au-dp__panels">
                 <div className="au-dp__panel">
-                  <div className="au-dp__side-label">开始时间</div>
+                  <div className="au-dp__side-label">{locale.DatePicker.rangeSideStart}</div>
                   <TimePanel
                     value={range[0] ?? new Date(0, 0, 0, 0, 0, 0)}
                     onChange={(d) => emitRange([d, range[1]])}
                   />
                 </div>
                 <div className="au-dp__panel">
-                  <div className="au-dp__side-label">结束时间</div>
+                  <div className="au-dp__side-label">{locale.DatePicker.rangeSideEnd}</div>
                   <TimePanel
                     value={range[1] ?? new Date(0, 0, 0, 23, 59, 59)}
                     onChange={(d) => emitRange([range[0], d])}
@@ -872,7 +882,7 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
                 className="au-dp__today-link"
                 onClick={() => handlePick(new Date())}
               >
-                今天
+                {locale.DatePicker.today}
               </button>
             </div>
           )}
@@ -884,7 +894,7 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
                   className="au-dp__ok"
                   onClick={() => setOpen(false)}
                 >
-                  确定
+                  {locale.DatePicker.confirm}
                 </button>
               </div>
             </div>

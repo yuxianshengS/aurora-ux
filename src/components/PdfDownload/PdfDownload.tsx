@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import PdfPreview, { type PdfPreviewPage } from './PdfPreview';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './PdfDownload.css';
 
 // 动态加载 — 进入页面不必为 600KB+ 的 html2canvas/jspdf 付钱,只在用户点击时拉
@@ -282,7 +283,7 @@ const PdfDownload = forwardRef<PdfDownloadHandle, PdfDownloadProps>(
       format = 'a4',
       scale = 2,
       margin = 0,
-      buttonText = '下载 PDF',
+      buttonText,
       disabled = false,
       preview = false,
       beforeRender,
@@ -295,6 +296,8 @@ const PdfDownload = forwardRef<PdfDownloadHandle, PdfDownloadProps>(
     },
     ref,
   ) => {
+    const locale = useLocale();
+    const buttonTextResolved = buttonText ?? locale.PdfDownload.download;
     const [loading, setLoading] = useState(false);
     const [previewPages, setPreviewPages] = useState<PdfPreviewPage[] | null>(null);
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -457,7 +460,7 @@ const PdfDownload = forwardRef<PdfDownloadHandle, PdfDownloadProps>(
           disabled={disabled || loading}
         >
           {loading ? <span className="au-pdf-download__spinner" /> : <DownloadIcon />}
-          <span>{loading ? '生成中...' : buttonText}</span>
+          <span>{loading ? locale.PdfDownload.generating : buttonTextResolved}</span>
         </button>
       );
 

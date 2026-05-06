@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './CommandPalette.css';
 
 export interface CommandItem {
@@ -110,8 +111,8 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
   defaultOpen = false,
   onOpenChange,
   hotkey = isMac ? 'meta+k' : 'ctrl+k',
-  placeholder = '搜索命令... (↑↓ 选择, ↵ 执行, ESC 关闭)',
-  emptyText = '没有匹配的命令',
+  placeholder,
+  emptyText,
   closeOnSelect = true,
   maxHeight = 420,
   width = 560,
@@ -119,6 +120,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
   header,
   className = '',
 }) => {
+  const locale = useLocale();
+  const placeholderText = placeholder ?? locale.CommandPalette.placeholder;
+  const emptyTextResolved = emptyText ?? locale.CommandPalette.empty;
   const isCtrl = ctrlOpen !== undefined;
   const [innerOpen, setInnerOpen] = useState(defaultOpen);
   const open = isCtrl ? ctrlOpen! : innerOpen;
@@ -288,7 +292,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
           <input
             ref={inputRef}
             className="au-cmdk__input"
-            placeholder={placeholder}
+            placeholder={placeholderText}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -302,7 +306,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
         <div ref={listRef} className="au-cmdk__list" role="listbox">
           {flat.length === 0 ? (
-            <div className="au-cmdk__empty">{emptyText}</div>
+            <div className="au-cmdk__empty">{emptyTextResolved}</div>
           ) : (
             grouped.map(([groupName, list]) => (
               <div key={groupName || '__default'} className="au-cmdk__group">
@@ -351,9 +355,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
           )}
         </div>
         <div className="au-cmdk__footer">
-          <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
-          <span><kbd>↵</kbd> 执行</span>
-          <span><kbd>{isMac ? '⌘' : 'Ctrl'}</kbd><kbd>K</kbd> 切换</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> {locale.CommandPalette.hintArrows}</span>
+          <span><kbd>↵</kbd> {locale.CommandPalette.hintEnter}</span>
+          <span><kbd>{isMac ? '⌘' : 'Ctrl'}</kbd><kbd>K</kbd> {locale.CommandPalette.hintToggle}</span>
           <span className="au-cmdk__brand">Aurora · cmdk</span>
         </div>
       </div>

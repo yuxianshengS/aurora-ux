@@ -1,4 +1,5 @@
 import React, { useId, useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './ThemeSwitch.css';
 
 export interface ThemeSwitchProps {
@@ -30,8 +31,10 @@ const ThemeSwitch: React.FC<ThemeSwitchProps> = ({
   size = 'medium',
   className,
   onChange,
-  'aria-label': ariaLabel = '切换主题',
+  'aria-label': ariaLabelProp,
 }) => {
+  const locale = useLocale();
+  const ariaLabel = ariaLabelProp ?? locale.ThemeSwitch.label;
   const reactId = useId();
   const isControlled = checked !== undefined;
   const [inner, setInner] = useState(defaultChecked);

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { confirm, info, success, error, warning } from './confirm';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Modal.css';
 
 export interface ModalProps {
@@ -81,8 +82,8 @@ const Modal: React.FC<ModalProps> & {
   maskClosable = true,
   keyboard = true,
   centered,
-  okText = '确定',
-  cancelText = '取消',
+  okText,
+  cancelText,
   okButtonProps,
   cancelButtonProps,
   confirmLoading,
@@ -93,6 +94,9 @@ const Modal: React.FC<ModalProps> & {
   onCancel,
   afterClose,
 }) => {
+  const locale = useLocale();
+  const okTextResolved = okText ?? locale.Modal.ok;
+  const cancelTextResolved = cancelText ?? locale.Modal.cancel;
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const locked = useRef(false);
@@ -188,7 +192,7 @@ const Modal: React.FC<ModalProps> & {
                   type="button"
                   className="au-modal__close"
                   onClick={() => onCancel?.()}
-                  aria-label="关闭"
+                  aria-label={locale.Common.close}
                 >
                   <CloseIcon />
                 </button>
@@ -210,7 +214,7 @@ const Modal: React.FC<ModalProps> & {
                     onClick={() => onCancel?.()}
                     {...cancelButtonProps}
                   >
-                    {cancelText}
+                    {cancelTextResolved}
                   </button>
                   <button
                     type="button"
@@ -227,7 +231,7 @@ const Modal: React.FC<ModalProps> & {
                     {...okButtonProps}
                   >
                     {confirmLoading && <span className="au-btn__spinner" />}
-                    {okText}
+                    {okTextResolved}
                   </button>
                 </>
               )}

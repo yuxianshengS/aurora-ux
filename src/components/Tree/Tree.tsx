@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Tree.css';
 
 export interface TreeNode {
@@ -93,6 +94,7 @@ const Tree: React.FC<TreeProps> = ({
   className = '',
   style,
 }) => {
+  const locale = useLocale();
   const isExCtrl = ctrlExpanded !== undefined;
   const isSelCtrl = ctrlSelected !== undefined;
   const isCkCtrl = ctrlChecked !== undefined;
@@ -165,7 +167,7 @@ const Tree: React.FC<TreeProps> = ({
                 e.stopPropagation();
                 setExpanded(node.key);
               }}
-              aria-label={expanded ? '收起' : '展开'}
+              aria-label={expanded ? locale.Tree.collapse : locale.Tree.expand}
             >
               <Caret open={expanded} />
             </button>

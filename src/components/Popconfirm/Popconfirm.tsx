@@ -9,6 +9,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Popconfirm.css';
 
 export type PopconfirmPlacement =
@@ -49,8 +50,8 @@ const WarnIcon: React.FC = () => (
 const Popconfirm: React.FC<PopconfirmProps> = ({
   title,
   description,
-  okText = '确定',
-  cancelText = '取消',
+  okText,
+  cancelText,
   okType = 'primary',
   icon,
   placement = 'top',
@@ -62,6 +63,9 @@ const Popconfirm: React.FC<PopconfirmProps> = ({
   onOpenChange,
   children,
 }) => {
+  const locale = useLocale();
+  const okTextResolved = okText ?? locale.Popconfirm.ok;
+  const cancelTextResolved = cancelText ?? locale.Popconfirm.cancel;
   const isControlled = controlledOpen !== undefined;
   const [innerOpen, setInnerOpen] = useState(defaultOpen);
   const open = isControlled ? controlledOpen! : innerOpen;
@@ -189,7 +193,7 @@ const Popconfirm: React.FC<PopconfirmProps> = ({
                   onClick={handleCancel}
                   disabled={loading}
                 >
-                  {cancelText}
+                  {cancelTextResolved}
                 </button>
                 <button
                   type="button"
@@ -205,7 +209,7 @@ const Popconfirm: React.FC<PopconfirmProps> = ({
                   disabled={loading}
                 >
                   {loading && <span className="au-btn__spinner" />}
-                  {okText}
+                  {okTextResolved}
                 </button>
               </div>
             </div>

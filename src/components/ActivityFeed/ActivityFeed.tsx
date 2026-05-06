@@ -1,4 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
+import type { Locale } from '../../locale/types';
 import './ActivityFeed.css';
 
 export type ActivityType = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'primary';
@@ -37,12 +39,13 @@ export interface ActivityFeedProps {
 
 const toDate = (v: string | Date): Date => (v instanceof Date ? v : new Date(v));
 
-const relTime = (d: Date): string => {
+const relTime = (d: Date, locale: Locale): string => {
   const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 60) return '刚刚';
-  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`;
-  if (diff < 86400 * 7) return `${Math.floor(diff / 86400)} 天前`;
+  const tpl = (template: string, n: number) => template.replace('{n}', String(n));
+  if (diff < 60) return locale.ActivityFeed.justNow;
+  if (diff < 3600) return tpl(locale.ActivityFeed.minutesAgo, Math.floor(diff / 60));
+  if (diff < 86400) return tpl(locale.ActivityFeed.hoursAgo, Math.floor(diff / 3600));
+  if (diff < 86400 * 7) return tpl(locale.ActivityFeed.daysAgo, Math.floor(diff / 86400));
   return d.toLocaleDateString();
 };
 
@@ -58,10 +61,12 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   reverse = true,
   highlightNew = true,
   relativeTime = true,
-  emptyText = '暂无动态',
+  emptyText,
   className = '',
   style,
 }) => {
+  const locale = useLocale();
+  const emptyTextResolved = emptyText ?? locale.ActivityFeed.empty;
   const sorted = useMemo(() => {
     const arr = items.map((it, i) => ({
       ...it,
@@ -109,7 +114,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   if (sorted.length === 0) {
     return (
       <div className={cls} style={{ ...style, maxHeight }}>
-        <div className="au-activity-feed__empty">{emptyText}</div>
+        <div className="au-activity-feed__empty">{emptyTextResolved}</div>
       </div>
     );
   }
@@ -156,7 +161,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
                 )}
                 <div className="au-activity-feed__meta">
                   <span className="au-activity-feed__time" title={absTime(it._date)}>
-                    {relativeTime ? relTime(it._date) : absTime(it._date)}
+                    {relativeTime ? relTime(it._date, locale) : absTime(it._date)}
                   </span>
                   {it.meta}
                 </div>

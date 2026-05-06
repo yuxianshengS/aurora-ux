@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './FloatButton.css';
 
 export type FloatButtonPosition =
@@ -127,8 +128,9 @@ const FloatButton: React.FC<FloatButtonProps> = ({
     else positionStyle.top = oy;
   }
 
+  const locale = useLocale();
   const mainIcon = isBackTop ? <ArrowUpIcon /> : icon ?? <PlusIcon />;
-  const mainTooltip = isBackTop ? '返回顶部' : tooltip;
+  const mainTooltip = isBackTop ? locale.FloatButton.backTop : tooltip;
 
   return (
     <div

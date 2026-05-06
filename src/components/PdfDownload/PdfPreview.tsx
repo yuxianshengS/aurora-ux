@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './PdfPreview.css';
 
 export interface PdfPreviewPage {
@@ -73,6 +74,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const locale = useLocale();
   const rootRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   // 每页的 DOM 容器, 用于 IntersectionObserver 跟踪当前页
@@ -192,10 +194,12 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
   };
 
   const sizeText = useMemo(() => {
-    if (saving) return '打包中...';
+    if (saving) return locale.PdfDownload.packing;
     const sz = formatBytes(estimatedBytes);
+    /* "{n} 页" 不进 locale — 大部分场景这种 [n+量词] 会用到 Intl.PluralRules,
+       目前作为简单文本拼接, 中文 "页" / 英文 "pages" 之后再单独抽 */
     return `${pages.length} 页${sz ? ' · ~' + sz : ''}`;
-  }, [pages.length, estimatedBytes, saving]);
+  }, [pages.length, estimatedBytes, saving, locale]);
 
   if (!open || typeof document === 'undefined') return null;
 
@@ -310,10 +314,10 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
                 setFitMode('width');
                 setZoom(computeFitZoom('width'));
               }}
-              title="适合宽度"
+              title={locale.PdfDownload.fitWidth}
             >
               <Icon.fitWidth />
-              <span>适合宽度</span>
+              <span>{locale.PdfDownload.fitWidth}</span>
             </button>
             <button
               type="button"
@@ -351,7 +355,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
               ) : (
                 <Icon.download />
               )}
-              <span>{saving ? '下载中...' : '下载'}</span>
+              <span>{saving ? locale.PdfDownload.downloading : locale.PdfDownload.download}</span>
             </button>
           </div>
         </footer>

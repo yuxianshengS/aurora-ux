@@ -8,6 +8,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './Cascader.css';
 
 export type CascaderSize = 'small' | 'medium' | 'large';
@@ -118,7 +119,7 @@ function Cascader<V extends CascaderValue = CascaderValue>({
   options,
   value,
   defaultValue,
-  placeholder = '请选择',
+  placeholder,
   disabled,
   allowClear,
   size = 'medium',
@@ -137,6 +138,8 @@ function Cascader<V extends CascaderValue = CascaderValue>({
   onChange,
   onOpenChange,
 }: CascaderProps<V>) {
+  const locale = useLocale();
+  const placeholderText = placeholder ?? locale.Cascader.placeholder;
   const isControlled = value !== undefined;
   // 内部状态: 多选用 V[][], 单选用 V[]; 外部 value 同样按 multiple 解读
   const defaultMulti: V[][] = useMemo(() => {
@@ -344,7 +347,7 @@ function Cascader<V extends CascaderValue = CascaderValue>({
         <span className="au-cascader__display">
           {multiple ? (
             tags.length === 0 ? (
-              <span className="au-cascader__placeholder">{placeholder}</span>
+              <span className="au-cascader__placeholder">{placeholderText}</span>
             ) : (
               <>
                 {visibleTags.map((t) => (
@@ -380,7 +383,7 @@ function Cascader<V extends CascaderValue = CascaderValue>({
               </>
             )
           ) : currentResolved.length === 0 ? (
-            <span className="au-cascader__placeholder">{placeholder}</span>
+            <span className="au-cascader__placeholder">{placeholderText}</span>
           ) : displayRender ? (
             displayRender(
               currentResolved.map((o) => o.label),
@@ -435,7 +438,7 @@ function Cascader<V extends CascaderValue = CascaderValue>({
                 style={{ width: columnWidth, maxHeight: columnMaxHeight }}
               >
                 {colOptions.length === 0 ? (
-                  <li className="au-cascader__empty">无</li>
+                  <li className="au-cascader__empty">{locale.Cascader.empty}</li>
                 ) : (
                   colOptions.map((opt) => {
                     const isActive = activePath[colIdx] === opt.value;
