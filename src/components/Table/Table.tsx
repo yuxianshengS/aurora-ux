@@ -26,6 +26,22 @@ export interface TableColumn<T = any> {
   className?: string;
   /** 该列是否可拖拽改顺序; 默认 true (前提是 Table 上 draggableColumns 开启) */
   draggable?: boolean;
+  /**
+   * 单元格属性 — 主要用来做合并单元格 (rowSpan / colSpan).
+   * 跟 antd onCell 同款: 返回 `{ rowSpan: 0 }` 或 `{ colSpan: 0 }` 表示这格被上面/左边合并掉, 不渲染.
+   * 例:
+   *   onCell: (record, idx) => {
+   *     const prev = data[idx-1];
+   *     if (prev && prev.group === record.group) return { rowSpan: 0 };  // 被上面合并
+   *     let span = 1;
+   *     while (data[idx+span]?.group === record.group) span++;
+   *     return { rowSpan: span };
+   *   }
+   */
+  onCell?: (
+    record: T,
+    index: number,
+  ) => (React.TdHTMLAttributes<HTMLTableCellElement> & { rowSpan?: number; colSpan?: number }) | undefined;
 }
 
 export interface RowSelection<T = any> {
@@ -41,6 +57,28 @@ export interface RowSelection<T = any> {
 }
 
 export type TablePagination = false | (Omit<PaginationProps, 'total'> & { total?: number; position?: 'top' | 'bottom' });
+
+/**
+ * 展开行配置 — 跟 antd Table.expandable 同款.
+ * 设了 expandedRowRender 走"详情行"模式: 展开时在该行下面插入一行长 td 显示自定义内容.
+ * 用户也可以只用 expandedRowKeys 状态而不渲染详情行 (跟 onExpand 联动做自定义展开 UI).
+ */
+export interface TableExpandable<T = any> {
+  /** 展开后渲染的内容 — 在主行下面以 colSpan 整行展示 */
+  expandedRowRender?: (record: T, index: number) => React.ReactNode;
+  /** 哪些行可以展开, 不可展开的不显示展开按钮 */
+  rowExpandable?: (record: T) => boolean;
+  /** 受控展开 keys */
+  expandedRowKeys?: React.Key[];
+  /** 默认展开 keys */
+  defaultExpandedRowKeys?: React.Key[];
+  /** 展开 / 收起触发回调 */
+  onExpand?: (expanded: boolean, record: T) => void;
+  /** 是否显示左侧的展开列 (chevron 列). 默认 true */
+  showExpandColumn?: boolean;
+  /** 自定义展开图标 */
+  expandIcon?: (info: { expanded: boolean; record: T; onExpand: () => void }) => React.ReactNode;
+}
 
 export interface TableProps<T = any> {
   columns: TableColumn<T>[];
@@ -69,6 +107,13 @@ export interface TableProps<T = any> {
   draggableColumns?: boolean;
   /** 列排序变化回调 */
   onColumnReorder?: (next: TableColumn<T>[], info: { from: number; to: number }) => void;
+
+  /** 展开行配置 (详情行模式) */
+  expandable?: TableExpandable<T>;
+  /** 树形数据: 数据里的子项字段名, 默认 'children'. 设了之后 dataSource 里的 children 会自动嵌套渲染并加缩进 */
+  childrenColumnName?: string;
+  /** 树形数据: 每层缩进 px, 默认 16 */
+  treeIndent?: number;
 }
 
 const SortIcon: React.FC<{ order: SortOrder }> = ({ order }) => (
@@ -146,6 +191,9 @@ function Table<T = any>({
   onRowReorder,
   draggableColumns,
   onColumnReorder,
+  expandable,
+  childrenColumnName = 'children',
+  treeIndent = 16,
 }: TableProps<T>) {
   /* ============ 列顺序 (内部状态, 跟 columns prop 保持同步, 但拖动时由内部主导) ============ */
   const columnsKeySig = useMemo(
@@ -268,6 +316,43 @@ function Table<T = any>({
   );
   const selectedKeys = selCtrl ? rowSelection!.selectedRowKeys! : innerSel;
   const selType = rowSelection?.type ?? 'checkbox';
+
+  /* ============ 展开行 (expandable + 树形数据共用 expandedKeys 状态) ============ */
+  const expCtrl = expandable?.expandedRowKeys !== undefined;
+  const [innerExpanded, setInnerExpanded] = useState<React.Key[]>(
+    expandable?.defaultExpandedRowKeys ?? [],
+  );
+  const expandedKeys = expCtrl ? expandable!.expandedRowKeys! : innerExpanded;
+  /** 展开列是否出现 — expandable.expandedRowRender 存在 + showExpandColumn 没显式关掉 */
+  const showExpandColumn =
+    !!expandable?.expandedRowRender && expandable?.showExpandColumn !== false;
+  const toggleExpand = (key: React.Key, record: T) => {
+    const isOpen = expandedKeys.includes(key);
+    const next = isOpen ? expandedKeys.filter((k) => k !== key) : [...expandedKeys, key];
+    if (!expCtrl) setInnerExpanded(next);
+    expandable?.onExpand?.(!isOpen, record);
+  };
+
+  /** 树形数据: 把 children 字段递归展平成 [{ record, depth, key, hasChildren }],
+   * 只展开的父节点的 children 才会出现在展平结果里 */
+  type FlatRow = { record: T; depth: number; key: React.Key; hasChildren: boolean; flatIndex: number };
+  const flattenedRows: FlatRow[] = useMemo(() => {
+    const out: FlatRow[] = [];
+    const walk = (rows: T[], depth: number, parentBaseIndex: number) => {
+      rows.forEach((r, i) => {
+        const flatIdx = parentBaseIndex + i;
+        const k = getKey(r, flatIdx, rowKey);
+        const children = (r as any)[childrenColumnName] as T[] | undefined;
+        const hasChildren = Array.isArray(children) && children.length > 0;
+        out.push({ record: r, depth, key: k, hasChildren, flatIndex: flatIdx });
+        if (hasChildren && expandedKeys.includes(k)) {
+          walk(children!, depth + 1, flatIdx * 1000); // 子层 flatIndex 用乘法分散, 避免冲突
+        }
+      });
+    };
+    walk(pagedData, 0, (current - 1) * pageSize);
+    return out;
+  }, [pagedData, childrenColumnName, expandedKeys, rowKey, current, pageSize]);
 
   const allPageKeys = useMemo(
     () =>
@@ -528,7 +613,8 @@ function Table<T = any>({
               colSpan={
                 orderedColumns.length +
                 (rowSelection ? 1 : 0) +
-                (draggableRows ? 1 : 0)
+                (draggableRows ? 1 : 0) +
+                (showExpandColumn ? 1 : 0)
               }
               className="au-table__cell"
             >
@@ -536,8 +622,8 @@ function Table<T = any>({
             </td>
           </tr>
         ) : (
-          pagedData.map((record, i) => {
-            const key = getKey(record, (current - 1) * pageSize + i, rowKey);
+          flattenedRows.flatMap((row) => {
+            const { record, depth, key, hasChildren, flatIndex: i } = row;
             const selected = selectedKeys.includes(key);
             const selectable = rowSelection
               ? !rowSelection.getCheckboxProps?.(record).disabled
@@ -559,7 +645,7 @@ function Table<T = any>({
             ]
               .filter(Boolean)
               .join(' ');
-            return (
+            return [
               <tr
                 key={key}
                 className={rowCls}
@@ -613,29 +699,96 @@ function Table<T = any>({
                     )}
                   </td>
                 )}
+                {showExpandColumn && (
+                  <td className="au-table__cell au-table__cell--expand">
+                    {(!expandable?.rowExpandable || expandable.rowExpandable(record)) && (
+                      <button
+                        type="button"
+                        className={['au-table__expand-btn', expandedKeys.includes(key) ? 'is-open' : ''].filter(Boolean).join(' ')}
+                        onClick={() => toggleExpand(key, record)}
+                        aria-label={expandedKeys.includes(key) ? '收起' : '展开'}
+                        aria-expanded={expandedKeys.includes(key)}
+                      >
+                        <svg viewBox="0 0 8 8" width="8" height="8" aria-hidden>
+                          <path d="M1.5 2.5L4 5l2.5-2.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    )}
+                  </td>
+                )}
                 {orderedColumns.map((col, j) => {
                   const v = getCellValue(record, col, i);
                   const content = col.render ? col.render(v, record, i) : (v as React.ReactNode);
+                  const cellAttrs = col.onCell?.(record, i) ?? {};
+                  // rowSpan: 0 / colSpan: 0 = 这格被上方/左侧合并掉, 不渲染
+                  if (cellAttrs.rowSpan === 0 || cellAttrs.colSpan === 0) return null;
                   const cellCls = [
                     'au-table__cell',
                     col.align ? `au-table__cell--${col.align}` : '',
                     col.ellipsis ? 'is-ellipsis' : '',
                     col.className ?? '',
+                    cellAttrs.className ?? '',
                   ]
                     .filter(Boolean)
                     .join(' ');
+                  // 拆出 className 避免重复, 其他属性透传到 td
+                  const { className: _attrCls, ...restAttrs } = cellAttrs;
+                  // 第一列负责显示树形缩进 + 展开 chevron
+                  const isFirstCol = j === 0;
+                  const isTreeRow = depth > 0 || hasChildren;
                   return (
                     <td
                       key={colKeyOf(col, j)}
                       className={cellCls}
                       title={col.ellipsis && typeof content === 'string' ? (content as string) : undefined}
+                      {...restAttrs}
                     >
-                      {content as React.ReactNode}
+                      {isFirstCol && isTreeRow ? (
+                        <span className="au-table__tree-cell" style={{ paddingLeft: depth * treeIndent }}>
+                          {hasChildren ? (
+                            <button
+                              type="button"
+                              className={['au-table__tree-toggle', expandedKeys.includes(key) ? 'is-open' : ''].filter(Boolean).join(' ')}
+                              onClick={() => toggleExpand(key, record)}
+                              aria-label={expandedKeys.includes(key) ? '收起' : '展开'}
+                              aria-expanded={expandedKeys.includes(key)}
+                            >
+                              <svg viewBox="0 0 8 8" width="8" height="8" aria-hidden>
+                                <path d="M1.5 2.5L4 5l2.5-2.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </button>
+                          ) : (
+                            <span className="au-table__tree-toggle au-table__tree-toggle--leaf" />
+                          )}
+                          <span>{content as React.ReactNode}</span>
+                        </span>
+                      ) : (
+                        (content as React.ReactNode)
+                      )}
                     </td>
                   );
                 })}
-              </tr>
-            );
+              </tr>,
+              // expandable 详情行 — 在主行下面以 colSpan 整行渲染
+              showExpandColumn &&
+                expandedKeys.includes(key) &&
+                expandable?.expandedRowRender &&
+                (!expandable?.rowExpandable || expandable.rowExpandable(record)) ? (
+                <tr key={`${key}__expanded`} className="au-table__row au-table__row--expanded">
+                  <td
+                    colSpan={
+                      orderedColumns.length +
+                      (rowSelection ? 1 : 0) +
+                      (draggableRows ? 1 : 0) +
+                      1 /* expand col */
+                    }
+                    className="au-table__cell au-table__cell--expanded"
+                  >
+                    {expandable.expandedRowRender(record, i)}
+                  </td>
+                </tr>
+              ) : null,
+            ];
           })
         )}
       </tbody>

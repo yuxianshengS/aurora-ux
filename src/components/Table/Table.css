@@ -239,3 +239,66 @@
 @media (prefers-reduced-motion: reduce) {
   .au-table__drag-handle { transition: none; }
 }
+
+/* ============ 展开行 (expandable) + 树形数据 (childrenColumnName) ============ */
+
+.au-table__cell--expand {
+  width: 36px;
+  text-align: center;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.au-table__expand-btn,
+.au-table__tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--au-border);
+  background: var(--au-bg);
+  border-radius: 4px;
+  color: var(--au-text-2);
+  cursor: pointer;
+  transition: transform 0.18s var(--au-ease, ease), color 0.15s var(--au-ease, ease);
+  /* chevron 默认朝下 (收起态), 展开时旋 180 朝上 */
+  transform: rotate(-90deg);
+}
+.au-table__expand-btn:hover,
+.au-table__tree-toggle:hover {
+  color: var(--au-primary);
+  border-color: var(--au-primary);
+}
+.au-table__expand-btn.is-open,
+.au-table__tree-toggle.is-open {
+  transform: rotate(0deg);
+}
+.au-table__tree-toggle--leaf {
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+.au-table__tree-toggle--leaf:hover {
+  color: inherit;
+  border-color: transparent;
+}
+
+.au-table__tree-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.au-table__row--expanded > .au-table__cell--expanded {
+  background: var(--au-bg-soft);
+  padding: 12px 16px;
+  border-top: 1px dashed var(--au-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-table__expand-btn,
+  .au-table__tree-toggle {
+    transition: none;
+  }
+}

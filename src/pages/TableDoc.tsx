@@ -215,6 +215,67 @@ const columns = [
         <DraggableDemo />
       </DemoBlock>
 
+      <DemoBlock
+        title="可展开行 (expandable)"
+        description="主行下面挂任意自定义内容. 适合 '订单 → 订单详情' / '日志 → stack trace' / '用户 → 卡片详情' 等场景."
+        code={`<Table
+  columns={columns}
+  dataSource={data}
+  rowKey="id"
+  expandable={{
+    expandedRowRender: (record) => (
+      <div>详情: {JSON.stringify(record.detail)}</div>
+    ),
+    rowExpandable: (r) => r.canExpand !== false,
+  }}
+/>`}
+      >
+        <ExpandableDemo />
+      </DemoBlock>
+
+      <DemoBlock
+        title="树形数据 (childrenColumnName)"
+        description="data 里 children 字段自动嵌套渲染, 第一列加缩进 + 折叠 chevron. 适合部门/分类/文件树."
+        code={`const data = [
+  { id: 1, name: '前端', count: 12, children: [
+    { id: 11, name: 'React 组', count: 5 },
+    { id: 12, name: 'Vue 组', count: 4, children: [
+      { id: 121, name: '小李', count: 1 },
+      { id: 122, name: '小张', count: 2 },
+    ]},
+    { id: 13, name: 'Node 组', count: 3 },
+  ]},
+  { id: 2, name: '后端', count: 8, children: [...] },
+];
+
+<Table columns={columns} dataSource={data} rowKey="id" />`}
+      >
+        <TreeDataDemo />
+      </DemoBlock>
+
+      <DemoBlock
+        title="合并单元格 (column.onCell)"
+        description="onCell 返回 { rowSpan } 决定合并几行, rowSpan: 0 表示这格被上面合并掉不渲染. 同理 colSpan 横向合并. 适合 '相同分组合并 / 总计行 / 跨列表头'."
+        code={`const columns = [
+  {
+    title: '部门', dataIndex: 'dept',
+    onCell: (record, index) => {
+      const prev = data[index - 1];
+      // 跟上一行同 dept = 被上面合并
+      if (prev && prev.dept === record.dept) return { rowSpan: 0 };
+      // 计算往下能合多少行
+      let span = 1;
+      while (data[index + span]?.dept === record.dept) span++;
+      return { rowSpan: span };
+    },
+  },
+  { title: '姓名', dataIndex: 'name' },
+  { title: '工位', dataIndex: 'seat' },
+];`}
+      >
+        <RowSpanDemo />
+      </DemoBlock>
+
       <h2>API</h2>
       <h3>Table</h3>
       <ApiTable
@@ -440,6 +501,107 @@ const ActionsDemo: React.FC = () => {
       ]}
       dataSource={users}
       pagination={false}
+    />
+  );
+};
+
+const ExpandableDemo: React.FC = () => {
+  const data = [
+    { id: 1, name: '订单 #A001', amount: 980, status: '已发货', detail: '北京市朝阳区 / 顺丰 SF1234567 / 预计 2026-05-08 送达' },
+    { id: 2, name: '订单 #A002', amount: 320, status: '处理中', detail: '上海市浦东 / 待打包 / 预计今晚发货' },
+    { id: 3, name: '订单 #A003', amount: 1280, status: '已完成', detail: '广州市天河 / 圆通 YT9876543 / 已签收' },
+  ];
+  return (
+    <Table
+      columns={[
+        { title: '订单号', dataIndex: 'name', key: 'name' },
+        { title: '金额', dataIndex: 'amount', key: 'amount', align: 'right' as const },
+        { title: '状态', dataIndex: 'status', key: 'status' },
+      ]}
+      dataSource={data}
+      rowKey="id"
+      pagination={false}
+      expandable={{
+        expandedRowRender: (r: any) => (
+          <div style={{ color: 'var(--au-text-2)', fontSize: 13 }}>
+            <strong>详情:</strong> {r.detail}
+          </div>
+        ),
+      }}
+    />
+  );
+};
+
+const TreeDataDemo: React.FC = () => {
+  const data = [
+    {
+      id: 1, name: '前端', count: 12,
+      children: [
+        { id: 11, name: 'React 组', count: 5 },
+        {
+          id: 12, name: 'Vue 组', count: 4,
+          children: [
+            { id: 121, name: '小李', count: 1 },
+            { id: 122, name: '小张', count: 2 },
+            { id: 123, name: '小王', count: 1 },
+          ],
+        },
+        { id: 13, name: 'Node 组', count: 3 },
+      ],
+    },
+    {
+      id: 2, name: '后端', count: 8,
+      children: [
+        { id: 21, name: 'Java 组', count: 5 },
+        { id: 22, name: 'Go 组', count: 3 },
+      ],
+    },
+    { id: 3, name: 'QA', count: 4 },
+  ];
+  return (
+    <Table
+      columns={[
+        { title: '名称', dataIndex: 'name', key: 'name' },
+        { title: '人数', dataIndex: 'count', key: 'count', align: 'right' as const },
+      ]}
+      dataSource={data}
+      rowKey="id"
+      pagination={false}
+    />
+  );
+};
+
+const RowSpanDemo: React.FC = () => {
+  const data = [
+    { id: 1, dept: '前端组', name: '小李', seat: 'A-01' },
+    { id: 2, dept: '前端组', name: '小张', seat: 'A-02' },
+    { id: 3, dept: '前端组', name: '小王', seat: 'A-03' },
+    { id: 4, dept: '后端组', name: '小赵', seat: 'B-01' },
+    { id: 5, dept: '后端组', name: '小孙', seat: 'B-02' },
+    { id: 6, dept: 'QA', name: '小钱', seat: 'C-01' },
+  ];
+  return (
+    <Table
+      columns={[
+        {
+          title: '部门',
+          dataIndex: 'dept',
+          key: 'dept',
+          onCell: (record: any, index: number) => {
+            const prev = data[index - 1];
+            if (prev && prev.dept === record.dept) return { rowSpan: 0 };
+            let span = 1;
+            while (data[index + span]?.dept === record.dept) span++;
+            return { rowSpan: span };
+          },
+        },
+        { title: '姓名', dataIndex: 'name', key: 'name' },
+        { title: '工位', dataIndex: 'seat', key: 'seat' },
+      ]}
+      dataSource={data}
+      rowKey="id"
+      pagination={false}
+      bordered
     />
   );
 };
