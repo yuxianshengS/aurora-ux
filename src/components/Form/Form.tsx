@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useRef } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import FormItem from './FormItem';
 import { useForm, type FormInstance, type FormStore } from './useForm';
 import './Form.css';
@@ -65,6 +66,9 @@ const FormBase: React.FC<FormProps> = ({
   const [innerForm] = useForm();
   const form = ctrlForm ?? innerForm;
   const store = form.__store;
+  const locale = useLocale();
+  // 注入校验文案 — 让 useForm 内部 checkRule 能用到当前 locale 的错误消息
+  store.setLocaleMessages(locale.Form);
 
   // 只在第一次设置 initial values, 避免每次渲染重置用户输入
   const initRef = useRef(false);

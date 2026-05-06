@@ -1,6 +1,7 @@
 import type { Locale } from './types';
 
 const zhCN: Locale = {
+  numberFormat: 'zh-CN',
   Pagination: {
     prev: '上一页',
     next: '下一页',
@@ -141,6 +142,20 @@ const zhCN: Locale = {
     clear: '清除',
     expand: '展开',
     collapse: '收起',
+  },
+  Form: {
+    required: '此字段为必填',
+    typeMismatch: '格式必须是 {type}',
+    minString: '至少 {n} 字',
+    maxString: '最多 {n} 字',
+    lenString: '必须 {n} 字',
+    minNumber: '不小于 {n}',
+    maxNumber: '不大于 {n}',
+    minArray: '至少选 {n} 项',
+    maxArray: '最多选 {n} 项',
+    lenArray: '必须选 {n} 项',
+    patternMismatch: '格式不匹配',
+    validatorFailed: '校验未通过',
   },
 };
 

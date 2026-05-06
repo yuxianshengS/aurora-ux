@@ -1,6 +1,7 @@
 import type { Locale } from './types';
 
 const enUS: Locale = {
+  numberFormat: 'en-US',
   Pagination: {
     prev: 'Previous',
     next: 'Next',
@@ -141,6 +142,20 @@ const enUS: Locale = {
     clear: 'Clear',
     expand: 'Expand',
     collapse: 'Collapse',
+  },
+  Form: {
+    required: 'This field is required',
+    typeMismatch: 'Must be a valid {type}',
+    minString: 'At least {n} characters',
+    maxString: 'At most {n} characters',
+    lenString: 'Must be exactly {n} characters',
+    minNumber: 'Must be at least {n}',
+    maxNumber: 'Must be at most {n}',
+    minArray: 'Select at least {n} items',
+    maxArray: 'Select at most {n} items',
+    lenArray: 'Select exactly {n} items',
+    patternMismatch: 'Invalid format',
+    validatorFailed: 'Validation failed',
   },
 };
 

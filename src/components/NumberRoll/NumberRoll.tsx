@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './NumberRoll.css';
 
 export interface NumberRollProps {
@@ -47,6 +48,7 @@ const NumberRoll: React.FC<NumberRollProps> = ({
   className = '',
   style,
 }) => {
+  const locale = useLocale();
   // 第一次挂载从 0 滚到 value (有动效); 后续从前一次值滚到新值
   const initRef = useRef(false);
   const [from, setFrom] = useState(0);
@@ -59,7 +61,7 @@ const NumberRoll: React.FC<NumberRollProps> = ({
   }, [value]);
 
   // 把数字格式化, 拆成字符数组 (含 . 和 ,)
-  const formatted = formatNumber(value, precision, thousandSeparator);
+  const formatted = formatNumber(value, precision, thousandSeparator, locale.numberFormat);
   const chars = formatted.split('');
 
   // 倒序计算每位的 stagger 延迟 (个位先滚, 高位最后): 总位数 - i
@@ -142,12 +144,12 @@ const Digit: React.FC<{ digit: number; size: number; duration: number; delay: nu
   );
 };
 
-const formatNumber = (n: number, precision: number, thousand: boolean): string => {
-  const fixed = n.toFixed(precision);
-  if (!thousand) return fixed;
-  const [intPart, decPart] = fixed.split('.');
-  const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return decPart ? `${withCommas}.${decPart}` : withCommas;
+const formatNumber = (n: number, precision: number, thousand: boolean, numberFormat: string): string => {
+  if (!thousand) return n.toFixed(precision);
+  return new Intl.NumberFormat(numberFormat, {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
+  }).format(n);
 };
 
 export default NumberRoll;

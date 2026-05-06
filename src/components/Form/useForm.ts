@@ -9,6 +9,14 @@
  *   submit() — 触发完整校验 + 调用 onFinish / onFinishFailed
  */
 import { useRef } from 'react';
+import zhCN from '../../locale/zh_CN';
+import type { Locale } from '../../locale/types';
+
+/** Form 校验默认消息源 — 不被 ConfigProvider 包裹时走 zhCN 兜底, 跟其他组件行为一致 */
+type FormMessages = Locale['Form'];
+const DEFAULT_MESSAGES: FormMessages = zhCN.Form;
+const tpl = (s: string, m: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k) => String(m[k] ?? ''));
 
 export type RuleType = 'string' | 'number' | 'email' | 'url' | 'integer' | 'array' | 'boolean';
 
@@ -47,7 +55,11 @@ interface FieldEntity {
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const URL_RE = /^https?:\/\/\S+$/i;
 
-const checkRule = async (rule: Rule, value: unknown): Promise<string | null> => {
+const checkRule = async (
+  rule: Rule,
+  value: unknown,
+  msgs: FormMessages = DEFAULT_MESSAGES,
+): Promise<string | null> => {
   // required
   const isEmpty =
     value === undefined ||
@@ -55,7 +67,7 @@ const checkRule = async (rule: Rule, value: unknown): Promise<string | null> => 
     value === '' ||
     (Array.isArray(value) && value.length === 0) ||
     (rule.whitespace && typeof value === 'string' && value.trim() === '');
-  if (rule.required && isEmpty) return rule.message ?? '此字段为必填';
+  if (rule.required && isEmpty) return rule.message ?? msgs.required;
   if (isEmpty) return null; // 不必填且空, 跳过其他校验
 
   // type
@@ -70,33 +82,33 @@ const checkRule = async (rule: Rule, value: unknown): Promise<string | null> => 
       case 'email': ok = typeof value === 'string' && EMAIL_RE.test(value); break;
       case 'url': ok = typeof value === 'string' && URL_RE.test(value); break;
     }
-    if (!ok) return rule.message ?? `格式必须是 ${rule.type}`;
+    if (!ok) return rule.message ?? tpl(msgs.typeMismatch, { type: rule.type });
   }
 
   // min / max / len (按值类型分)
   if (typeof value === 'string') {
-    if (rule.min != null && value.length < rule.min) return rule.message ?? `至少 ${rule.min} 字`;
-    if (rule.max != null && value.length > rule.max) return rule.message ?? `最多 ${rule.max} 字`;
-    if (rule.len != null && value.length !== rule.len) return rule.message ?? `必须 ${rule.len} 字`;
+    if (rule.min != null && value.length < rule.min) return rule.message ?? tpl(msgs.minString, { n: rule.min });
+    if (rule.max != null && value.length > rule.max) return rule.message ?? tpl(msgs.maxString, { n: rule.max });
+    if (rule.len != null && value.length !== rule.len) return rule.message ?? tpl(msgs.lenString, { n: rule.len });
   } else if (typeof value === 'number') {
-    if (rule.min != null && value < rule.min) return rule.message ?? `不小于 ${rule.min}`;
-    if (rule.max != null && value > rule.max) return rule.message ?? `不大于 ${rule.max}`;
+    if (rule.min != null && value < rule.min) return rule.message ?? tpl(msgs.minNumber, { n: rule.min });
+    if (rule.max != null && value > rule.max) return rule.message ?? tpl(msgs.maxNumber, { n: rule.max });
   } else if (Array.isArray(value)) {
-    if (rule.min != null && value.length < rule.min) return rule.message ?? `至少选 ${rule.min} 项`;
-    if (rule.max != null && value.length > rule.max) return rule.message ?? `最多选 ${rule.max} 项`;
-    if (rule.len != null && value.length !== rule.len) return rule.message ?? `必须选 ${rule.len} 项`;
+    if (rule.min != null && value.length < rule.min) return rule.message ?? tpl(msgs.minArray, { n: rule.min });
+    if (rule.max != null && value.length > rule.max) return rule.message ?? tpl(msgs.maxArray, { n: rule.max });
+    if (rule.len != null && value.length !== rule.len) return rule.message ?? tpl(msgs.lenArray, { n: rule.len });
   }
 
   // pattern
   if (rule.pattern instanceof RegExp && typeof value === 'string' && !rule.pattern.test(value)) {
-    return rule.message ?? '格式不匹配';
+    return rule.message ?? msgs.patternMismatch;
   }
 
   // validator
   if (rule.validator) {
     let r = rule.validator(value);
     if (r instanceof Promise) r = await r;
-    if (r === false) return rule.message ?? '校验未通过';
+    if (r === false) return rule.message ?? msgs.validatorFailed;
     if (typeof r === 'string') return r;
   }
   return null;
@@ -110,6 +122,12 @@ export class FormStore {
   private touched: Set<string> = new Set();
   private entities: FieldEntity[] = [];
   private callbacks: { onValuesChange?: (changed: Record<string, unknown>, all: Record<string, unknown>) => void } = {};
+  /** 当前 locale 下的校验文案 — Form 组件 mount 时会从 useLocale() 拿到并注入 */
+  private localeMessages: FormMessages = DEFAULT_MESSAGES;
+
+  setLocaleMessages = (msgs: FormMessages) => {
+    this.localeMessages = msgs;
+  };
 
   setInitialValues = (vals: Record<string, unknown> | undefined) => {
     if (!vals) return;
@@ -223,7 +241,7 @@ export class FormStore {
     const value = this.values[name];
     const errs: string[] = [];
     for (const r of rules) {
-      const msg = await checkRule(r, value);
+      const msg = await checkRule(r, value, this.localeMessages);
       if (msg) errs.push(msg);
     }
     this.setFieldError(name, errs);

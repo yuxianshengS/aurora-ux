@@ -1,5 +1,6 @@
 import React from 'react';
 import Sparkline, { type SparklineType } from '../Sparkline/Sparkline';
+import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './KpiCard.css';
 
 export type KpiStatus = 'default' | 'success' | 'warning' | 'danger' | 'primary';
@@ -54,10 +55,12 @@ const Flat: React.FC = () => (
   </svg>
 );
 
-const formatNumber = (v: number | string, precision?: number): string => {
+const formatNumber = (v: number | string, precision: number | undefined, numberFormat: string): string => {
   if (typeof v !== 'number') return String(v);
-  if (precision != null) return v.toFixed(precision);
-  return v.toLocaleString();
+  return new Intl.NumberFormat(numberFormat, {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
+  }).format(v);
 };
 
 const KpiCard: React.FC<KpiCardProps> = ({
@@ -79,6 +82,7 @@ const KpiCard: React.FC<KpiCardProps> = ({
   style,
   onClick,
 }) => {
+  const locale = useLocale();
   const dir = delta?.direction ?? (typeof delta?.value === 'number' ? (delta!.value > 0 ? 'up' : delta!.value < 0 ? 'down' : 'flat') : 'flat');
   const mode = delta?.mode ?? 'positive-up';
   const isGoodDelta =
@@ -104,7 +108,7 @@ const KpiCard: React.FC<KpiCardProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  const rendered = formatter ? formatter(value) : formatNumber(value, precision);
+  const rendered = formatter ? formatter(value) : formatNumber(value, precision, locale.numberFormat);
 
   return (
     <div className={cls} style={style} onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined}>

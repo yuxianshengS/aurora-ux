@@ -7,6 +7,13 @@
  * 没传才回落到 locale, 这样既能 i18n 又能精确覆盖单个实例。
  */
 export interface Locale {
+  /**
+   * BCP 47 标识符 — 给 KpiCard / Statistic / NumberRoll 这些数字组件
+   * 调 Intl.NumberFormat / toLocaleString 时用. 不是浏览器默认 locale,
+   * 而是这里指定的, 让数字格式严格跟 ConfigProvider 一致.
+   * 例: 'zh-CN' / 'en-US' / 'de-DE'
+   */
+  numberFormat: string;
   Pagination: {
     prev: string;
     next: string;
@@ -151,5 +158,23 @@ export interface Locale {
     clear: string;
     expand: string;
     collapse: string;
+  };
+  /**
+   * Form 校验默认错误消息. 模板里 {n} 表示数字、{type} 表示 type 名 (string/email/...)。
+   * 单字段 rule.message 显式传值优先; 没传走这里; 走不到这里时才返回硬编码默认 (向后兼容)。
+   */
+  Form: {
+    required: string;
+    typeMismatch: string;          // '格式必须是 {type}'
+    minString: string;             // '至少 {n} 字'
+    maxString: string;             // '最多 {n} 字'
+    lenString: string;             // '必须 {n} 字'
+    minNumber: string;             // '不小于 {n}'
+    maxNumber: string;             // '不大于 {n}'
+    minArray: string;              // '至少选 {n} 项'
+    maxArray: string;              // '最多选 {n} 项'
+    lenArray: string;              // '必须选 {n} 项'
+    patternMismatch: string;
+    validatorFailed: string;
   };
 }
