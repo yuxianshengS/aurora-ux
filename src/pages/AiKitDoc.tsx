@@ -109,20 +109,38 @@ npm publish --access public`}
       </DemoBlock>
 
       <DemoBlock
-        title="自定义高亮 (接 shiki / prism)"
-        description="不内置高亮 (避免几十 KB 包体). 想要高亮就传 highlight 函数, 内部接你喜欢的高亮库."
-        code={`<CodeBlock
-  language="tsx"
-  highlight={(code, lang) => (
-    <ShikiHighlighter code={code} lang={lang} theme="aurora-dark" />
-  )}
->
-  {code}
-</CodeBlock>`}
+        title="自定义高亮 — 接 shiki / prism / 自写 tokenizer"
+        description="组件不内置高亮(避免几十 KB 包体). highlight 函数返回 ReactNode 即可. 下面给一个不依赖外部库的极简 ts 高亮做演示, 真实场景换成 shiki / prism 就完事."
+        code={`// 真实场景接 shiki:
+import { codeToHast } from 'shiki';
+<CodeBlock language="tsx" highlight={(code, lang) => <Shiki code={code} lang={lang} theme="aurora-dark" />} />
+
+// 或者自写一个最小 tokenizer:
+const TS_KEYWORDS = ['const','let','var','function','return','if','else','import','from','export','async','await'];
+function highlightTs(code: string) {
+  return code.split(/(\\b\\w+\\b|"[^"]*"|'[^']*'|\\/\\/.*)/g).map((tok, i) => {
+    if (TS_KEYWORDS.includes(tok)) return <span key={i} style={{ color: '#c084fc' }}>{tok}</span>;
+    if (/^["'\`]/.test(tok)) return <span key={i} style={{ color: '#86efac' }}>{tok}</span>;
+    if (/^\\/\\//.test(tok)) return <span key={i} style={{ color: '#94a3b8' }}>{tok}</span>;
+    return tok;
+  });
+}
+
+<CodeBlock language="ts" highlight={(code) => highlightTs(code)}>{code}</CodeBlock>`}
       >
-        <p style={{ color: 'var(--au-text-3)', fontSize: 13 }}>
-          (此 demo 不真接 shiki, 复制 highlight 用法到你的项目即可。)
-        </p>
+        <CodeBlock language="ts" filename="useDebounce.ts" lineNumbers highlight={highlightTs}>
+{`import { useState, useEffect } from 'react';
+
+// 把 value 包一层, 拿到防抖后的值
+export function useDebounce<T>(value: T, delay = 300): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}`}
+        </CodeBlock>
       </DemoBlock>
 
       <h2>MessageBubble 聊天气泡</h2>
@@ -358,7 +376,12 @@ const ChatDemo: React.FC = () => {
       >
         {parts.map((p, i) =>
           p.type === 'code' ? (
-            <CodeBlock key={i} language={p.lang} style={{ margin: '6px 0' }}>
+            <CodeBlock
+              key={i}
+              language={p.lang}
+              style={{ margin: '6px 0' }}
+              highlight={p.lang === 'ts' || p.lang === 'tsx' || p.lang === 'js' ? highlightTs : undefined}
+            >
               {p.text}
             </CodeBlock>
           ) : (
@@ -411,6 +434,35 @@ const SmallBtn: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     {children}
   </button>
 );
+
+/** 极简 ts/js tokenizer — 仅给 CodeBlock highlight prop demo 用, 不是真高亮库 */
+const TS_KEYWORDS = new Set([
+  'const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while',
+  'import', 'from', 'export', 'default', 'async', 'await', 'new', 'class',
+  'extends', 'this', 'typeof', 'instanceof', 'true', 'false', 'null', 'undefined',
+]);
+function highlightTs(code: string): React.ReactNode {
+  // 拆出: 字符串 / 注释 / 数字 / 标识符 / 其他
+  const re = /("[^"]*"|'[^']*'|`[^`]*`|\/\/[^\n]*|\/\*[\s\S]*?\*\/|\b\d+(\.\d+)?\b|\b\w+\b)/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let key = 0;
+  while ((m = re.exec(code)) !== null) {
+    if (m.index > last) parts.push(code.slice(last, m.index));
+    const tok = m[0];
+    let color: string | null = null;
+    if (/^["'`]/.test(tok)) color = '#86efac';                      // 字符串
+    else if (/^\/\//.test(tok) || /^\/\*/.test(tok)) color = '#94a3b8'; // 注释
+    else if (/^\d/.test(tok)) color = '#fb923c';                    // 数字
+    else if (TS_KEYWORDS.has(tok)) color = '#c084fc';               // 关键字
+    else if (/^[A-Z]/.test(tok)) color = '#7dd3fc';                 // 类型 / 大写标识符
+    parts.push(color ? <span key={key++} style={{ color }}>{tok}</span> : tok);
+    last = m.index + tok.length;
+  }
+  if (last < code.length) parts.push(code.slice(last));
+  return parts;
+}
 
 /** 简易把 markdown 字符串切成 [text | code] 段, 不依赖 markdown 解析器 */
 type Part = { type: 'text'; text: string } | { type: 'code'; lang: string; text: string };
