@@ -242,11 +242,21 @@
 
 /* ============ 展开行 (expandable) + 树形数据 (childrenColumnName) ============ */
 
-/* 多级表头 — 父分组 th 用 column 显示, 字体居中, 底色稍深 */
-.au-table__th--group {
+/* 多级表头 — 父分组 th 居中显示, 底色稍深.
+   selector 跟 .au-table__thead .au-table__th 同 specificity, 才能盖掉默认 left */
+.au-table__thead .au-table__th--group {
   text-align: center;
-  background: color-mix(in srgb, var(--au-text-1) 4%, var(--au-bg-soft, var(--au-bg)));
+  background: color-mix(in srgb, var(--au-text-1) 6%, var(--au-bg-soft, var(--au-bg)));
   border-bottom: 1px solid var(--au-border);
+}
+/* th-inner 是 inline-flex, text-align 已经能让它整体居中, 但加 justify-content
+   保险一些 (若内部多了 sort icon 等也对齐到中心) */
+.au-table__thead .au-table__th--group .au-table__th-inner {
+  justify-content: center;
+  width: 100%;
+}
+[data-theme="dark"] .au-table__thead .au-table__th--group {
+  background: color-mix(in srgb, var(--au-primary) 8%, #2a3241);
 }
 
 /* expand 列 — th 跟 td 同宽避免错位 */
