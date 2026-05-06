@@ -566,6 +566,9 @@ function Table<T = any>({
                 {rowSelection.columnTitle}
               </th>
             )}
+            {showExpandColumn && (
+              <th className="au-table__th au-table__th--expand" aria-label="展开列" />
+            )}
             {orderedColumns.map((col, i) => {
               const k = colKeyOf(col, i);
               const isSorted = sortKey === k ? sortOrder : null;

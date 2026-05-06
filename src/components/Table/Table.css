@@ -242,7 +242,9 @@
 
 /* ============ 展开行 (expandable) + 树形数据 (childrenColumnName) ============ */
 
-.au-table__cell--expand {
+/* expand 列 — th 跟 td 同宽避免错位 */
+.au-table__cell--expand,
+.au-table__th--expand {
   width: 36px;
   text-align: center;
   padding-left: 8px;
