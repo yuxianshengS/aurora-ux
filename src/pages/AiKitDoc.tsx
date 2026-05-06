@@ -4,6 +4,7 @@ import {
   CodeBlock,
   MessageBubble,
   Button,
+  TextArea,
 } from '../components';
 import DemoBlock from '../site-components/DemoBlock';
 import ApiTable from '../site-components/ApiTable';
@@ -209,32 +210,39 @@ export function useDebounce<T>(value: T, delay = 300): T {
       <h2>三件套联动 · 完整聊天 demo</h2>
 
       <DemoBlock
-        title="点'重放'触发模拟流式回复 (含代码块渲染)"
-        description="组合 MessageBubble + StreamingText + CodeBlock 跑一段完整 LLM 响应. 实际接 Vercel AI SDK / OpenAI streaming API 几乎一样写法."
-        code={`function ChatDemo() {
-  const [messages, setMessages] = useState([
-    { role: 'user', text: '能帮我写一个 useDebounce hook 吗?' },
+        title="完整聊天界面 — 输入框 / 多轮历史 / 工具调用 / 流式输出 / 复制重生成"
+        description="一个跑得起来的完整 chat: 真实输入框 (Enter 发送 / Shift+Enter 换行) / loading 三跳点 / 流式过程中显示停止按钮 / assistant 完成后 hover 出复制 + 重新生成 + 👍👎 / 触发关键词出 tool 调用消息. 试试输入 'useDebounce' / '天气' / 'Aurora' 看不同剧本."
+        code={`function Chat() {
+  const [msgs, setMsgs] = useState<ChatMsg[]>([
+    { id: 's0', role: 'system', text: 'AI 已就绪' },
   ]);
-  const [streaming, setStreaming] = useState('');
-  const [done, setDone] = useState(true);
+  const [input, setInput] = useState('');
+  const [streamingId, setStreamingId] = useState<string | null>(null);
+  const isStreaming = streamingId !== null;
 
-  const replay = async () => {
-    setDone(false); setStreaming('');
-    for (let i = 1; i <= REPLY.length; i++) {
-      await new Promise((r) => setTimeout(r, 15));
-      setStreaming(REPLY.slice(0, i));
-    }
-    setDone(true);
+  const send = async () => {
+    const userMsg = { id: uid(), role: 'user', text: input, ts: new Date() };
+    setMsgs((m) => [...m, userMsg]);
+    setInput('');
+
+    const aid = uid();
+    setMsgs((m) => [...m, { id: aid, role: 'assistant', text: '', loading: true, done: false, ts: new Date() }]);
+    setStreamingId(aid);
+
+    // 真实场景: const res = await fetch('/api/chat', { ... }); const reader = res.body.getReader();
+    // while (chunk = await reader.read()) setMsgs(updateAssistantText(aid, decoded))
+    // 这里用剧本模拟
+    const reply = scriptedReply(userMsg.text);
+    if (reply.tool) setMsgs((m) => insertToolBefore(m, aid, reply.tool));
+    streamInto(aid, reply.text, () => setStreamingId(null));
   };
 
   return (
-    <>
-      {messages.map((m) => <MessageBubble role={m.role}>{m.text}</MessageBubble>)}
-      <MessageBubble role="assistant">
-        <StreamingText text={streaming} done={done} />
-      </MessageBubble>
-      <Button onClick={replay}>重放</Button>
-    </>
+    <Chat>
+      {msgs.map((m) => <MessageBubble role={m.role} ...>{...}</MessageBubble>)}
+      <Input value={input} onChange={setInput} onEnter={send} disabled={isStreaming} />
+      {isStreaming ? <Button onClick={stop}>⏹ 停止</Button> : <Button onClick={send}>发送 ↵</Button>}
+    </Chat>
   );
 }`}
       >
@@ -336,65 +344,363 @@ const StreamingDemo: React.FC = () => {
   );
 };
 
-const ChatDemo: React.FC = () => {
-  const [streaming, setStreaming] = useState(SAMPLE_REPLY);
-  const [done, setDone] = useState(true);
-  const timerRef = useRef<number | null>(null);
+/* ===== ChatDemo — 完整聊天界面 ===== */
 
-  const replay = () => {
-    if (timerRef.current != null) window.clearInterval(timerRef.current);
-    setStreaming('');
-    setDone(false);
-    let i = 0;
-    timerRef.current = window.setInterval(() => {
-      i += 4;
-      setStreaming(SAMPLE_REPLY.slice(0, i));
-      if (i >= SAMPLE_REPLY.length) {
-        if (timerRef.current != null) window.clearInterval(timerRef.current);
-        timerRef.current = null;
-        setDone(true);
-      }
-    }, 24);
+type ChatMsg =
+  | { id: string; role: 'system'; text: string }
+  | { id: string; role: 'user'; text: string; ts: Date }
+  | { id: string; role: 'assistant'; text: string; ts: Date; done: boolean; loading?: boolean }
+  | { id: string; role: 'tool'; toolName: string; text: string };
+
+const uid = () => `m-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+/** 根据用户输入命中关键词出"剧本",真实场景这里换成 SSE fetch */
+function scriptedReply(userText: string): { tool?: { name: string; output: string }; text: string } {
+  const t = userText.toLowerCase();
+  if (t.includes('debounce') || t.includes('防抖') || t.includes('hook')) {
+    return {
+      tool: {
+        name: 'search_docs',
+        output: `{
+  "query": "useDebounce hook",
+  "hits": 3,
+  "top": "react-use/useDebounce"
+}`,
+      },
+      text: SAMPLE_REPLY,
+    };
+  }
+  if (t.includes('天气') || t.includes('weather')) {
+    return {
+      tool: {
+        name: 'get_weather',
+        output: `{
+  "city": "Beijing",
+  "temp_c": 18,
+  "condition": "Sunny",
+  "wind": "NW 3 m/s"
+}`,
+      },
+      text: '北京今天 **18°C 晴**, 西北风 3 m/s, 适合外出。下午 4 点前后紫外线偏强,记得防晒 ☀️',
+    };
+  }
+  if (t.includes('aurora') || t.includes('极光')) {
+    return {
+      text: 'Aurora UX 的极光视觉体系基于 `AuroraBg` + `GlowCard` + `GradientText`,搭配 8 套主色 token 自动跟着 ConfigProvider 切。试试在 `<AuroraBg preset="aurora">` 里塞个 `<GradientText>` 看效果。',
+    };
+  }
+  return {
+    text: `我收到了:"${userText}"。这个 demo 是**剧本式**的,试试问 "能写个 useDebounce 吗?" 或 "北京天气?" 或 "讲讲 Aurora 视觉?" 看真正的工具调用 + 代码块联动。`,
   };
+}
 
+const ChatDemo: React.FC = () => {
+  const [msgs, setMsgs] = useState<ChatMsg[]>([
+    { id: 's0', role: 'system', text: 'Aurora UX AI · 已就绪' },
+    {
+      id: 'u0',
+      role: 'user',
+      text: '能帮我写一个 useDebounce hook 吗?',
+      ts: new Date(Date.now() - 60000),
+    },
+    {
+      id: 't0',
+      role: 'tool',
+      toolName: 'search_docs',
+      text: `{ "query": "useDebounce hook", "hits": 3 }`,
+    },
+    {
+      id: 'a0',
+      role: 'assistant',
+      text: SAMPLE_REPLY,
+      ts: new Date(Date.now() - 30000),
+      done: true,
+    },
+  ]);
+  const [input, setInput] = useState('');
+  const [streamingId, setStreamingId] = useState<string | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 新消息时自动滚到底
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [msgs]);
+
+  // 卸载清理
   useEffect(() => () => {
     if (timerRef.current != null) window.clearInterval(timerRef.current);
   }, []);
 
-  /** 把 streaming 字符串里的 ```language\n...\n``` 块拆出来分别渲染 */
-  const parts = parseMarkdownCode(streaming);
+  const isStreaming = streamingId !== null;
+
+  const stop = () => {
+    if (timerRef.current != null) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (streamingId) {
+      setMsgs((cur) =>
+        cur.map((m) => (m.id === streamingId && m.role === 'assistant' ? { ...m, done: true, loading: false } : m)),
+      );
+    }
+    setStreamingId(null);
+  };
+
+  const send = () => {
+    const text = input.trim();
+    if (!text || isStreaming) return;
+    setInput('');
+
+    // 1) 加用户消息
+    const userMsg: ChatMsg = { id: uid(), role: 'user', text, ts: new Date() };
+    setMsgs((cur) => [...cur, userMsg]);
+
+    // 2) 加一个 assistant loading 占位
+    const aid = uid();
+    setMsgs((cur) => [
+      ...cur,
+      { id: aid, role: 'assistant', text: '', ts: new Date(), done: false, loading: true },
+    ]);
+    setStreamingId(aid);
+
+    // 3) 模拟"思考" 600ms 后开始流; 含 tool call 时先 push tool 消息
+    window.setTimeout(() => {
+      const reply = scriptedReply(text);
+      if (reply.tool) {
+        setMsgs((cur) => {
+          const next = [...cur];
+          // 在 assistant 占位前面插入 tool 消息
+          const aIdx = next.findIndex((m) => m.id === aid);
+          next.splice(aIdx, 0, {
+            id: uid(),
+            role: 'tool',
+            toolName: reply.tool!.name,
+            text: reply.tool!.output,
+          });
+          return next;
+        });
+      }
+
+      // 4) 关掉 loading, 开始流
+      setMsgs((cur) =>
+        cur.map((m) => (m.id === aid && m.role === 'assistant' ? { ...m, loading: false } : m)),
+      );
+      let i = 0;
+      const target = reply.text;
+      timerRef.current = window.setInterval(() => {
+        i += 4;
+        const slice = target.slice(0, i);
+        setMsgs((cur) =>
+          cur.map((m) => (m.id === aid && m.role === 'assistant' ? { ...m, text: slice } : m)),
+        );
+        if (i >= target.length) {
+          if (timerRef.current != null) window.clearInterval(timerRef.current);
+          timerRef.current = null;
+          setMsgs((cur) =>
+            cur.map((m) => (m.id === aid && m.role === 'assistant' ? { ...m, text: target, done: true } : m)),
+          );
+          setStreamingId(null);
+        }
+      }, 22);
+    }, 600);
+  };
+
+  const regenerate = (mid: string) => {
+    if (isStreaming) return;
+    // 找到这条 assistant + 它前面那条 user, 重新触发一次
+    const idx = msgs.findIndex((m) => m.id === mid);
+    if (idx < 0) return;
+    const prevUser = [...msgs.slice(0, idx)].reverse().find((m) => m.role === 'user') as
+      | (ChatMsg & { role: 'user' })
+      | undefined;
+    if (!prevUser) return;
+    // 删掉这条之后的内容
+    setMsgs((cur) => cur.slice(0, idx));
+    // 用 prevUser 文字重发 (但不再 push 一个新 user, 只跑 assistant 流程)
+    setInput('');
+    const aid = uid();
+    setMsgs((cur) => [
+      ...cur,
+      { id: aid, role: 'assistant', text: '', ts: new Date(), done: false, loading: true },
+    ]);
+    setStreamingId(aid);
+    window.setTimeout(() => {
+      const reply = scriptedReply(prevUser.text);
+      if (reply.tool) {
+        setMsgs((cur) => {
+          const next = [...cur];
+          const aIdx = next.findIndex((m) => m.id === aid);
+          next.splice(aIdx, 0, {
+            id: uid(),
+            role: 'tool',
+            toolName: reply.tool!.name,
+            text: reply.tool!.output,
+          });
+          return next;
+        });
+      }
+      setMsgs((cur) =>
+        cur.map((m) => (m.id === aid && m.role === 'assistant' ? { ...m, loading: false } : m)),
+      );
+      let i = 0;
+      const target = reply.text;
+      timerRef.current = window.setInterval(() => {
+        i += 4;
+        const slice = target.slice(0, i);
+        setMsgs((cur) =>
+          cur.map((m) => (m.id === aid && m.role === 'assistant' ? { ...m, text: slice } : m)),
+        );
+        if (i >= target.length) {
+          if (timerRef.current != null) window.clearInterval(timerRef.current);
+          timerRef.current = null;
+          setMsgs((cur) =>
+            cur.map((m) => (m.id === aid && m.role === 'assistant' ? { ...m, text: target, done: true } : m)),
+          );
+          setStreamingId(null);
+        }
+      }, 22);
+    }, 500);
+  };
+
+  const copy = (text: string) => {
+    navigator.clipboard?.writeText(text).catch(() => {});
+  };
+
+  /** 渲染单条 assistant 消息: 把 markdown ``` 块拆出来, 文字部分用 StreamingText */
+  const renderAssistantBody = (m: Extract<ChatMsg, { role: 'assistant' }>) => {
+    if (m.loading) return null;
+    const parts = parseMarkdownCode(m.text);
+    return parts.map((p, i) =>
+      p.type === 'code' ? (
+        <CodeBlock
+          key={i}
+          language={p.lang}
+          style={{ margin: '6px 0' }}
+          highlight={p.lang === 'ts' || p.lang === 'tsx' || p.lang === 'js' ? highlightTs : undefined}
+        >
+          {p.text}
+        </CodeBlock>
+      ) : (
+        <StreamingText
+          key={i}
+          text={p.text}
+          done={m.done || i !== parts.length - 1}
+        />
+      ),
+    );
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <MessageBubble role="user" timestamp={new Date()}>
-        能帮我写一个 useDebounce hook 吗?
-      </MessageBubble>
-      <MessageBubble
-        role="assistant"
-        timestamp={new Date()}
-        avatar={<AvatarSpan letter="A" />}
+    <div
+      style={{
+        border: '1px solid var(--au-border)',
+        borderRadius: 12,
+        background: 'var(--au-bg)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: 540,
+      }}
+    >
+      {/* 消息列表 */}
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '8px 16px',
+          background: 'var(--au-bg-base, var(--au-bg))',
+        }}
       >
-        {parts.map((p, i) =>
-          p.type === 'code' ? (
-            <CodeBlock
-              key={i}
-              language={p.lang}
-              style={{ margin: '6px 0' }}
-              highlight={p.lang === 'ts' || p.lang === 'tsx' || p.lang === 'js' ? highlightTs : undefined}
+        {msgs.map((m) => {
+          if (m.role === 'system') {
+            return (
+              <MessageBubble key={m.id} role="system">
+                {m.text}
+              </MessageBubble>
+            );
+          }
+          if (m.role === 'user') {
+            return (
+              <MessageBubble
+                key={m.id}
+                role="user"
+                timestamp={m.ts}
+                avatar={<AvatarSpan letter="U" />}
+              >
+                {m.text}
+              </MessageBubble>
+            );
+          }
+          if (m.role === 'tool') {
+            return (
+              <MessageBubble key={m.id} role="tool" toolName={m.toolName}>
+                {m.text}
+              </MessageBubble>
+            );
+          }
+          // assistant
+          return (
+            <MessageBubble
+              key={m.id}
+              role="assistant"
+              timestamp={m.ts}
+              avatar={<AvatarSpan letter="A" />}
+              loading={m.loading}
+              actions={
+                m.done && !m.loading ? (
+                  <>
+                    <SmallBtn onClick={() => copy(m.text)}>📋 复制</SmallBtn>
+                    <SmallBtn onClick={() => regenerate(m.id)}>🔁 重新生成</SmallBtn>
+                    <SmallBtn>👍</SmallBtn>
+                    <SmallBtn>👎</SmallBtn>
+                  </>
+                ) : undefined
+              }
             >
-              {p.text}
-            </CodeBlock>
-          ) : (
-            <StreamingText
-              key={i}
-              text={p.text}
-              done={done || i !== parts.length - 1}
-            />
-          ),
+              {renderAssistantBody(m)}
+            </MessageBubble>
+          );
+        })}
+      </div>
+
+      {/* 输入区 */}
+      <div
+        style={{
+          borderTop: '1px solid var(--au-border)',
+          padding: 12,
+          background: 'var(--au-bg)',
+          display: 'flex',
+          gap: 8,
+          alignItems: 'flex-end',
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <TextArea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder='试试: "能写个 useDebounce 吗?" / "北京天气?" / "讲讲 Aurora 视觉?"'
+            autoSize={{ minRows: 1, maxRows: 4 }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            disabled={isStreaming}
+          />
+        </div>
+        {isStreaming ? (
+          <Button onClick={stop} type="default">
+            ⏹ 停止
+          </Button>
+        ) : (
+          <Button onClick={send} type="primary" disabled={!input.trim()}>
+            发送 ↵
+          </Button>
         )}
-      </MessageBubble>
-      <div style={{ marginTop: 8 }}>
-        <Button onClick={replay}>重放</Button>
       </div>
     </div>
   );
@@ -418,9 +724,10 @@ const AvatarSpan: React.FC<{ letter: string }> = ({ letter }) => (
   </span>
 );
 
-const SmallBtn: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const SmallBtn: React.FC<{ children: React.ReactNode; onClick?: () => void }> = ({ children, onClick }) => (
   <button
     type="button"
+    onClick={onClick}
     style={{
       padding: '2px 8px',
       fontSize: 12,
