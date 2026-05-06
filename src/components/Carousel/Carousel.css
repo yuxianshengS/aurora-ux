@@ -48,10 +48,35 @@
   pointer-events: auto;
 }
 /* 多张视图 + centerMode 时, 非 active 邻片轻微缩小 + 半透明, 视觉上突出中间.
-   不需要的话用户可以 className 覆盖或外层加 .au-carousel--no-dim */
-.au-carousel--slide .au-carousel__slide:not(.is-visible) {
+   不需要的话用户可以 className 覆盖或外层加 .au-carousel--no-dim
+   注意: peek 模式自己控 opacity, 这里排除掉 */
+.au-carousel--slide .au-carousel__slide:not(.is-visible):not(.au-carousel__slide--peek) {
   opacity: 0.55;
   transition: opacity 0.3s var(--au-ease, ease);
+}
+
+/* ===== Peek (Coverflow) 模式 — 全 absolute 居中 + 距离缩放 ===== */
+.au-carousel__peek-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* peek 模式没 height 时需要兜个最小值, 不然 absolute 子元素塌陷 */
+  min-height: 240px;
+}
+.au-carousel__slide--peek {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  /* width / transform / opacity 由组件 inline style 给 (含 translate(-50%, 0)) */
+  /* transform-origin 居中, scale 时不会偏 */
+  transform-origin: center center;
+  /* 鼠标指针表明这张可点击切到中心 */
+  cursor: pointer;
+}
+/* 中心 slide 不要 cursor pointer (它是当前张) */
+.au-carousel__slide--peek.is-visible {
+  cursor: default;
 }
 
 /* ===== fade 模式: 叠在一起 ===== */

@@ -117,6 +117,59 @@ const CarouselDoc: React.FC = () => {
       </DemoBlock>
 
       <DemoBlock
+        title="Coverflow — 中心 100% / 邻近 50% / 远端 20%·10%"
+        description="peek={[1, 0.5, 0.2, 0.1]} — 数组 index 是距离中心的远近, 值是 scale. 中心 100%, 一邻 50%, 二邻 20%, 三邻 10%, 超出的不显示. 这是 Apple Cover Flow 风格."
+        code={`<Carousel
+  peek={[1, 0.5, 0.2, 0.1]}
+  loop
+  autoplay={3500}
+  height={300}
+>
+  {/* 多张图 */}
+</Carousel>`}
+      >
+        <Carousel
+          peek={[1, 0.5, 0.2, 0.1]}
+          loop
+          autoplay={3500}
+          height={300}
+          style={{ width: '100%' }}
+        >
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+            <Slide key={i} idx={i} text={`P ${i + 1}`} />
+          ))}
+        </Carousel>
+      </DemoBlock>
+
+      <DemoBlock
+        title="Coverflow — 自定义缩放梯度 + 间距"
+        description="slideWidth 控制中心宽度 (px), peekStep 调相邻间距. 数组多/少都行, 越长露出来的层级越多."
+        code={`<Carousel
+  peek={[1, 0.7, 0.45, 0.25]}
+  slideWidth={320}
+  peekStep={200}
+  loop
+  height={280}
+>
+  {...}
+</Carousel>`}
+      >
+        <Carousel
+          peek={[1, 0.7, 0.45, 0.25]}
+          slideWidth={320}
+          peekStep={200}
+          loop
+          height={280}
+          arrows
+          style={{ width: '100%' }}
+        >
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <Slide key={i} idx={i} text={`${i + 1}`} />
+          ))}
+        </Carousel>
+      </DemoBlock>
+
+      <DemoBlock
         title="居中模式 + 一屏 3 张"
         description="slidesPerView=3 + centerMode: 中间 3 张全展示, 左右各露出半张邻近 slide. 跟 slick / swiper 的经典 carousel 视觉一致."
         code={`<Carousel slidesPerView={3} centerMode gap={12} arrows loop>
@@ -168,6 +221,9 @@ const CarouselDoc: React.FC = () => {
           { prop: 'slidesPerView', desc: '同时显示几张 (slide 模式), 1 = 单张, 3 = 一屏 3 张', type: 'number', default: '1' },
           { prop: 'centerMode', desc: 'active slide 居中, 左右两侧露出邻近 slide', type: 'boolean', default: 'false' },
           { prop: 'gap', desc: '幻灯片之间的间隔 px (slide 模式)', type: 'number', default: '0' },
+          { prop: 'peek', desc: 'Coverflow 缩放数组 — index=距中心远近, 值=scale (0~1). 例 [1, 0.5, 0.2, 0.1]. 设置后 slidesPerView/centerMode/gap 被忽略', type: 'number[]', default: '-' },
+          { prop: 'slideWidth', desc: 'peek 模式下中心 slide 的宽度 (px)', type: 'number', default: 'viewportW * 0.5' },
+          { prop: 'peekStep', desc: 'peek 模式下相邻两张中心点的水平距离 (px)', type: 'number', default: 'slideWidth * 0.55' },
           { prop: 'onChange', desc: '切换时触发', type: '(index, prev) => void', default: '-' },
         ]}
       />

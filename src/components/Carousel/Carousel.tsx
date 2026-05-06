@@ -56,6 +56,23 @@ export interface CarouselProps {
   centerMode?: boolean;
   /** 幻灯片之间的间隔 px, 默认 0 */
   gap?: number;
+  /**
+   * Coverflow 模式 — 按距离 active 远近缩放, 而不是均分宽度.
+   * 数组每项是该距离 (0 = 中心, 1 = 左右第 1 邻, ...) 的 scale, 0~1.
+   * 例: [1, 0.5, 0.2, 0.1] = 中心 100% / 一邻 50% / 二邻 20% / 三邻 10%, 超出的 slide 不显示.
+   * 设置后 slidesPerView / centerMode / gap 会被忽略 (走独立的 absolute 布局).
+   */
+  peek?: number[];
+  /**
+   * Peek 模式下中心 slide 的宽度 (px), 默认 = viewport 宽 * 0.5.
+   * 邻近 slide 视觉宽度 = 这个 * 对应 scale.
+   */
+  slideWidth?: number;
+  /**
+   * Peek 模式下相邻两张中心点的水平距离 (px), 默认 = slideWidth * 0.55.
+   * 调小让邻片更挤、调大更分散.
+   */
+  peekStep?: number;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -104,6 +121,9 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
       slidesPerView = 1,
       centerMode = false,
       gap = 0,
+      peek,
+      slideWidth,
+      peekStep,
       className = '',
       style,
     },
@@ -139,6 +159,13 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
     const step = slideW + gap;
     /** centerMode 时把 active 居中需要的偏移 */
     const centerOffset = centerMode ? (viewportW - slideW) / 2 : 0;
+
+    /* ---------------- Peek (coverflow) 模式 ---------------- */
+    const isPeekMode = !!peek && peek.length > 0;
+    /** peek 模式下中心 slide 的实际宽度 (px). 用户没传走视口一半 */
+    const peekBaseW = slideWidth ?? viewportW * 0.5;
+    /** 相邻两张中心点的水平距离 (px) */
+    const peekStepPx = peekStep ?? peekBaseW * 0.55;
 
     /** 是否处于交互(hover / 拖动)— 暂停自动播放 */
     const [interacting, setInteracting] = useState(false);
@@ -279,26 +306,74 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
           onPointerCancel={onPointerUp}
         >
           {effect === 'slide' ? (
-            <div className="au-carousel__track" style={trackStyle}>
-              {slides.map((slide, i) => {
-                /* 多张视图下 active 范围内的算 active(露出); centerMode 下还要把
-                   active 前后 (perView-1)/2 张也算 "可见" 让屏幕阅读器更友好 */
-                const isVisible = i >= active && i < active + perView;
-                return (
-                  <div
-                    key={i}
-                    className={['au-carousel__slide', isVisible ? 'is-visible' : ''].filter(Boolean).join(' ')}
-                    style={viewportW > 0 ? { flex: `0 0 ${slideW}px`, width: slideW } : undefined}
-                    role="group"
-                    aria-roledescription="slide"
-                    aria-hidden={!isVisible}
-                    aria-label={tpl(locale.Carousel.slideOfTotal, { n: i + 1, total })}
-                  >
-                    {slide}
-                  </div>
-                );
-              })}
-            </div>
+            isPeekMode ? (
+              /* Peek/Coverflow 模式: 每张 absolute 居中, 按距离 active 的远近 scale */
+              <div className="au-carousel__peek-stage">
+                {slides.map((slide, i) => {
+                  const d = i - active;
+                  /* loop 模式下,如果直接距离 > total/2,从另一侧绕近 (让 0 跟 total-1 视为相邻) */
+                  let useD = d;
+                  if (loop) {
+                    if (useD > total / 2) useD -= total;
+                    else if (useD < -total / 2) useD += total;
+                  }
+                  const absD = Math.abs(useD);
+                  const scale = absD < peek!.length ? peek![absD] : 0;
+                  const visible = scale > 0;
+                  const x = useD * peekStepPx + dragOffset;
+                  return (
+                    <div
+                      key={i}
+                      className={[
+                        'au-carousel__slide',
+                        'au-carousel__slide--peek',
+                        useD === 0 ? 'is-visible' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      style={{
+                        width: peekBaseW,
+                        transform: `translate(-50%, 0) translateX(${x}px) scale(${scale})`,
+                        opacity: visible ? 1 : 0,
+                        zIndex: peek!.length - absD,
+                        pointerEvents: visible ? 'auto' : 'none',
+                        transition: dragRef.current.active
+                          ? 'none'
+                          : `transform ${duration}ms var(--au-ease, ease), opacity ${duration}ms var(--au-ease, ease)`,
+                      }}
+                      role="group"
+                      aria-roledescription="slide"
+                      aria-hidden={useD !== 0}
+                      aria-label={tpl(locale.Carousel.slideOfTotal, { n: i + 1, total })}
+                      onClick={visible && useD !== 0 ? () => goTo(i) : undefined}
+                    >
+                      {slide}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="au-carousel__track" style={trackStyle}>
+                {slides.map((slide, i) => {
+                  /* 多张视图下 active 范围内的算 active(露出); centerMode 下还要把
+                     active 前后 (perView-1)/2 张也算 "可见" 让屏幕阅读器更友好 */
+                  const isVisible = i >= active && i < active + perView;
+                  return (
+                    <div
+                      key={i}
+                      className={['au-carousel__slide', isVisible ? 'is-visible' : ''].filter(Boolean).join(' ')}
+                      style={viewportW > 0 ? { flex: `0 0 ${slideW}px`, width: slideW } : undefined}
+                      role="group"
+                      aria-roledescription="slide"
+                      aria-hidden={!isVisible}
+                      aria-label={tpl(locale.Carousel.slideOfTotal, { n: i + 1, total })}
+                    >
+                      {slide}
+                    </div>
+                  );
+                })}
+              </div>
+            )
           ) : (
             // fade — 所有 slide 叠在一起, 用 opacity 切
             slides.map((slide, i) => (
