@@ -130,6 +130,12 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: 'AI Kit',
+    items: [
+      { title: 'AI 三件套 · StreamingText / MessageBubble / CodeBlock', path: '/docs/ai-kit' },
+    ],
+  },
+  {
     title: '图与拓扑',
     items: [
       { title: 'Connector · 连接线 / 网络拓扑', path: '/docs/connector' },

@@ -161,6 +161,18 @@ export interface Locale {
     /** "跳到第 {n} 张" — 指示点 aria-label */
     goToSlide: string;
   };
+  CodeBlock: {
+    copy: string;
+    copied: string;
+  };
+  MessageBubble: {
+    /** 助手 role 的默认显示名 */
+    assistant: string;
+    /** 用户 role 的默认显示名 */
+    user: string;
+    /** 系统 role 的默认显示名 */
+    system: string;
+  };
   Common: {
     close: string;
     clear: string;

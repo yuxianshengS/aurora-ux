@@ -143,6 +143,15 @@ const zhCN: Locale = {
     slideOfTotal: '第 {n} 张 / 共 {total}',
     goToSlide: '跳到第 {n} 张',
   },
+  CodeBlock: {
+    copy: '复制',
+    copied: '已复制',
+  },
+  MessageBubble: {
+    assistant: '助手',
+    user: '我',
+    system: '系统',
+  },
   Common: {
     close: '关闭',
     clear: '清除',

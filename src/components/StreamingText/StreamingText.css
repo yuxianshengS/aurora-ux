@@ -1,0 +1,28 @@
+.au-streaming-text {
+  /* whitespace 保留换行, 让 \n 显示成真换行 (LLM 输出常含换行) */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.au-streaming-text__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: au-streaming-cursor 1s steps(2) infinite;
+  /* 让光标真正贴着文本基线 */
+  transform: translateY(2px);
+}
+
+@keyframes au-streaming-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-streaming-text__cursor {
+    animation: none !important;
+  }
+}
