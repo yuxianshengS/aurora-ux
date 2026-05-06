@@ -1,13 +1,13 @@
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './Cascader.css';
 
 export type CascaderSize = 'small' | 'medium' | 'large';
@@ -207,23 +207,15 @@ function Cascader<V extends CascaderValue = CascaderValue>({
   }, [open, setOpenSafe]);
 
   // 弹层定位
-  useLayoutEffect(() => {
-    if (!open) return;
-    const update = () => {
+  useReactivePosition(
+    open,
+    () => {
       if (!triggerRef.current) return;
       const r = triggerRef.current.getBoundingClientRect();
       setPos({ top: r.bottom + 4, left: r.left });
-    };
-    update();
-    const raf = requestAnimationFrame(update);
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open, activePath]);
+    },
+    [activePath],
+  );
 
   /** 当前要展示的 N 列 */
   const columns = useMemo<CascaderOption<V>[][]>(() => {

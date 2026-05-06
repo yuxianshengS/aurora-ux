@@ -50,13 +50,11 @@
 .au-select--large  { height: 42px; font-size: 16px; }
 
 .au-select.is-multiple {
-  min-height: 34px;
-  height: auto;
+  /* 单行高度 — 标签按宽度自动折叠成 +N, 不再 wrap 把触发器撑高 */
   padding: 3px 10px;
-  flex-wrap: wrap;
 }
-.au-select--small.is-multiple  { min-height: 28px; padding: 2px 8px; }
-.au-select--large.is-multiple  { min-height: 42px; padding: 4px 12px; }
+.au-select--small.is-multiple  { padding: 2px 8px; }
+.au-select--large.is-multiple  { padding: 4px 12px; }
 
 .au-select__content {
   position: relative;
@@ -64,9 +62,24 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
   overflow: hidden;
+}
+
+/* 隐藏度量层 — 始终渲染完整 tag 列表, 用来量出每个 tag 实际宽度,
+   ResizeObserver 据此算出该折叠到哪一个 */
+.au-select__measure {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  white-space: nowrap;
 }
 .au-select.is-multiple .au-select__content {
   padding: 2px 0;

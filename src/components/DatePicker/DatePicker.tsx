@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './DatePicker.css';
 import {
   addDays,
@@ -576,35 +577,22 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
   );
 
   // position the portal popup just below the trigger, flipping if needed
-  useEffect(() => {
-    if (!open) return;
-    const update = () => {
-      if (!wrapRef.current) return;
-      const r = wrapRef.current.getBoundingClientRect();
-      const popupEl = popupRef.current;
-      const panelW = popupEl?.offsetWidth ?? 280;
-      const panelH = popupEl?.offsetHeight ?? 320;
-      let left = r.left;
-      if (left + panelW > window.innerWidth - 8) {
-        left = Math.max(8, window.innerWidth - panelW - 8);
-      }
-      let top = r.bottom + 4;
-      if (top + panelH > window.innerHeight - 8 && r.top - panelH - 4 > 8) {
-        top = r.top - panelH - 4;
-      }
-      setPopupPos({ top, left });
-    };
-    update();
-    // re-measure once the popup has been painted (so its size is known)
-    const raf = requestAnimationFrame(update);
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open]);
+  useReactivePosition(open, () => {
+    if (!wrapRef.current) return;
+    const r = wrapRef.current.getBoundingClientRect();
+    const popupEl = popupRef.current;
+    const panelW = popupEl?.offsetWidth ?? 280;
+    const panelH = popupEl?.offsetHeight ?? 320;
+    let left = r.left;
+    if (left + panelW > window.innerWidth - 8) {
+      left = Math.max(8, window.innerWidth - panelW - 8);
+    }
+    let top = r.bottom + 4;
+    if (top + panelH > window.innerHeight - 8 && r.top - panelH - 4 > 8) {
+      top = r.top - panelH - 4;
+    }
+    setPopupPos({ top, left });
+  });
 
   useEffect(() => {
     if (!open) return;

@@ -25,13 +25,13 @@ const WatermarkDoc: React.FC = () => {
       <DemoBlock
         title="基础用法"
         description="包裹内容即可。默认斜向 -22°, 单元格 180×140。"
-        code={`<Watermark content="Aurora UI · 内部资料">
+        code={`<Watermark content="Aurora UX · 内部资料">
   <Card style={{ height: 200, padding: 24 }}>
     本月销售额: ¥ 1,284,560
   </Card>
 </Watermark>`}
       >
-        <Watermark content="Aurora UI · 内部资料">
+        <Watermark content="Aurora UX · 内部资料">
           <Card style={{ height: 200, padding: 24 }}>
             <h3 style={{ margin: 0 }}>本月销售额</h3>
             <div style={{ fontSize: 32, fontWeight: 700, marginTop: 8 }}>¥ 1,284,560</div>
@@ -61,7 +61,7 @@ const WatermarkDoc: React.FC = () => {
         title="多行 + 自定义角度"
         description="content 传字符串数组实现多行;angle 改方向,gap 改密度。"
         code={`<Watermark
-  content={['Aurora UI', '内部资料 · 禁止外传']}
+  content={['Aurora UX', '内部资料 · 禁止外传']}
   angle={-30}
   gap={[160, 110]}
   fontSize={14}
@@ -72,7 +72,7 @@ const WatermarkDoc: React.FC = () => {
 </Watermark>`}
       >
         <Watermark
-          content={['Aurora UI', '内部资料 · 禁止外传']}
+          content={['Aurora UX', '内部资料 · 禁止外传']}
           angle={-30}
           gap={[160, 110]}
           fontSize={14}
@@ -106,7 +106,7 @@ const WatermarkDoc: React.FC = () => {
       <h2>API</h2>
       <ApiTable
         rows={[
-          { prop: 'content', desc: '水印文字 (单行 string / 多行 string[])', type: 'string | string[]', default: `'Aurora UI'` },
+          { prop: 'content', desc: '水印文字 (单行 string / 多行 string[])', type: 'string | string[]', default: `'Aurora UX'` },
           { prop: 'image', desc: '替换文字的图片 src', type: 'string', default: '-' },
           { prop: 'fontSize', desc: '字号 (px)', type: 'number', default: '16' },
           { prop: 'fontWeight', desc: '字重', type: 'number | string', default: '500' },

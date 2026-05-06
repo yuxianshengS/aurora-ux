@@ -4,7 +4,6 @@
  * 设计目标: 不是黑盒组件, 而是落地为透明的 BlockConfig 树.
  * 用户拖一个 Section 进画布 = 拖一棵已经搭好的树, 每个节点都能继续编辑.
  */
-import React from 'react';
 import type { BlockConfig } from './registry';
 
 /** build 返回不带 id 的树 (Omit<BlockConfig, 'id'> 嵌套), 在插入时由 PageBuilder 递归分配 id */
@@ -19,13 +18,8 @@ export interface SectionTemplate {
   label: string;
   /** 一句话描述, 鼠标悬停展示 */
   description: string;
-  icon: React.ReactNode;
   build: () => SectionNode;
 }
-
-const Ico: React.FC<{ name: string }> = ({ name }) => (
-  <i className={`iconfont icon-${name}`} aria-hidden style={{ fontSize: 18 }} />
-);
 
 /** 极光 Hero — AuroraBg 容器 + GradientText 标题 + 副标题 + 按钮组 */
 const heroSection = (): SectionNode => ({
@@ -342,42 +336,36 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     key: 'hero',
     label: '极光 Hero',
     description: 'AuroraBg + 渐变标题 + CTA 按钮, Landing 顶区招牌',
-    icon: <Ico name="scenes" />,
     build: heroSection,
   },
   {
     key: 'pricing',
     label: 'Pricing 价格 3 列',
     description: 'GlowCard × 3, 含 NumberRoll 价格滚动',
-    icon: <Ico name="card" />,
     build: pricingSection,
   },
   {
     key: 'features',
     label: 'Feature 特性 3 列',
     description: '3 张特性卡, Icon + 标题 + 说明',
-    icon: <Ico name="editor-three-column" />,
     build: featuresSection,
   },
   {
     key: 'stats',
     label: 'Stats 数据条',
     description: '4 列 NumberRoll, 看板装饰条',
-    icon: <Ico name="calculator" />,
     build: statsSection,
   },
   {
     key: 'cta',
     label: 'CTA 号召横幅',
     description: '极光底 + 大标题 + 主按钮, 页脚招呼',
-    icon: <Ico name="click" />,
     build: ctaSection,
   },
   {
     key: 'kpi-row',
     label: 'KPI 4 列',
     description: 'KpiCard 一字排开, 看板顶部标配',
-    icon: <Ico name="charts-bar" />,
     build: kpiRowSection,
   },
 ];

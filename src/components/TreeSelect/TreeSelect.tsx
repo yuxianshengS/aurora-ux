@@ -1,7 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Tree, { type TreeNode } from '../Tree/Tree';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './TreeSelect.css';
 
 export interface TreeSelectProps {
@@ -61,20 +62,11 @@ const TreeSelect: React.FC<TreeSelectProps> = ({
   });
 
   // 定位
-  useLayoutEffect(() => {
-    if (!open || !triggerRef.current) return;
-    const update = () => {
-      const r = triggerRef.current!.getBoundingClientRect();
-      setPos({ top: r.bottom + 4, left: r.left, width: r.width });
-    };
-    update();
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open]);
+  useReactivePosition(open, () => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    setPos({ top: r.bottom + 4, left: r.left, width: r.width });
+  });
 
   // 点击外部关闭
   useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);

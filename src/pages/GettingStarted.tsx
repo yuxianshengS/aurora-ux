@@ -32,7 +32,7 @@ const GettingStarted: React.FC = () => {
             </GradientText>
           </h1>
           <p className="gs-banner__sub">
-            3 分钟把 AuroraUI 接入你的 React 项目, 看板从此自带光感.
+            3 分钟把 Aurora UX 接入你的 React 项目, 看板从此自带光感.
           </p>
         </div>
       </AuroraBg>
@@ -56,10 +56,6 @@ const GettingStarted: React.FC = () => {
           ))}
         </div>
         <CodeBox language="bash" lines={[{ prompt: '$', text: installCmd[pm] }]} />
-        <p className="gs-note">
-          <Icon name="lock" size={14} /> 包名是 <code>aurora-ux</code> (因为 npm 上的{' '}
-          <code>aurora-ui</code> 已被占用).
-        </p>
       </Step>
 
       <Step
@@ -94,7 +90,7 @@ const GettingStarted: React.FC = () => {
               { indent: 1, text: 'return (' },
               { indent: 2, jsx: ['<', { tag: 'AuroraBg' }, ' ', { attr: 'preset' }, '=', { str: '"aurora"' }, ' ', { attr: 'style' }, '={{ ', { attr: 'minHeight' }, ': ', { num: '320' }, ' }}>'] },
               { indent: 3, jsx: ['<', { tag: 'GradientText' }, ' ', { attr: 'size' }, '={', { num: '48' }, '} ', { attr: 'weight' }, '={', { num: '800' }, '}>'] },
-              { indent: 4, text: 'Hello AuroraUI' },
+              { indent: 4, text: 'Hello Aurora UX' },
               { indent: 3, jsx: ['</', { tag: 'GradientText' }, '>'] },
               { indent: 3, jsx: ['<', { tag: 'Button' }, ' ', { attr: 'type' }, '=', { str: '"primary"' }, '>开始使用</', { tag: 'Button' }, '>'] },
               { indent: 2, jsx: ['</', { tag: 'AuroraBg' }, '>'] },

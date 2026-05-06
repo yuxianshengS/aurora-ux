@@ -30,15 +30,6 @@ const BuilderWorkspace: React.FC = () => {
             <Icon name="catalog" size={14} />
             <span>文档</span>
           </Link>
-          <a
-            href="https://github.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="builder-page__link"
-          >
-            <Icon name="code" size={14} />
-            <span>GitHub</span>
-          </a>
         </div>
       </div>
 

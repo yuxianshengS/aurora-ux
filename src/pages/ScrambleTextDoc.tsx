@@ -17,9 +17,9 @@ const ScrambleTextDoc: React.FC = () => {
       <DemoBlock
         title="基础用法"
         description="挂载即播一次. 默认每字符 12 轮乱码, 50ms 一帧, 字符间错开 40ms."
-        code={`<ScrambleText text="Welcome to Aurora UI" />`}
+        code={`<ScrambleText text="Welcome to Aurora UX" />`}
       >
-        <ScrambleText text="Welcome to Aurora UI" style={{ fontSize: 32, fontWeight: 700 }} />
+        <ScrambleText text="Welcome to Aurora UX" style={{ fontSize: 32, fontWeight: 700 }} />
       </DemoBlock>
 
       <DemoBlock

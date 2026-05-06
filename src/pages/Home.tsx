@@ -48,7 +48,7 @@ const Home: React.FC = () => {
         <div className="home-hero__inner">
           <Link to="/docs/getting-started" className="home-hero__tag">
             <span className="home-hero__tag-dot" />
-            Aurora UI v{pkg.version}
+            Aurora UX v{pkg.version}
             <span className="home-hero__tag-arrow">→</span>
           </Link>
           <h1 className="home-hero__title">
@@ -200,7 +200,7 @@ const Home: React.FC = () => {
             <span className="home-section__eyebrow-divider" />
             核心能力 · CAPABILITIES
           </span>
-          <h2 className="home-section__title">为什么选 AuroraUI</h2>
+          <h2 className="home-section__title">为什么选 Aurora UX</h2>
         </div>
         <div className="home-features">
           <FeatureCard

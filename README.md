@@ -1,6 +1,6 @@
 <div align="center">
 
-# Aurora UI
+# Aurora UX
 
 **为中后台而生的极光感 React 组件库 + 可视化拖拽搭建器**
 
@@ -20,7 +20,7 @@
 
 ## 这是什么
 
-**Aurora UI** 是一套追求"极光感视觉 + 看板专精"的 React 组件库。和 antd/element 不一样的地方:
+**Aurora UX** 是一套追求"极光感视觉 + 看板专精"的 React 组件库。和 antd/element 不一样的地方:
 
 - 🌌 **极光招牌** — `AuroraBg` / `GradientText` / `GlowCard` / `NumberRoll` 等独家组件, 默认就有 dribbble 级质感
 - 📊 **中后台优先** — `KpiCard` / `Sparkline` / `Heatmap` / `Gauge` / `Funnel` 等看板组件全套, 不是又一个 antd 克隆

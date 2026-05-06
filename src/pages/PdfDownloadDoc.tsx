@@ -619,7 +619,7 @@ const ExtremeDemo: React.FC = () => {
    用来压力测试内容感知分页:
    - hero / KPI 卡 / 多段文字 / 14+25 行长表 / 6 块地区卡 / 漏斗 / 附录
    - 行高 / 卡片高度 / 段落分布交错, 切点会自然落在 "blocks 之间的空白带"
-   - 全 inline style, 不依赖 aurora-ui 组件, 不依赖主题, html2canvas-friendly
+   - 全 inline style, 不依赖 aurora-ux 组件, 不依赖主题, html2canvas-friendly
    ============================================================== */
 const ComplexReport: React.FC<{ volume?: number }> = ({ volume = 1 }) => {
   const accent = '#5b8def';

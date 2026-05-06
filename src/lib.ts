@@ -21,6 +21,7 @@ export { useTheme, type Theme } from './hooks/useTheme';
 export { useFocusTrap } from './hooks/useFocusTrap';
 export { useInView, type UseInViewOptions } from './hooks/useInView';
 export { useOutsideClick } from './hooks/useOutsideClick';
+export { useReactivePosition } from './hooks/useReactivePosition';
 
 // i18n locale 包
 export { zhCN, enUS } from './locale';

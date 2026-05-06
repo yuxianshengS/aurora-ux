@@ -8,7 +8,7 @@ const AuroraBgDoc: React.FC = () => {
     <>
       <h1>AuroraBg 极光背景</h1>
       <p>
-        AuroraUI 的标志性视觉:多层模糊色带柔和漂移,加上一层细微噪点,营造出极光的氛围。
+        Aurora UX 的标志性视觉:多层模糊色带柔和漂移,加上一层细微噪点,营造出极光的氛围。
         把它套在卡片、Hero 区甚至整页背景上,瞬间提升质感。纯 CSS 实现,无任何依赖,自动尊重
         <code>prefers-reduced-motion</code>。
       </p>

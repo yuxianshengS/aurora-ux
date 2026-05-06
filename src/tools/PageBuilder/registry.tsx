@@ -597,7 +597,7 @@ export const REGISTRY: BlockSchema[] = [
     category: '极光特效',
     component: GradientText,
     defaultProps: {
-      children: '欢迎来到 Aurora UI',
+      children: '欢迎来到 Aurora UX',
       preset: 'aurora',
       animate: true,
       duration: 6,
@@ -698,7 +698,7 @@ export const REGISTRY: BlockSchema[] = [
   {
     type: 'GlowCard',
     label: 'GlowCard 发光卡片',
-    icon: <Ico n="card" />,
+    icon: <Ico n="name-card" />,
     category: '极光特效',
     component: GlowCard,
     isContainer: true,
@@ -830,7 +830,7 @@ export const REGISTRY: BlockSchema[] = [
     category: '极光特效',
     component: ScrambleText,
     defaultProps: {
-      text: 'Welcome to Aurora UI',
+      text: 'Welcome to Aurora UX',
       rounds: 12,
       speed: 50,
       stagger: 40,
@@ -3138,7 +3138,7 @@ export const REGISTRY: BlockSchema[] = [
     icon: <Ico n="daziji" />,
     category: '动效',
     component: Typewriter,
-    defaultProps: { text: 'Hello, AuroraUI — 正在打字…', speed: 60 },
+    defaultProps: { text: 'Hello, Aurora UX — 正在打字…', speed: 60 },
     fields: [
       { key: 'text', label: '文本', type: 'textarea' },
       { key: 'speed', label: '速度 (ms/字)', type: 'number', min: 10, max: 500 },

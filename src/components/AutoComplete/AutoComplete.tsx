@@ -1,6 +1,7 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './AutoComplete.css';
 
 export interface AutoCompleteOption {
@@ -98,20 +99,11 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
   }, [filtered.length, active]);
 
   // 定位
-  useLayoutEffect(() => {
-    if (!open || !wrapRef.current) return;
-    const update = () => {
-      const r = wrapRef.current!.getBoundingClientRect();
-      setPos({ top: r.bottom + 4, left: r.left, width: r.width });
-    };
-    update();
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open]);
+  useReactivePosition(open, () => {
+    if (!wrapRef.current) return;
+    const r = wrapRef.current.getBoundingClientRect();
+    setPos({ top: r.bottom + 4, left: r.left, width: r.width });
+  });
 
   // 外部关闭
   useOutsideClick([wrapRef, popupRef], () => setOpen(false), open);

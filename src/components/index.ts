@@ -73,7 +73,15 @@ export type { DescriptionProps, DescriptionItem, DescriptionLayout, DescriptionS
 export { default as Result } from './Result';
 export type { ResultProps, ResultStatus } from './Result';
 export { default as Upload } from './Upload';
-export type { UploadProps, UploadFile, UploadStatus, UploadListType } from './Upload';
+export type {
+  UploadProps,
+  UploadFile,
+  UploadStatus,
+  UploadListType,
+  UploadChunkContext,
+  UploadMergeContext,
+  UploadChunkState,
+} from './Upload';
 export { default as Tree } from './Tree';
 export type { TreeProps, TreeNode } from './Tree';
 export { default as TreeSelect } from './TreeSelect';

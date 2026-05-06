@@ -18,10 +18,10 @@ const GradientTextDoc: React.FC = () => {
       <DemoBlock
         title="默认预设"
         description="aurora 配色 + 默认 6s 一周流动。"
-        code={`<GradientText size={48} weight={700}>欢迎来到 Aurora UI</GradientText>`}
+        code={`<GradientText size={48} weight={700}>欢迎来到 Aurora UX</GradientText>`}
       >
         <GradientText size={48} weight={700}>
-          欢迎来到 Aurora UI
+          欢迎来到 Aurora UX
         </GradientText>
       </DemoBlock>
 

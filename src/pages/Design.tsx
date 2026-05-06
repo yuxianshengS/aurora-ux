@@ -24,7 +24,7 @@ const Design: React.FC = () => {
             </GradientText>
           </h1>
           <p className="dp-banner__sub">
-            灵感来自北极光 — 流动 · 克制 · 有光. 这里讲为什么 AuroraUI 长这样.
+            灵感来自北极光 — 流动 · 克制 · 有光. 这里讲为什么 Aurora UX 长这样.
           </p>
         </div>
       </AuroraBg>

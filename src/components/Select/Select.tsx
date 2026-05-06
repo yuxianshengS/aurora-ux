@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './Select.css';
 
 export type SelectSize = 'small' | 'medium' | 'large';
@@ -121,6 +122,11 @@ function Select<V extends SelectValue = SelectValue>({
   const triggerRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  /** 多选: 标签可见区 / 隐藏度量区, 用来按宽度自动折叠超出标签 */
+  const tagWrapRef = useRef<HTMLDivElement>(null);
+  const tagMeasureRef = useRef<HTMLDivElement>(null);
+  /** 多选: 从第几个标签开始溢出 (-1 表示全部能放下) */
+  const [overflowAt, setOverflowAt] = useState<number>(-1);
   const [pos, setPos] = useState<{ top: number; left: number; width: number }>({
     top: 0,
     left: 0,
@@ -145,9 +151,9 @@ function Select<V extends SelectValue = SelectValue>({
   useOutsideClick([triggerRef, popupRef], () => setOpenSafe(false), open);
 
   // Position popup
-  useLayoutEffect(() => {
-    if (!open) return;
-    const update = () => {
+  useReactivePosition(
+    open,
+    () => {
       if (!triggerRef.current) return;
       const r = triggerRef.current.getBoundingClientRect();
       const popupEl = popupRef.current;
@@ -157,23 +163,63 @@ function Select<V extends SelectValue = SelectValue>({
         top = r.top - h - 4;
       }
       setPos({ top, left: r.left, width: r.width });
-    };
-    update();
-    const raf = requestAnimationFrame(update);
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open, popupMaxHeight]);
+    },
+    [popupMaxHeight],
+  );
 
   useEffect(() => {
     if (open && filterable) {
       inputRef.current?.focus();
     }
   }, [open, filterable]);
+
+  /**
+   * 多选: 按容器宽度自动折叠超出标签 — 度量层始终渲染完整列表 + 占位的 +N 片,
+   * 算出能放下几个, 设置 overflowAt; 可见层只渲染前 N 个 + 真正的 +N 片.
+   * maxTagCount 显式给了就走老路 (固定 cap); 否则跑这个测量循环.
+   * filterable + open 时 input 也参与抢宽度, 留点余量给输入框.
+   */
+  useLayoutEffect(() => {
+    if (!multiple || maxTagCount != null) {
+      setOverflowAt((prev) => (prev === -1 ? prev : -1));
+      return;
+    }
+    const wrap = tagWrapRef.current;
+    const measure = tagMeasureRef.current;
+    if (!wrap || !measure || current.length === 0) {
+      setOverflowAt((prev) => (prev === -1 ? prev : -1));
+      return;
+    }
+    const calc = () => {
+      const containerWidth = wrap.clientWidth;
+      const tagEls = measure.querySelectorAll<HTMLElement>('.au-select__tag:not(.is-more)');
+      const overflowChip = measure.querySelector<HTMLElement>('.au-select__tag.is-more');
+      const overflowWidth = overflowChip?.offsetWidth ?? 32;
+      // filterable + open 状态下要给 input 留至少 60px (跟 CSS .au-select__search 的 min-width 同步)
+      const inputReserve = filterable && open ? 64 : 0;
+      const gap = 4;
+      const available = containerWidth - inputReserve;
+
+      let cum = 0;
+      let cutoff = -1;
+      for (let i = 0; i < tagEls.length; i++) {
+        const w = tagEls[i].offsetWidth;
+        const next = cum + (i > 0 ? gap : 0) + w;
+        const hasMoreAfter = i < tagEls.length - 1;
+        const reserve = hasMoreAfter ? gap + overflowWidth : 0;
+        if (next + reserve > available) {
+          cutoff = i;
+          break;
+        }
+        cum = next;
+      }
+      setOverflowAt((prev) => (prev === cutoff ? prev : cutoff));
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [multiple, maxTagCount, current, filterable, open]);
 
   const filtered = useMemo(() => {
     if (!filterable || !keyword) return options;
@@ -282,36 +328,52 @@ function Select<V extends SelectValue = SelectValue>({
     return <span className="au-select__value">{opt?.label ?? String(current[0])}</span>;
   };
 
+  /** 单个标签的渲染 — 可见层和度量层共用 */
+  const renderOneTag = (v: V) => {
+    const opt = options.find((o) => o.value === v);
+    return (
+      <span key={String(v)} className="au-select__tag">
+        <span className="au-select__tag-label">{opt?.label ?? String(v)}</span>
+        {!disabled && (
+          <button
+            type="button"
+            className="au-select__tag-close"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => removeTag(e, v)}
+            aria-label="移除"
+          >
+            <ClearIcon />
+          </button>
+        )}
+      </span>
+    );
+  };
+
   const renderTags = () => {
     if (!hasValue && !keyword) {
       return !filterable || !open ? (
         <span className="au-select__ph">{placeholder}</span>
       ) : null;
     }
-    const shown = maxTagCount != null ? current.slice(0, maxTagCount) : current;
-    const rest = maxTagCount != null ? current.length - shown.length : 0;
+    // maxTagCount 显式设置 = 固定 cap, 走老路;
+    // 没设 = 用 overflowAt 自动按宽度裁 (-1 = 全部能放)
+    const auto = maxTagCount == null;
+    const cutoff = auto
+      ? (overflowAt < 0 ? current.length : overflowAt)
+      : Math.min(maxTagCount, current.length);
+    const shown = current.slice(0, cutoff);
+    const rest = current.length - cutoff;
     return (
       <>
-        {shown.map((v) => {
-          const opt = options.find((o) => o.value === v);
-          return (
-            <span key={String(v)} className="au-select__tag">
-              <span className="au-select__tag-label">{opt?.label ?? String(v)}</span>
-              {!disabled && (
-                <button
-                  type="button"
-                  className="au-select__tag-close"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={(e) => removeTag(e, v)}
-                  aria-label="移除"
-                >
-                  <ClearIcon />
-                </button>
-              )}
-            </span>
-          );
-        })}
+        {shown.map((v) => renderOneTag(v))}
         {rest > 0 && <span className="au-select__tag is-more">+{rest}</span>}
+        {/* 度量层 — 自动模式才需要, 始终渲染完整列表给 ResizeObserver 量宽度 */}
+        {auto && current.length > 0 && (
+          <div className="au-select__measure" aria-hidden ref={tagMeasureRef}>
+            {current.map((v) => renderOneTag(v))}
+            <span className="au-select__tag is-more">+{current.length}</span>
+          </div>
+        )}
       </>
     );
   };
@@ -345,7 +407,7 @@ function Select<V extends SelectValue = SelectValue>({
         aria-expanded={open}
         aria-disabled={disabled}
       >
-        <div className="au-select__content">
+        <div className="au-select__content" ref={tagWrapRef}>
           {multiple ? renderTags() : renderSingleLabel()}
           {filterable && open && (
             <input

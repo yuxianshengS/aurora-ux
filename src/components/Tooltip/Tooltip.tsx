@@ -1,12 +1,12 @@
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './Tooltip.css';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -154,23 +154,17 @@ const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
     useEffect(() => () => clearTimers(), []);
 
     // 计算位置(打开时 / 滚动时 / 缩放时)
-    useLayoutEffect(() => {
-      if (!visible) return;
-      const trig = triggerRef.current;
-      const bub = bubbleRef.current;
-      if (!trig || !bub) return;
-      const update = () => {
+    useReactivePosition(
+      visible,
+      () => {
+        const trig = triggerRef.current;
+        const bub = bubbleRef.current;
+        if (!trig || !bub) return;
         const r = trig.getBoundingClientRect();
         setPos(computePos(r, bub, placement, 10));
-      };
-      update();
-      window.addEventListener('scroll', update, true);
-      window.addEventListener('resize', update);
-      return () => {
-        window.removeEventListener('scroll', update, true);
-        window.removeEventListener('resize', update);
-      };
-    }, [visible, placement, title]);
+      },
+      [placement, title],
+    );
 
     // click 模式: 点击外部关闭
     useOutsideClick([triggerRef, bubbleRef], () => setOpen(false), isClick && visible);

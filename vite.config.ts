@@ -37,9 +37,9 @@ export default defineConfig(({ mode }) => {
         cssCodeSplit: false,
         lib: {
           entry: resolve(__dirname, 'src/lib.ts'),
-          name: 'AuroraUI',
+          name: 'AuroraUX',
           formats: ['es', 'cjs'],
-          fileName: (format) => `aurora-ui.${format === 'es' ? 'mjs' : 'cjs'}`,
+          fileName: (format) => `aurora-ux.${format === 'es' ? 'mjs' : 'cjs'}`,
         },
         rollupOptions: {
           // 这些依赖不打进包, 让用户项目里自己装 (peer)
@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => {
             },
             assetFileNames: (assetInfo) => {
               if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-                return 'aurora-ui.css';
+                return 'aurora-ux.css';
               }
               return 'assets/[name]-[hash][extname]';
             },

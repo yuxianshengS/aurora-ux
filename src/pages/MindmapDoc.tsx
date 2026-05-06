@@ -21,7 +21,7 @@ const MindmapDoc: React.FC = () => {
 
       <DemoBlock
         title="产品规划思维导图"
-        description="中心: 'Aurora UI'; 4 个主分支 (设计 / 组件 / 工程 / 生态), 每个主分支辐射 3 个二级要点. 主分支用 curve 曲线放射, 二级用 step 短直线."
+        description="中心: 'Aurora UX'; 4 个主分支 (设计 / 组件 / 工程 / 生态), 每个主分支辐射 3 个二级要点. 主分支用 curve 曲线放射, 二级用 step 短直线."
         code={CODE}
       >
         <Mindmap />
@@ -70,7 +70,7 @@ const Mindmap: React.FC = () => {
         >
           <GlowCard glowColor="#a855f7" intensity={0.85} padding="14px 24px" radius={999}>
             <GradientText preset="aurora" size={20} weight={800}>
-              Aurora UI
+              Aurora UX
             </GradientText>
           </GlowCard>
         </div>

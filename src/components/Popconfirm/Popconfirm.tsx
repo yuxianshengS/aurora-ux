@@ -3,12 +3,12 @@ import React, {
   isValidElement,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './Popconfirm.css';
 
 export type PopconfirmPlacement =
@@ -81,9 +81,9 @@ const Popconfirm: React.FC<PopconfirmProps> = ({
 
   useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);
 
-  useLayoutEffect(() => {
-    if (!open) return;
-    const update = () => {
+  useReactivePosition(
+    open,
+    () => {
       if (!triggerRef.current) return;
       const r = triggerRef.current.getBoundingClientRect();
       const pw = popupRef.current?.offsetWidth ?? 240;
@@ -104,17 +104,9 @@ const Popconfirm: React.FC<PopconfirmProps> = ({
       left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
       top = Math.max(8, Math.min(top, window.innerHeight - ph - 8));
       setPos({ top, left });
-    };
-    update();
-    const raf = requestAnimationFrame(update);
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open, placement]);
+    },
+    [placement],
+  );
 
   useEffect(() => {
     if (!open) return;

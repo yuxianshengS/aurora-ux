@@ -100,6 +100,13 @@
   border-color: var(--au-danger, #ef4444);
   background: color-mix(in srgb, var(--au-danger, #ef4444) 6%, var(--au-bg));
 }
+.au-upload__item.is-paused {
+  border-color: color-mix(in srgb, var(--au-warning, #f59e0b) 50%, var(--au-border));
+  background: color-mix(in srgb, var(--au-warning, #f59e0b) 4%, var(--au-bg));
+}
+.au-upload__item.is-uploading {
+  border-color: color-mix(in srgb, var(--au-primary) 35%, var(--au-border));
+}
 
 .au-upload--card .au-upload__item {
   flex-direction: column;
@@ -151,6 +158,32 @@
   height: 100%;
   background: var(--au-primary);
   transition: width 0.2s ease;
+}
+.au-upload__progress.is-paused .au-upload__progress-bar {
+  background: var(--au-warning, #f59e0b);
+}
+
+/* 行尾按钮组 — 暂停 / 继续 / 重试 / 移除 */
+.au-upload__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.au-upload__action {
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--au-text-2);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 3px;
+  transition: background 0.12s var(--au-ease), color 0.12s var(--au-ease);
+}
+.au-upload__action:hover {
+  background: var(--au-bg-mute);
+  color: var(--au-primary);
 }
 .au-upload__remove {
   flex-shrink: 0;

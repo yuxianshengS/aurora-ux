@@ -17,9 +17,9 @@ const TypewriterDoc: React.FC = () => {
       <DemoBlock
         title="基础用法"
         description="传入一段文字,组件逐字符打出。默认速度 60ms/字, 带闪烁光标。"
-        code={`<Typewriter text="Hello, Aurora UI." />`}
+        code={`<Typewriter text="Hello, Aurora UX." />`}
       >
-        <Typewriter text="Hello, Aurora UI." />
+        <Typewriter text="Hello, Aurora UX." />
       </DemoBlock>
 
       <DemoBlock
@@ -122,7 +122,7 @@ const TypewriterDoc: React.FC = () => {
         componentName="Typewriter"
         component={PlaygroundWrapper}
         controls={[
-          { name: 'text', type: 'text', default: 'Hello, Aurora UI.', label: 'text' },
+          { name: 'text', type: 'text', default: 'Hello, Aurora UX.', label: 'text' },
           { name: 'speed', type: 'text', default: '60', label: 'speed (ms)' },
           { name: 'deleteSpeed', type: 'text', default: '30', label: 'deleteSpeed (ms)' },
           { name: 'pauseAfter', type: 'text', default: '1500', label: 'pauseAfter (ms)' },
@@ -252,7 +252,7 @@ interface WrapperProps {
 }
 
 const PlaygroundWrapper: React.FC<WrapperProps> = ({
-  text = 'Hello, Aurora UI.',
+  text = 'Hello, Aurora UX.',
   speed,
   deleteSpeed,
   pauseAfter,

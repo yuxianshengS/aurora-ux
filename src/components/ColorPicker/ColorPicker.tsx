@@ -1,7 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { hexToHsl, hslToHex } from '../../utils/generateTheme';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useReactivePosition } from '../../hooks/useReactivePosition';
 import './ColorPicker.css';
 
 export interface ColorPickerProps {
@@ -78,20 +79,11 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   };
 
   // 定位
-  useLayoutEffect(() => {
-    if (!open || !triggerRef.current) return;
-    const update = () => {
-      const r = triggerRef.current!.getBoundingClientRect();
-      setPos({ top: r.bottom + 6, left: r.left });
-    };
-    update();
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open]);
+  useReactivePosition(open, () => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    setPos({ top: r.bottom + 6, left: r.left });
+  });
 
   // 外部点击关闭
   useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);

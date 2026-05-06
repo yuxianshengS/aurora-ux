@@ -1508,7 +1508,6 @@ const PageBuilder: React.FC<PageBuilderProps> = ({
                           setDataTransfer(e, { kind: 'section', sectionKey: s.key })
                         }
                       >
-                        <span className="au-pb__palette-item-icon">{s.icon}</span>
                         <span className="au-pb__palette-item-label">{s.label}</span>
                       </div>
                     ))}
@@ -1619,7 +1618,6 @@ const PageBuilder: React.FC<PageBuilderProps> = ({
                             setSelectedId(tree.id);
                           }}
                         >
-                          <span className="au-pb__guide-section-icon">{tpl.icon}</span>
                           <span className="au-pb__guide-section-label">{tpl.label}</span>
                         </button>
                       ))}

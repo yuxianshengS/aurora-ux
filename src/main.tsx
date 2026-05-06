@@ -14,7 +14,7 @@ window.addEventListener('vite:preloadError', (event) => {
   if (Date.now() - last < 10_000) return; // 已经刷过, 不再循环
   sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
   // eslint-disable-next-line no-console
-  console.warn('[aurora-ui] 检测到陈旧的 chunk hash, 自动刷新页面以加载新版本', event);
+  console.warn('[aurora-ux] 检测到陈旧的 chunk hash, 自动刷新页面以加载新版本', event);
   window.location.reload();
 });
 

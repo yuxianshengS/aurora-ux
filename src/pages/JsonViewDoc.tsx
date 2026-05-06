@@ -21,7 +21,7 @@ const sample = {
     },
   },
   posts: [
-    { id: 1, title: 'Aurora UI 发布 v0.8', published: true },
+    { id: 1, title: 'Aurora UX 发布 v0.8', published: true },
     { id: 2, title: 'CRDT 入门', published: false },
   ],
   meta: {},

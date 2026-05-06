@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
       <div className="site-navbar__inner">
         <Link to="/" className="site-logo">
           <span className="site-logo__mark" aria-hidden />
-          <span className="site-logo__name">AuroraUI</span>
+          <span className="site-logo__name">Aurora UX</span>
           <span className="site-logo__ver">v{pkg.version}</span>
         </Link>
         <nav className="site-nav">
@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
             aria-label={isDark ? '切换到亮色模式' : '切换到暗色模式'}
           />
           <a
-            href="https://github.com/"
+            href="https://github.com/yuxianshengS/aurora-ux"
             target="_blank"
             rel="noreferrer"
             className="site-ghlink"

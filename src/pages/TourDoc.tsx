@@ -642,7 +642,7 @@ const SelectorDemo: React.FC = () => {
         steps={[
           {
             target: '.au-navbar__brand',
-            title: 'Aurora UI',
+            title: 'Aurora UX',
             description: '点 logo 任何时候都能回首页。',
             placement: 'bottom',
           },

@@ -44,7 +44,7 @@ const AURORA_STOPS = ['#22d3ee', '#a855f7', '#ec4899'];
  * Aurora 招牌:color="aurora" 时走极光渐变文字水印,跟 GradientText 同款配色。
  */
 const Watermark: React.FC<WatermarkProps> = ({
-  content = 'Aurora UI',
+  content = 'Aurora UX',
   image,
   fontSize = 16,
   fontWeight = 600,
