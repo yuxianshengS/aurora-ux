@@ -62,6 +62,11 @@ export default defineConfig(({ mode }) => {
               }
               return 'assets/[name]-[hash][extname]';
             },
+            // Next.js 13+ App Router 兼容: 把整个 bundle 标成 client component,
+            // 用户可以在 RSC 项目里直接 `import { Button } from 'aurora-ux'`,
+            // 不用再自己包一层 'use client' wrapper.
+            // 注意: 注入到 .mjs / .cjs 的最顶部才生效 (banner 选项做的就是这个事)
+            banner: `'use client';`,
           },
         },
       },
