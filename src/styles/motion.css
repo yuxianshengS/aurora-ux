@@ -86,26 +86,41 @@
    不再"啪"一下闪。useTheme 在用户主动切换时给 <html> 临时加
    data-theme-transition 属性, 280ms 后摘掉; 初始 mount 不挂,
    prefers-reduced-motion 用户也不挂。
-   !important 用来在过渡期间覆盖组件原本的 transition 设定,
-   保证全 DOM 同步缓动一次,过渡结束后恢复各自原状。
+
+   实现原理: variables.css 里把所有主题色 token 用 @property
+   注册为 <color>, 浏览器就能在 :root 上原生插值;只要这里给
+   :root 声明一条针对这些自定义属性的 transition, 整页所有用
+   var(--au-bg) / var(--au-text-1) ... 的地方都跟着自动平滑过渡,
+   不需要再用 `* { transition: ... !important }` 去碾压每一个
+   组件的 transition (那种做法会顺带干掉组件 width/transform/
+   opacity 等过渡, 切主题时引发布局闪烁/抖宽)
    ============================================================ */
-[data-theme-transition] *,
-[data-theme-transition] *::before,
-[data-theme-transition] *::after {
+[data-theme-transition] {
   transition:
-    background-color 280ms var(--au-ease),
-    color 280ms var(--au-ease),
-    border-color 280ms var(--au-ease),
-    fill 280ms var(--au-ease),
-    stroke 280ms var(--au-ease),
-    box-shadow 280ms var(--au-ease),
-    outline-color 280ms var(--au-ease) !important;
+    --au-primary 280ms var(--au-ease),
+    --au-primary-hover 280ms var(--au-ease),
+    --au-primary-active 280ms var(--au-ease),
+    --au-primary-soft 280ms var(--au-ease),
+    --au-success 280ms var(--au-ease),
+    --au-warning 280ms var(--au-ease),
+    --au-danger 280ms var(--au-ease),
+    --au-text-1 280ms var(--au-ease),
+    --au-text-2 280ms var(--au-ease),
+    --au-text-3 280ms var(--au-ease),
+    --au-border 280ms var(--au-ease),
+    --au-border-strong 280ms var(--au-ease),
+    --au-bg-base 280ms var(--au-ease),
+    --au-bg 280ms var(--au-ease),
+    --au-bg-soft 280ms var(--au-ease),
+    --au-bg-mute 280ms var(--au-ease),
+    --au-navbar-bg 280ms var(--au-ease),
+    --au-code-inline 280ms var(--au-ease),
+    --au-pre-bg 280ms var(--au-ease),
+    --au-pre-text 280ms var(--au-ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-theme-transition] *,
-  [data-theme-transition] *::before,
-  [data-theme-transition] *::after {
-    transition: none !important;
+  [data-theme-transition] {
+    transition: none;
   }
 }

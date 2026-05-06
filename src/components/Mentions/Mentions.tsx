@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Mentions.css';
 
 export interface MentionItem {
@@ -174,17 +175,11 @@ const Mentions: React.FC<MentionsProps> = ({
   }, [picker.open]);
 
   // 外部点击关闭
-  useEffect(() => {
-    if (!picker.open) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (taRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setPicker((p) => ({ ...p, open: false }));
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [picker.open]);
+  useOutsideClick(
+    [taRef, popupRef],
+    () => setPicker((p) => ({ ...p, open: false })),
+    picker.open,
+  );
 
   const setValue = (v: string) => {
     if (!isCtrl) setInnerValue(v);

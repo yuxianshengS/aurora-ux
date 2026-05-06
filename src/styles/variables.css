@@ -1,3 +1,31 @@
+/* ============================================================
+   主题色 token 注册为 <color> — 让浏览器在 :root 上原生插值,
+   切主题时所有 var(--au-bg) / var(--au-text-1) ... 自动平滑过渡,
+   不再需要 motion.css 里那条 `* { transition: ... !important }`
+   全局规则去强压每个组件的 transition (那条规则会顺手把组件
+   原生的 width/transform/opacity 过渡一并干掉, 引发布局闪烁)
+   ============================================================ */
+@property --au-primary { syntax: '<color>'; inherits: true; initial-value: #5b8def; }
+@property --au-primary-hover { syntax: '<color>'; inherits: true; initial-value: #3f72e0; }
+@property --au-primary-active { syntax: '<color>'; inherits: true; initial-value: #2c5dcc; }
+@property --au-primary-soft { syntax: '<color>'; inherits: true; initial-value: rgba(91, 141, 239, 0.1); }
+@property --au-success { syntax: '<color>'; inherits: true; initial-value: #22c55e; }
+@property --au-warning { syntax: '<color>'; inherits: true; initial-value: #f59e0b; }
+@property --au-danger { syntax: '<color>'; inherits: true; initial-value: #ef4444; }
+@property --au-text-1 { syntax: '<color>'; inherits: true; initial-value: #0f172a; }
+@property --au-text-2 { syntax: '<color>'; inherits: true; initial-value: #475569; }
+@property --au-text-3 { syntax: '<color>'; inherits: true; initial-value: #94a3b8; }
+@property --au-border { syntax: '<color>'; inherits: true; initial-value: #e2e8f0; }
+@property --au-border-strong { syntax: '<color>'; inherits: true; initial-value: #cbd5e1; }
+@property --au-bg-base { syntax: '<color>'; inherits: true; initial-value: #f6f8fa; }
+@property --au-bg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+@property --au-bg-soft { syntax: '<color>'; inherits: true; initial-value: #f1f5f9; }
+@property --au-bg-mute { syntax: '<color>'; inherits: true; initial-value: #e2e8f0; }
+@property --au-navbar-bg { syntax: '<color>'; inherits: true; initial-value: rgba(255, 255, 255, 0.82); }
+@property --au-code-inline { syntax: '<color>'; inherits: true; initial-value: #c026d3; }
+@property --au-pre-bg { syntax: '<color>'; inherits: true; initial-value: #f1f5f9; }
+@property --au-pre-text { syntax: '<color>'; inherits: true; initial-value: #1a2332; }
+
 :root {
   /* Brand */
   --au-primary: #5b8def;

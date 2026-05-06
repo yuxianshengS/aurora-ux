@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './FloatButton.css';
 
 export type FloatButtonPosition =
@@ -83,6 +84,7 @@ const FloatButton: React.FC<FloatButtonProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(!backTop);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   // backTop 模式监听滚动
   useEffect(() => {
@@ -96,15 +98,7 @@ const FloatButton: React.FC<FloatButtonProps> = ({
   }, [backTop, backTopThreshold]);
 
   // 点击外部关闭 speed dial
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as HTMLElement;
-      if (!t.closest('.au-fab-root')) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+  useOutsideClick([rootRef], () => setOpen(false), open);
 
   if (!visible) return null;
 
@@ -138,6 +132,7 @@ const FloatButton: React.FC<FloatButtonProps> = ({
 
   return (
     <div
+      ref={rootRef}
       className={[
         'au-fab-root',
         `au-fab-root--${position}`,

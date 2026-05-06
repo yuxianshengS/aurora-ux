@@ -31,7 +31,9 @@ export default defineConfig(({ mode }) => {
       publicDir: false, // 不要把 public/ (favicon 等) 复制进 npm 包
       build: {
         outDir: 'dist',
-        sourcemap: true,
+        // lib 模式不发 sourcemap — 之前 .cjs.map / .mjs.map 给 npm 包平添 ~2MB,
+        // 下游真要调试库源码可以装 dev 版自己 build, 不该让所有用户为此买单
+        sourcemap: false,
         cssCodeSplit: false,
         lib: {
           entry: resolve(__dirname, 'src/lib.ts'),

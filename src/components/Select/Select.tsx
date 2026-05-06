@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Select.css';
 
 export type SelectSize = 'small' | 'medium' | 'large';
@@ -141,17 +142,7 @@ function Select<V extends SelectValue = SelectValue>({
   );
 
   // Close on outside click
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpenSafe(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open, setOpenSafe]);
+  useOutsideClick([triggerRef, popupRef], () => setOpenSafe(false), open);
 
   // Position popup
   useLayoutEffect(() => {

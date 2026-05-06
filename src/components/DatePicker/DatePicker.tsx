@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './DatePicker.css';
 import {
   addDays,
@@ -563,20 +564,16 @@ const DatePicker: React.FC<DatePickerProps> = (props) => {
   });
 
   // close on outside click (check both trigger and popup)
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (wrapRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
+  useOutsideClick(
+    [wrapRef, popupRef],
+    () => {
       setOpen(false);
       setHoverDate(null);
       setPendingStart(null);
       setRangeEditing('start');
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
+    },
+    open,
+  );
 
   // position the portal popup just below the trigger, flipping if needed
   useEffect(() => {

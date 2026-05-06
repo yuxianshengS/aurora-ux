@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Menu.css';
 
 export type MenuMode = 'vertical' | 'horizontal' | 'inline';
@@ -236,17 +237,7 @@ const SubMenu: React.FC<SubMenuProps> = ({
 
   const isPopupMode = mode === 'horizontal' || mode === 'vertical' || collapsed;
 
-  useEffect(() => {
-    if (!isPopupMode || !hover) return;
-    const handler = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (wrapRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setHover(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [isPopupMode, hover]);
+  useOutsideClick([wrapRef, popupRef], () => setHover(false), isPopupMode && hover);
 
   const containsActive = (list: MenuItem[]): boolean =>
     list.some((i) => {

@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Dropdown.css';
 
 export type DropdownPlacement =
@@ -87,18 +88,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     [isCtrl, onOpenChange],
   );
 
-  // close on outside
-  useEffect(() => {
-    if (!open) return;
-    const h = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, [open, setOpen]);
+  useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);
 
   // positioning
   useLayoutEffect(() => {

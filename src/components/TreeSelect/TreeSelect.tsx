@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Tree, { type TreeNode } from '../Tree/Tree';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './TreeSelect.css';
 
 export interface TreeSelectProps {
@@ -76,17 +77,7 @@ const TreeSelect: React.FC<TreeSelectProps> = ({
   }, [open]);
 
   // 点击外部关闭
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+  useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);
 
   // ESC 关闭
   useEffect(() => {

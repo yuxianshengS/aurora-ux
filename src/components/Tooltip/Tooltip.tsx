@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Tooltip.css';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -172,17 +173,7 @@ const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
     }, [visible, placement, title]);
 
     // click 模式: 点击外部关闭
-    useEffect(() => {
-      if (!isClick || !visible) return;
-      const onDoc = (e: MouseEvent) => {
-        const t = e.target as Node;
-        if (triggerRef.current?.contains(t)) return;
-        if (bubbleRef.current?.contains(t)) return;
-        setOpen(false);
-      };
-      document.addEventListener('mousedown', onDoc);
-      return () => document.removeEventListener('mousedown', onDoc);
-    }, [isClick, visible, setOpen]);
+    useOutsideClick([triggerRef, bubbleRef], () => setOpen(false), isClick && visible);
 
     // ESC 关闭
     useEffect(() => {

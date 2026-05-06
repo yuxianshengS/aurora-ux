@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Popconfirm.css';
 
 export type PopconfirmPlacement =
@@ -78,17 +79,7 @@ const Popconfirm: React.FC<PopconfirmProps> = ({
     [isControlled, onOpenChange],
   );
 
-  useEffect(() => {
-    if (!open) return;
-    const h = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, [open, setOpen]);
+  useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);
 
   useLayoutEffect(() => {
     if (!open) return;

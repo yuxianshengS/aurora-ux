@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './Cascader.css';
 
 export type CascaderSize = 'small' | 'medium' | 'large';
@@ -193,23 +194,16 @@ function Cascader<V extends CascaderValue = CascaderValue>({
   );
 
   // 外部点击关闭
+  useOutsideClick([triggerRef, popupRef], () => setOpenSafe(false), open);
+
+  // ESC 关闭
   useEffect(() => {
     if (!open) return;
-    const onMouseDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpenSafe(false);
-    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpenSafe(false);
     };
-    document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown);
-      document.removeEventListener('keydown', onKey);
-    };
+    return () => document.removeEventListener('keydown', onKey);
   }, [open, setOpenSafe]);
 
   // 弹层定位

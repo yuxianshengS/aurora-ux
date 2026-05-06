@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { hexToHsl, hslToHex } from '../../utils/generateTheme';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './ColorPicker.css';
 
 export interface ColorPickerProps {
@@ -93,17 +94,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   }, [open]);
 
   // 外部点击关闭
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+  useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);
 
   // Saturation/Lightness 板拖动
   const satRef = useRef<HTMLDivElement>(null);

@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import './AutoComplete.css';
 
 export interface AutoCompleteOption {
@@ -113,17 +114,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
   }, [open]);
 
   // 外部关闭
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (wrapRef.current?.contains(t)) return;
-      if (popupRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+  useOutsideClick([wrapRef, popupRef], () => setOpen(false), open);
 
   const setValue = (v: string) => {
     if (!isCtrl) setInnerValue(v);
