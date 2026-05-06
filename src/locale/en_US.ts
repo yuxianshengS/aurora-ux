@@ -143,15 +143,6 @@ const enUS: Locale = {
     slideOfTotal: 'Slide {n} of {total}',
     goToSlide: 'Go to slide {n}',
   },
-  CodeBlock: {
-    copy: 'Copy',
-    copied: 'Copied',
-  },
-  MessageBubble: {
-    assistant: 'Assistant',
-    user: 'You',
-    system: 'System',
-  },
   Common: {
     close: 'Close',
     clear: 'Clear',
