@@ -4,11 +4,11 @@ import DemoBlock from '../site-components/DemoBlock';
 import ApiTable from '../site-components/ApiTable';
 
 const USERS = [
-  { value: 'yuxingchen', label: '余星辰', description: 'Aurora UX 作者' },
   { value: 'alice', label: 'Alice', description: '前端工程师' },
   { value: 'bob', label: 'Bob', description: '设计师' },
   { value: 'carol', label: 'Carol', description: '产品经理' },
   { value: 'dave', label: 'Dave', description: '后端工程师' },
+  { value: 'eve', label: 'Eve', description: '运维工程师' },
 ];
 
 const TAGS = [

@@ -5,14 +5,14 @@ import ApiTable from '../site-components/ApiTable';
 
 const sample = {
   id: 'usr_4f9aa1c2',
-  name: '余星辰',
+  name: 'Alice',
   active: true,
   age: 27,
   tags: ['frontend', 'design-system', 'typescript'],
   profile: {
-    bio: '一个专注于 design system 的开发者',
+    bio: '专注于 design system 的开发者',
     socials: {
-      github: 'yuxianshengS',
+      github: 'octocat',
       twitter: null,
     },
     metrics: {
