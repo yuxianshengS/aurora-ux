@@ -85,6 +85,8 @@ export interface DayTimelineProps {
   height?: number;
   className?: string;
   style?: React.CSSProperties;
+  /** 加载态 */
+  loading?: boolean;
 }
 
 const VIEW_WIDTH = 1440;
@@ -267,6 +269,7 @@ const DayTimeline: React.FC<DayTimelineProps> = ({
   height = 60,
   className,
   style,
+  loading,
 }) => {
   const [defStart, defEnd] = useMemo(() => defaultAxis(mode), [mode]);
   const axisStart = start ?? defStart;
@@ -373,6 +376,14 @@ const DayTimeline: React.FC<DayTimelineProps> = ({
 
   const markerX = xOf(current);
   const cls = ['au-daytimeline', className ?? ''].filter(Boolean).join(' ');
+
+  if (loading) {
+    return (
+      <div className={[cls, 'is-loading'].join(' ')} style={{ width: '100%', ...style }}>
+        <div className="au-skel-block" style={{ width: '100%', height }} />
+      </div>
+    );
+  }
 
   return (
     <svg

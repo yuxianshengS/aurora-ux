@@ -491,10 +491,14 @@ function TimePanel({ value, onChange }: TimePanelProps) {
 /* ---------------- main ---------------- */
 
 const ClearIcon = () => (
-  <svg viewBox="0 0 1024 1024" width="12" height="12" aria-hidden>
+  // 跟 Select / Cascader / TreeSelect / AutoComplete 等其他组件统一用纯叉
+  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden>
     <path
-      fill="currentColor"
-      d="M512 64a448 448 0 1 0 0 896 448 448 0 0 0 0-896zm176.56 624.8L512 512l176.56-176.56-32-32L480 480 303.44 303.44l-32 32L448 512 271.44 688.56l32 32L480 544l176.56 176.56z"
+      d="M4 4l8 8M12 4l-8 8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
     />
   </svg>
 );

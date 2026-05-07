@@ -171,3 +171,39 @@
   color: var(--au-text-3);
   font-size: 0.95em;
 }
+
+/* 清除按钮 — allowClear 开启 + value 非空时浮在右侧 */
+.au-input__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--au-text-3);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s var(--au-ease, ease), color 0.15s var(--au-ease, ease);
+  /* 默认半透明, hover input 整体或 hover 自身才提亮 — 让按钮不抢眼 */
+  opacity: 0.7;
+}
+.au-input:hover .au-input__clear,
+.au-input__clear:hover {
+  opacity: 1;
+}
+.au-input__clear:hover {
+  background: var(--au-bg-mute);
+  color: var(--au-text-1);
+}
+.au-input.is-disabled .au-input__clear {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .au-input__clear {
+    transition: none;
+  }
+}

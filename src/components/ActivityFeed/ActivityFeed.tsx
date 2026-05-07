@@ -35,6 +35,8 @@ export interface ActivityFeedProps {
   emptyText?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  /** 加载态 */
+  loading?: boolean;
 }
 
 const toDate = (v: string | Date): Date => (v instanceof Date ? v : new Date(v));
@@ -64,6 +66,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   emptyText,
   className = '',
   style,
+  loading,
 }) => {
   const locale = useLocale();
   const emptyTextResolved = emptyText ?? locale.ActivityFeed.empty;
@@ -115,6 +118,22 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
     return (
       <div className={cls} style={{ ...style, maxHeight }}>
         <div className="au-activity-feed__empty">{emptyTextResolved}</div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className={[cls, 'is-loading'].join(' ')} style={style}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ display: 'flex', gap: 12, padding: '8px 0' }}>
+            <div className="au-skel-block" style={{ width: 8, height: 8, borderRadius: '50%', marginTop: 8 }} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div className="au-skel-block" style={{ width: '60%', height: 12 }} />
+              <div className="au-skel-block" style={{ width: '90%', height: 10 }} />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

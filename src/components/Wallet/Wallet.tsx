@@ -43,6 +43,8 @@ export interface WalletProps {
   eyeColor?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** 加载态 */
+  loading?: boolean;
 }
 
 const DEFAULT_POCKET = '#1e341e';
@@ -110,6 +112,7 @@ const Wallet: React.FC<WalletProps> = ({
   eyeColor = DEFAULT_EYE,
   className = '',
   style,
+  loading,
 }) => {
   const [hovered, setHovered] = useState(false);
   const total = cards.length;
@@ -119,6 +122,14 @@ const Wallet: React.FC<WalletProps> = ({
     ['--au-wallet-eye' as string]: eyeColor,
     ...style,
   };
+
+  if (loading) {
+    return (
+      <div className={['au-wallet', 'is-loading', className].filter(Boolean).join(' ')} style={style}>
+        <div className="au-skel-block" style={{ width: 280, height: 200, borderRadius: 16 }} />
+      </div>
+    );
+  }
 
   return (
     <div

@@ -23,6 +23,8 @@ export interface FunnelProps {
   formatter?: (value: number, step: FunnelStep) => React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  /** 加载态 — 显示骨架占位 */
+  loading?: boolean;
 }
 
 const defaultColors = (idx: number, total: number, gradient: boolean): string => {
@@ -44,6 +46,7 @@ const Funnel: React.FC<FunnelProps> = ({
   formatter,
   className = '',
   style,
+  loading,
 }) => {
   const stepH = 48;
   const sectionGap = 2;
@@ -71,6 +74,17 @@ const Funnel: React.FC<FunnelProps> = ({
 
   const finalHeight = height ?? totalH;
   const cx = width / 2;
+
+  if (loading) {
+    return (
+      <div
+        className={['au-funnel', 'is-loading', className].filter(Boolean).join(' ')}
+        style={{ width, ...style }}
+      >
+        <div className="au-skel-block" style={{ width: '100%', height: finalHeight }} />
+      </div>
+    );
+  }
 
   return (
     <div

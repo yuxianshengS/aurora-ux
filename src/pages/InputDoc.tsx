@@ -39,6 +39,18 @@ const InputDoc: React.FC = () => {
       </DemoBlock>
 
       <DemoBlock
+        title="可清除 (allowClear)"
+        description="value 非空时右侧出现 ✕, 点击清空. 受控 / 非受控都生效 (受控走原 onChange 回调, value 重置为 '')."
+        code={`// 非受控 — defaultValue 起手, allowClear 立刻能看到
+<Input defaultValue="hello world" allowClear placeholder="可清除" />
+
+// 受控 — onChange 收到 value === ''
+<Input value={v} onChange={(e) => setV(e.target.value)} allowClear />`}
+      >
+        <Input defaultValue="hello world" allowClear placeholder="可清除" />
+      </DemoBlock>
+
+      <DemoBlock
         title="错误与禁用"
         code={`<Input error placeholder="请检查输入" />
 <Input disabled placeholder="已禁用" />`}

@@ -19,6 +19,8 @@ export interface SparklineProps {
   className?: string;
   style?: React.CSSProperties;
   title?: string;
+  /** 加载态 — 显示跟尺寸一致的骨架占位, 不渲染数据 */
+  loading?: boolean;
 }
 
 const toPath = (pts: [number, number][], smooth: boolean): string => {
@@ -59,6 +61,7 @@ const Sparkline: React.FC<SparklineProps> = ({
   className = '',
   style,
   title,
+  loading,
 }) => {
   const { line, area, dot, bars, zeroLine } = useMemo(() => {
     if (!data.length) {
@@ -105,6 +108,17 @@ const Sparkline: React.FC<SparklineProps> = ({
     const areaPath = `${linePath} L${last[0]},${padY + innerH} L${pts[0][0]},${padY + innerH} Z`;
     return { line: linePath, area: areaPath, dot: last, bars: [], zeroLine: null };
   }, [data, type, width, height, minProp, maxProp, smooth, strokeWidth, showDot, gap]);
+
+  if (loading) {
+    return (
+      <span
+        className={['au-sparkline', 'is-loading', className].filter(Boolean).join(' ')}
+        style={{ display: 'inline-block', width, height, ...style }}
+      >
+        <span className="au-skel-block" style={{ display: 'block', width: '100%', height: '100%' }} />
+      </span>
+    );
+  }
 
   return (
     <svg

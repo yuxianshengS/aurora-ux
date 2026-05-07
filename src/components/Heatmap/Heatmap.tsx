@@ -30,6 +30,8 @@ export interface HeatmapProps {
   onCellClick?: (d: { date: Date; value: number }) => void;
   className?: string;
   style?: React.CSSProperties;
+  /** 加载态 — 显示骨架占位, 跟正常 Heatmap 同尺寸 */
+  loading?: boolean;
 }
 
 const MS_DAY = 86400000;
@@ -67,6 +69,7 @@ const Heatmap: React.FC<HeatmapProps> = ({
   onCellClick,
   className = '',
   style,
+  loading,
 }) => {
   const locale = useLocale();
   const MONTH_LABELS = locale.Heatmap.months;
@@ -157,6 +160,16 @@ const Heatmap: React.FC<HeatmapProps> = ({
   const gridHeight = 7 * (cellSize + cellGap) - cellGap;
   const labelW = showWeekdayLabels ? 24 : 0;
   const labelH = showMonthLabels ? 18 : 0;
+
+  if (loading) {
+    const w = (cellSize + cellGap) * 53 + (showWeekdayLabels ? cellSize * 2 : 0);
+    const h = (cellSize + cellGap) * 7 + (showMonthLabels ? 16 : 0) + (showLegend ? 24 : 0);
+    return (
+      <div className={['au-heatmap', 'is-loading', className].filter(Boolean).join(' ')} style={{ width: w, ...style }}>
+        <div className="au-skel-block" style={{ width: '100%', height: h }} />
+      </div>
+    );
+  }
 
   return (
     <div className={['au-heatmap', className].filter(Boolean).join(' ')} style={style}>

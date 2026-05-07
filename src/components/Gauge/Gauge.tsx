@@ -26,6 +26,8 @@ export interface GaugeProps {
   className?: string;
   style?: React.CSSProperties;
   animated?: boolean;
+  /** 加载态 */
+  loading?: boolean;
 }
 
 const polar = (cx: number, cy: number, r: number, deg: number) => {
@@ -75,6 +77,7 @@ const Gauge: React.FC<GaugeProps> = ({
   className = '',
   style,
   animated = true,
+  loading,
 }) => {
   // 用 React 18 的 useId 生成 SSR 稳定的渐变 id, 避免 hydration mismatch
   const reactId = useId();
@@ -97,6 +100,20 @@ const Gauge: React.FC<GaugeProps> = ({
   const cy = size / 2;
   const r = size / 2 - thickness / 2 - 2;
   const arcLen = Math.PI * r * ((endAngle - startAngle) / 180);
+
+  if (loading) {
+    return (
+      <div
+        className={['au-gauge', 'is-loading', className].filter(Boolean).join(' ')}
+        style={{ width: size, ...style }}
+      >
+        <div
+          className="au-skel-block"
+          style={{ width: size, height: size * 0.7, borderRadius: '50% 50% 0 0 / 100% 100% 0 0' }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div

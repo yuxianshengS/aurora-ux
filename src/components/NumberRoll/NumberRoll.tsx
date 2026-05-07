@@ -25,6 +25,8 @@ export interface NumberRollProps {
   suffix?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  /** 加载态 */
+  loading?: boolean;
 }
 
 const weightMap: Record<string, number> = {
@@ -47,6 +49,7 @@ const NumberRoll: React.FC<NumberRollProps> = ({
   suffix,
   className = '',
   style,
+  loading,
 }) => {
   const locale = useLocale();
   // 第一次挂载从 0 滚到 value (有动效); 后续从前一次值滚到新值
@@ -78,6 +81,20 @@ const NumberRoll: React.FC<NumberRollProps> = ({
     lineHeight: 1.1,
     ...style,
   };
+
+  if (loading) {
+    return (
+      <span
+        className={`au-number-roll is-loading ${className}`}
+        style={{ display: 'inline-block', height: size, ...style }}
+      >
+        <span
+          className="au-skel-block"
+          style={{ display: 'inline-block', width: size * 3, height: size * 0.7, verticalAlign: 'middle' }}
+        />
+      </span>
+    );
+  }
 
   return (
     <span className={`au-number-roll ${className}`} style={wrapperStyle}>

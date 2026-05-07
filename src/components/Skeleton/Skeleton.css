@@ -48,3 +48,29 @@
   0%   { background-position: 100% 50%; }
   100% { background-position: 0 50%; }
 }
+
+/* ============================================================
+   共用骨架色块 — 各看板组件 (KpiCard / Sparkline / Heatmap /
+   Gauge / Funnel / DayTimeline / Wallet / NumberRoll /
+   ActivityFeed) loading=true 时塞这个占位, 而不是显示空数据.
+   组件自己决定占位的 width / height 比例 (一般撑满容器).
+   ============================================================ */
+.au-skel-block {
+  --au-skel-base: color-mix(in srgb, var(--au-text-1) 10%, transparent);
+  --au-skel-hi: color-mix(in srgb, var(--au-text-1) 22%, transparent);
+  background: linear-gradient(
+    90deg,
+    var(--au-skel-base) 25%,
+    var(--au-skel-hi) 50%,
+    var(--au-skel-base) 75%
+  );
+  background-size: 400% 100%;
+  animation: au-skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--au-radius-sm);
+}
+@media (prefers-reduced-motion: reduce) {
+  .au-skel-block {
+    animation: none !important;
+    background: var(--au-skel-base) !important;
+  }
+}
