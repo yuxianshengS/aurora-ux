@@ -3,19 +3,25 @@
   max-width: 1320px;
   margin: 0 auto;
   min-height: calc(100vh - var(--au-navbar-h));
+  position: relative;
 }
 
 /* === 亮色态文档区离白调色板 (同 home 一致, scope 在 .doc-layout 内, 不污染全局) ===
    sidebar / demo-block / 各种卡片都通过 --au-bg 自动变离白
    page bg 用 --au-bg-base 比卡片略深, 让卡片浮起来 */
 :root:not([data-theme='dark']) .doc-layout {
-  --au-bg-base: #eef2f7;     /* 文档页底, 比 home 的 #e8edf3 略浅 (考虑 sidebar 视觉占比) */
-  --au-bg: #f7f9fc;          /* 卡片 / Sidebar / DemoBlock 容器 */
-  --au-bg-soft: #e6ecf3;     /* DemoBlock preview 区底 */
+  --au-bg-base: #eef2f7; /* 文档页底, 比 home 的 #e8edf3 略浅 (考虑 sidebar 视觉占比) */
+  --au-bg: #f7f9fc; /* 卡片 / Sidebar / DemoBlock 容器 */
+  --au-bg-soft: #e6ecf3; /* DemoBlock preview 区底 */
   --au-bg-mute: #d6dde6;
   --au-border: #d6dde6;
   --au-border-strong: #b8c2d1;
   background: var(--au-bg-base);
+}
+
+.doc-layout__sidebar {
+  /* desktop: sidebar 直接当 layout 子元素, sticky 跟随滚动 */
+  flex-shrink: 0;
 }
 
 .doc-layout__main {
@@ -29,11 +35,113 @@
   margin: 0 auto;
 }
 
+/* desktop: 目录按钮 + drawer 相关元素全部隐藏 */
+.doc-layout__toc-toggle,
+.doc-layout__sidebar-close,
+.doc-layout__backdrop {
+  display: none;
+}
+
+/* ===== 小屏: sidebar 变 slide-over drawer ===== */
 @media (max-width: 900px) {
   .doc-layout {
     flex-direction: column;
   }
   .doc-layout__main {
-    padding: 20px;
+    padding: 16px 20px 60px;
+  }
+
+  /* 目录按钮 — 在内容区顶部偏左, 浅 pill */
+  .doc-layout__toc-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 16px 20px 0;
+    padding: 7px 14px;
+    border: 1px solid var(--au-border);
+    border-radius: 999px;
+    background: var(--au-bg);
+    color: var(--au-text-1);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    width: fit-content;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+  .doc-layout__toc-toggle:hover {
+    border-color: var(--au-primary);
+    color: var(--au-primary);
+  }
+
+  /* sidebar 变 fixed drawer, 默认推到屏外 */
+  .doc-layout__sidebar {
+    position: fixed;
+    top: var(--au-navbar-h);
+    left: 0;
+    bottom: 0;
+    z-index: 90;
+    width: min(320px, 86vw);
+    background: var(--au-bg);
+    border-right: 1px solid var(--au-border);
+    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.12);
+    transform: translateX(-105%);
+    transition: transform 0.25s var(--au-ease, ease);
+    overflow-y: auto;
+  }
+  .doc-layout.is-drawer-open .doc-layout__sidebar {
+    transform: translateX(0);
+  }
+
+  /* drawer 内置关闭按钮 — 右上 */
+  .doc-layout__sidebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--au-border);
+    border-radius: 8px;
+    background: var(--au-bg);
+    color: var(--au-text-2);
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .doc-layout__sidebar-close:hover {
+    border-color: var(--au-primary);
+    color: var(--au-primary);
+  }
+
+  /* 半透明蒙层 */
+  .doc-layout__backdrop {
+    display: block;
+    position: fixed;
+    inset: var(--au-navbar-h) 0 0 0;
+    z-index: 89;
+    background: rgba(15, 23, 42, 0.36);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  /* drawer 模式下 inner Sidebar 不再 sticky/100vh 锁高度 */
+  .doc-layout__sidebar > .site-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-right: 0;
+    padding: 56px 18px 28px; /* 顶部留出关闭按钮空间 */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doc-layout__sidebar {
+    transition: none;
   }
 }

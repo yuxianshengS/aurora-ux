@@ -10,10 +10,10 @@
   cursor: pointer;
   user-select: none;
   transition:
-    background-color 0.18s var(--au-ease),
-    border-color 0.18s var(--au-ease),
-    color 0.18s var(--au-ease),
-    box-shadow 0.18s var(--au-ease),
+    background-color var(--au-motion-fast, 150ms) var(--au-ease),
+    border-color var(--au-motion-fast, 150ms) var(--au-ease),
+    color var(--au-motion-fast, 150ms) var(--au-ease),
+    box-shadow var(--au-motion-fast, 150ms) var(--au-ease),
     transform var(--au-press-duration, 75ms) var(--au-ease);
   white-space: nowrap;
   line-height: 1.2;
@@ -64,7 +64,8 @@
   background: var(--au-btn-color, var(--au-primary));
   color: #fff;
   border-color: var(--au-btn-color, var(--au-primary));
-  box-shadow: 0 2px 6px rgba(91, 141, 239, 0.3);
+  /* 阴影色跟着主色走, 暗色 / 自定义 brand 都自适应 */
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--au-btn-color, var(--au-primary)) 30%, transparent);
 }
 .au-btn--primary:hover:not(:disabled) {
   background: color-mix(in srgb, var(--au-btn-color, var(--au-primary)) 85%, #fff);
@@ -165,9 +166,15 @@
 }
 
 @keyframes au-btn-shine {
-  0%   { left: -120%; }
-  60%  { left: 140%; }
-  100% { left: 140%; }
+  0% {
+    left: -120%;
+  }
+  60% {
+    left: 140%;
+  }
+  100% {
+    left: 140%;
+  }
 }
 
 /* Like variant ------------------------------------------------------- */
@@ -181,10 +188,8 @@
   --like-divider: #4e4e4e;
   --like-count-color: #717070;
   --like-shadow:
-    inset -2px -2px 5px rgba(255, 255, 255, 0.2),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.1),
-    4px 4px 10px rgba(0, 0, 0, 0.4),
-    -2px -2px 8px rgba(255, 255, 255, 0.1);
+    inset -2px -2px 5px rgba(255, 255, 255, 0.2), inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+    4px 4px 10px rgba(0, 0, 0, 0.4), -2px -2px 8px rgba(255, 255, 255, 0.1);
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -209,10 +214,8 @@
   --like-divider: #d8d8d8;
   --like-count-color: #8a8a8a;
   --like-shadow:
-    inset -2px -2px 5px rgba(255, 255, 255, 0.9),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.06),
-    4px 4px 10px rgba(0, 0, 0, 0.08),
-    -2px -2px 8px rgba(255, 255, 255, 0.9);
+    inset -2px -2px 5px rgba(255, 255, 255, 0.9), inset 2px 2px 5px rgba(0, 0, 0, 0.06),
+    4px 4px 10px rgba(0, 0, 0, 0.08), -2px -2px 8px rgba(255, 255, 255, 0.9);
 }
 .au-btn--like.au-btn--small {
   --like-icon-size: 20px;
@@ -266,7 +269,7 @@
   color: var(--like-icon-color);
   width: var(--like-icon-size, 28px);
   height: var(--like-icon-size, 28px);
-  transition: color 0.2s ease-out;
+  transition: color var(--au-motion-base, 250ms) var(--au-ease-out);
 }
 .au-btn__heart svg {
   width: 100%;
@@ -297,7 +300,7 @@
   color: var(--like-count-color);
   font-size: var(--like-font-size, 16px);
   border-left: 2px solid var(--like-divider);
-  transition: all 0.5s ease-out;
+  transition: all var(--au-motion-medium, 400ms) var(--au-ease-out);
 }
 .au-btn__like-count--two {
   transform: translateY(100%);
@@ -322,6 +325,25 @@
 }
 
 @keyframes au-btn-heart-enlarge {
-  0%   { transform: scale(0.5); }
-  100% { transform: scale(1.2); }
+  0% {
+    transform: scale(0.5);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-btn,
+  .au-btn__heart,
+  .au-btn__like-count {
+    transition: none;
+  }
+  .au-btn--shine::before {
+    animation: none;
+    display: none;
+  }
+  .au-btn--like.is-liked .au-btn__heart {
+    animation: none;
+  }
 }

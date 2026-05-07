@@ -12,9 +12,14 @@
   color: var(--au-text-1);
   cursor: pointer;
   outline: none;
+  /* 默认 transparent border 占位; 配合 hover/focus 改色不会引起 layout shift */
   transition:
-    border-color 0.15s var(--au-ease),
-    box-shadow 0.15s var(--au-ease);
+    border-color var(--au-motion-fast, 150ms) var(--au-ease),
+    box-shadow var(--au-motion-fast, 150ms) var(--au-ease),
+    background-color var(--au-motion-fast, 150ms) var(--au-ease);
+}
+.au-select:active:not(.is-disabled):not(.is-open) {
+  background: color-mix(in srgb, var(--au-bg-mute) 50%, var(--au-bg));
 }
 .au-select:hover:not(.is-disabled) {
   border-color: var(--au-select-active);
@@ -31,13 +36,13 @@
   border-color: var(--au-danger);
 }
 .au-select.is-error.is-open {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-danger) 18%, transparent);
 }
 .au-select.is-warning {
   border-color: var(--au-warning);
 }
 .au-select.is-warning.is-open {
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-warning) 18%, transparent);
 }
 .au-select.is-disabled {
   background: var(--au-bg-mute);
@@ -45,16 +50,29 @@
   cursor: not-allowed;
 }
 
-.au-select--small  { height: 28px; font-size: 12px; }
-.au-select--medium { height: 34px; font-size: 14px; }
-.au-select--large  { height: 42px; font-size: 16px; }
+.au-select--small {
+  height: 28px;
+  font-size: 12px;
+}
+.au-select--medium {
+  height: 34px;
+  font-size: 14px;
+}
+.au-select--large {
+  height: 42px;
+  font-size: 16px;
+}
 
 .au-select.is-multiple {
   /* 单行高度 — 标签按宽度自动折叠成 +N, 不再 wrap 把触发器撑高 */
   padding: 3px 10px;
 }
-.au-select--small.is-multiple  { padding: 2px 8px; }
-.au-select--large.is-multiple  { padding: 4px 12px; }
+.au-select--small.is-multiple {
+  padding: 2px 8px;
+}
+.au-select--large.is-multiple {
+  padding: 4px 12px;
+}
 
 .au-select__content {
   position: relative;
@@ -136,7 +154,9 @@
   color: var(--au-text-3);
   padding: 0;
   border-radius: 50%;
-  transition: all 0.15s var(--au-ease);
+  transition:
+    background var(--au-motion-fast, 150ms) var(--au-ease),
+    color var(--au-motion-fast, 150ms) var(--au-ease);
 }
 .au-select__tag-close:hover {
   background: var(--au-border);
@@ -156,7 +176,7 @@
 }
 .au-select__arrow {
   display: inline-flex;
-  transition: transform 0.2s var(--au-ease);
+  transition: transform var(--au-motion-base, 250ms) var(--au-ease);
 }
 .au-select.is-open .au-select__arrow {
   transform: rotate(180deg);
@@ -174,7 +194,9 @@
   cursor: pointer;
   color: var(--au-text-3);
   border-radius: 50%;
-  transition: all 0.15s var(--au-ease);
+  transition:
+    background var(--au-motion-fast, 150ms) var(--au-ease),
+    color var(--au-motion-fast, 150ms) var(--au-ease);
 }
 .au-select__clear:hover {
   color: var(--au-text-1);
@@ -190,11 +212,17 @@
   padding: 4px;
   overflow: auto;
   z-index: var(--au-z-popup, 1050);
-  animation: au-select-in 0.14s var(--au-ease);
+  animation: au-select-in var(--au-pop-duration, 180ms) var(--au-pop-ease, var(--au-ease-out));
 }
 @keyframes au-select-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .au-select__list {
@@ -213,11 +241,14 @@
   color: var(--au-text-1);
   font-size: 14px;
   line-height: 1.4;
-  transition: background 0.12s var(--au-ease);
+  transition: background var(--au-motion-fast, 150ms) var(--au-ease);
 }
 .au-select__option:hover,
 .au-select__option.is-active {
   background: var(--au-bg-mute);
+}
+.au-select__option:active:not(.is-disabled) {
+  background: color-mix(in srgb, var(--au-bg-mute) 60%, var(--au-primary-soft));
 }
 .au-select__option.is-selected {
   color: var(--au-select-active);
@@ -248,4 +279,17 @@
   text-align: center;
   color: var(--au-text-3);
   font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-select,
+  .au-select__arrow,
+  .au-select__tag-close,
+  .au-select__clear,
+  .au-select__option {
+    transition: none;
+  }
+  .au-select__popup {
+    animation: none;
+  }
 }

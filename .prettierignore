@@ -1,0 +1,6 @@
+dist
+node_modules
+pnpm-lock.yaml
+public
+*.md
+CHANGELOG.md

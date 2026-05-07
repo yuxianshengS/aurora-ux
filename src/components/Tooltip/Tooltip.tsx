@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
@@ -110,6 +105,7 @@ const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
     const [innerOpen, setInnerOpen] = useState(defaultOpen);
     const isControlled = open !== undefined;
     const visible = (isControlled ? open! : innerOpen) && !disabled;
+    const tooltipId = useId();
 
     const triggers = Array.isArray(trigger) ? trigger : [trigger];
     const isHover = triggers.includes('hover');
@@ -154,17 +150,13 @@ const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
     useEffect(() => () => clearTimers(), []);
 
     // 计算位置(打开时 / 滚动时 / 缩放时)
-    useReactivePosition(
-      visible,
-      () => {
-        const trig = triggerRef.current;
-        const bub = bubbleRef.current;
-        if (!trig || !bub) return;
-        const r = trig.getBoundingClientRect();
-        setPos(computePos(r, bub, placement, 10));
-      },
-      [placement, title],
-    );
+    useReactivePosition(visible, () => {
+      const trig = triggerRef.current;
+      const bub = bubbleRef.current;
+      if (!trig || !bub) return;
+      const r = trig.getBoundingClientRect();
+      setPos(computePos(r, bub, placement, 10));
+    }, [placement, title]);
 
     // click 模式: 点击外部关闭
     useOutsideClick([triggerRef, bubbleRef], () => setOpen(false), isClick && visible);
@@ -217,6 +209,7 @@ const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
         <span
           ref={setSpanRef}
           className={['au-tooltip-trigger', className].filter(Boolean).join(' ')}
+          aria-describedby={visible ? tooltipId : undefined}
           // hover 模式让气泡和 trigger 间不会被视为离开 — 使用延迟缓冲
           {...triggerHandlers}
         >
@@ -227,6 +220,7 @@ const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
           createPortal(
             <div
               ref={bubbleRef}
+              id={tooltipId}
               role="tooltip"
               className={[
                 'au-tooltip-bubble',

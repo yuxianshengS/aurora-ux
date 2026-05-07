@@ -30,6 +30,15 @@
   align-items: center;
   padding: 16px;
 }
+@media (max-width: 480px) {
+  /* 小屏 modal 紧贴顶部 + 收紧 padding 防止内容被挤压 */
+  .au-modal__wrap {
+    padding: 24px 12px 16px;
+  }
+  .au-modal.is-centered .au-modal__wrap {
+    padding: 12px;
+  }
+}
 
 .au-modal__panel {
   background: var(--au-bg);
@@ -41,7 +50,8 @@
   display: flex;
   flex-direction: column;
   opacity: 0;
-  transform: translateY(calc(-1 * var(--au-pop-translate, 4px) * 2)) scale(var(--au-pop-scale-from, 0.96));
+  transform: translateY(calc(-1 * var(--au-pop-translate, 4px) * 2))
+    scale(var(--au-pop-scale-from, 0.96));
   transform-origin: center top;
   transition:
     opacity var(--au-pop-duration, 180ms) var(--au-pop-ease, var(--au-ease-out)),
@@ -83,8 +93,13 @@
   border-radius: var(--au-radius-sm);
   color: var(--au-text-3);
   cursor: pointer;
-  transition: all 0.15s var(--au-ease);
+  transition:
+    background var(--au-motion-fast, 150ms) var(--au-ease),
+    color var(--au-motion-fast, 150ms) var(--au-ease);
   flex-shrink: 0;
+}
+.au-modal__close:active {
+  background: var(--au-bg-soft);
 }
 .au-modal__close:hover {
   color: var(--au-text-1);
@@ -139,4 +154,17 @@
 .au-modal__panel--confirm .au-modal__footer {
   border-top: 0;
   padding: 8px 20px 16px;
+}
+
+/* 暗色态 mask 略加深, 提升对比度 */
+[data-theme='dark'] .au-modal__mask {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-modal__mask,
+  .au-modal__panel,
+  .au-modal__close {
+    transition: none;
+  }
 }

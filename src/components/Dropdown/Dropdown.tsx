@@ -3,6 +3,7 @@ import React, {
   isValidElement,
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
 } from 'react';
@@ -66,6 +67,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const triggerRef = useRef<HTMLElement | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const popupId = useId();
   const [pos, setPos] = useState<{ top: number; left: number; width: number }>({
     top: 0,
     left: 0,
@@ -91,27 +93,23 @@ const Dropdown: React.FC<DropdownProps> = ({
   useOutsideClick([triggerRef, popupRef], () => setOpen(false), open);
 
   // positioning
-  useReactivePosition(
-    open,
-    () => {
-      if (!triggerRef.current) return;
-      const r = triggerRef.current.getBoundingClientRect();
-      const pw = popupRef.current?.offsetWidth ?? 200;
-      const ph = popupRef.current?.offsetHeight ?? 200;
-      const gap = 4;
-      let top = 0;
-      let left = 0;
-      if (placement.startsWith('bottom')) top = r.bottom + gap;
-      else top = r.top - ph - gap;
-      if (placement === 'bottom' || placement === 'top') left = r.left + r.width / 2 - pw / 2;
-      else if (placement === 'bottomLeft' || placement === 'topLeft') left = r.left;
-      else left = r.right - pw;
-      left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
-      top = Math.max(8, Math.min(top, window.innerHeight - ph - 8));
-      setPos({ top, left, width: r.width });
-    },
-    [placement],
-  );
+  useReactivePosition(open, () => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    const pw = popupRef.current?.offsetWidth ?? 200;
+    const ph = popupRef.current?.offsetHeight ?? 200;
+    const gap = 4;
+    let top = 0;
+    let left = 0;
+    if (placement.startsWith('bottom')) top = r.bottom + gap;
+    else top = r.top - ph - gap;
+    if (placement === 'bottom' || placement === 'top') left = r.left + r.width / 2 - pw / 2;
+    else if (placement === 'bottomLeft' || placement === 'topLeft') left = r.left;
+    else left = r.right - pw;
+    left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+    top = Math.max(8, Math.min(top, window.innerHeight - ph - 8));
+    setPos({ top, left, width: r.width });
+  }, [placement]);
 
   useEffect(() => {
     if (!open) return;
@@ -146,6 +144,9 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const childProps: Record<string, unknown> = {
     ref: assignTriggerRef,
+    'aria-haspopup': 'menu',
+    'aria-expanded': open,
+    'aria-controls': open ? popupId : undefined,
   };
 
   if (triggers.includes('click')) {
@@ -179,8 +180,14 @@ const Dropdown: React.FC<DropdownProps> = ({
         createPortal(
           <div
             ref={popupRef}
+            id={popupId}
             className={['au-dropdown', `au-dropdown--${placement}`].join(' ')}
-            style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: Math.max(120, pos.width) }}
+            style={{
+              position: 'fixed',
+              top: pos.top,
+              left: pos.left,
+              minWidth: Math.max(120, pos.width),
+            }}
             onMouseEnter={() => {
               if (triggers.includes('hover')) clearHoverTimer();
             }}
@@ -195,7 +202,13 @@ const Dropdown: React.FC<DropdownProps> = ({
             <ul className="au-dropdown__list" role="menu">
               {menu.items.map((it, idx) => {
                 if (isDivider(it)) {
-                  return <li key={it.key ?? `d-${idx}`} className="au-dropdown__divider" role="separator" />;
+                  return (
+                    <li
+                      key={it.key ?? `d-${idx}`}
+                      className="au-dropdown__divider"
+                      role="separator"
+                    />
+                  );
                 }
                 const cls = [
                   'au-dropdown__item',

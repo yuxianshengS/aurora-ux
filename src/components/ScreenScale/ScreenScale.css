@@ -1,0 +1,14 @@
+.au-screen-scale {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.au-screen-scale__inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* 让内层默认深色, 让大屏组件不被亮底"刺眼" — 用户可在 children 上覆盖 */
+  /* 不强制背景色, 让用户控制 */
+}

@@ -103,6 +103,8 @@ export const navGroups: NavGroup[] = [
       { title: 'KpiCard 指标卡片', path: '/docs/kpi-card' },
       { title: 'Sparkline 迷你趋势', path: '/docs/sparkline' },
       { title: 'Gauge 仪表盘', path: '/docs/gauge' },
+      { title: 'LiquidFill 水位图', path: '/docs/liquid-fill' },
+      { title: 'ScreenScale 大屏自适应', path: '/docs/screen-scale' },
       { title: 'Funnel 漏斗图', path: '/docs/funnel' },
       { title: 'Heatmap 日历热力', path: '/docs/heatmap' },
       { title: 'ActivityFeed 动态流', path: '/docs/activity-feed' },

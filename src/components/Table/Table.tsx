@@ -7,21 +7,29 @@ import './Table.css';
 
 export type TableAlign = 'left' | 'center' | 'right';
 /**
- * 表格尺寸. 'middle' 是历史名 (跟 Antd 一致), 'medium' 是组件库内统一命名.
- * 二者完全等价, 类型上都接受, 实际渲染时归一化为 'medium'.
+ * 表格尺寸. 全库标准是 'small' | 'medium' | 'large' (跟 Button / Input / Select 一致).
+ * 'middle' 仅作为 Antd 历史命名兼容保留, 内部归一化到 'medium'. 新代码请用 'medium'.
  */
-export type TableSize = 'small' | 'medium' | 'middle' | 'large';
+export type TableSize = 'small' | 'medium' | 'large' | /** @deprecated 请用 'medium' */ 'middle';
 export type SortOrder = 'ascend' | 'descend' | null;
 
 export interface TableColumn<T = any> {
   title: React.ReactNode;
-  dataIndex?: keyof T | string;
+  /**
+   * 取值字段; 支持 keyof T 自动补全, 也接受任意 string (用于 'a.b.c' 嵌套路径).
+   * 用 `(string & {})` 让 TS 既保留 keyof T 的提示, 又允许字符串字面量.
+   */
+  dataIndex?: (keyof T & string) | (string & {});
   key?: string;
   width?: number | string;
   align?: TableAlign;
   ellipsis?: boolean;
   sorter?: boolean | ((a: T, b: T, order: Exclude<SortOrder, null>) => number);
   defaultSortOrder?: SortOrder;
+  /**
+   * 渲染单元格. value 类型保留 any 以兼容嵌套 dataIndex; 想要严格类型时调用方可写
+   * `render: (value: T['fieldName'], record, index) => ...` 显式标注.
+   */
   render?: (value: any, record: T, index: number) => React.ReactNode;
   className?: string;
   /** 该列是否可拖拽改顺序; 默认 true (前提是 Table 上 draggableColumns 开启) */
@@ -41,7 +49,9 @@ export interface TableColumn<T = any> {
   onCell?: (
     record: T,
     index: number,
-  ) => (React.TdHTMLAttributes<HTMLTableCellElement> & { rowSpan?: number; colSpan?: number }) | undefined;
+  ) =>
+    | (React.TdHTMLAttributes<HTMLTableCellElement> & { rowSpan?: number; colSpan?: number })
+    | undefined;
   /**
    * 多级表头 — 父列只渲染 title, 不取 dataIndex. 子列才真正映射到 body 单元格.
    * 例:
@@ -67,7 +77,9 @@ export interface RowSelection<T = any> {
   hideSelectAll?: boolean;
 }
 
-export type TablePagination = false | (Omit<PaginationProps, 'total'> & { total?: number; position?: 'top' | 'bottom' });
+export type TablePagination =
+  | false
+  | (Omit<PaginationProps, 'total'> & { total?: number; position?: 'top' | 'bottom' });
 
 /**
  * 展开行配置 — 跟 antd Table.expandable 同款.
@@ -146,35 +158,35 @@ const SortIcon: React.FC<{ order: SortOrder }> = ({ order }) => (
 
 const DragHandleIcon: React.FC = () => (
   <svg className="au-table__drag-icon" width="10" height="16" viewBox="0 0 10 16" aria-hidden>
-    <circle cx="2" cy="3"  r="1.2" fill="currentColor" />
-    <circle cx="8" cy="3"  r="1.2" fill="currentColor" />
-    <circle cx="2" cy="8"  r="1.2" fill="currentColor" />
-    <circle cx="8" cy="8"  r="1.2" fill="currentColor" />
+    <circle cx="2" cy="3" r="1.2" fill="currentColor" />
+    <circle cx="8" cy="3" r="1.2" fill="currentColor" />
+    <circle cx="2" cy="8" r="1.2" fill="currentColor" />
+    <circle cx="8" cy="8" r="1.2" fill="currentColor" />
     <circle cx="2" cy="13" r="1.2" fill="currentColor" />
     <circle cx="8" cy="13" r="1.2" fill="currentColor" />
   </svg>
 );
 
-const getKey = <T,>(
-  record: T,
-  index: number,
-  rowKey?: TableProps<T>['rowKey'],
-): React.Key => {
+const getKey = <T,>(record: T, index: number, rowKey?: TableProps<T>['rowKey']): React.Key => {
   if (typeof rowKey === 'function') return rowKey(record);
-  if (typeof rowKey === 'string' && rowKey in (record as any))
-    return (record as any)[rowKey];
+  if (typeof rowKey === 'string' && rowKey in (record as any)) return (record as any)[rowKey];
   if ((record as any)?.key != null) return (record as any).key;
   if ((record as any)?.id != null) return (record as any).id;
   return index;
 };
 
-const getCellValue = <T,>(record: T, col: TableColumn<T>, index: number): any => {
+const getCellValue = <T,>(record: T, col: TableColumn<T>, _index: number): unknown => {
   if (col.dataIndex == null) return undefined;
   const path = String(col.dataIndex);
   if (path.includes('.')) {
-    return path.split('.').reduce<any>((acc, k) => (acc != null ? acc[k] : undefined), record);
+    return path
+      .split('.')
+      .reduce<unknown>(
+        (acc, k) => (acc != null ? (acc as Record<string, unknown>)[k] : undefined),
+        record,
+      );
   }
-  return (record as any)[path];
+  return (record as Record<string, unknown>)[path];
 };
 
 const colKeyOf = (c: TableColumn<any>, fallbackIndex: number) =>
@@ -218,40 +230,38 @@ function buildHeaderRows<T>(cols: TableColumn<T>[]): TableColumn<T>[][] {
   return rows;
 }
 
-function Table<T = any>({
-  columns,
-  dataSource,
-  rowKey,
-  bordered,
-  striped,
-  size = 'medium',
-  loading,
-  pagination,
-  rowSelection,
-  empty,
-  showHeader = true,
-  sticky,
-  scroll,
-  onRow,
-  rowClassName,
-  className = '',
-  style,
-  draggableRows,
-  onRowReorder,
-  draggableColumns,
-  onColumnReorder,
-  expandable,
-  childrenColumnName = 'children',
-  treeIndent = 16,
-}: TableProps<T>) {
+function TableInner<T = any>(
+  {
+    columns,
+    dataSource,
+    rowKey,
+    bordered,
+    striped,
+    size = 'medium',
+    loading,
+    pagination,
+    rowSelection,
+    empty,
+    showHeader = true,
+    sticky,
+    scroll,
+    onRow,
+    rowClassName,
+    className = '',
+    style,
+    draggableRows,
+    onRowReorder,
+    draggableColumns,
+    onColumnReorder,
+    expandable,
+    childrenColumnName = 'children',
+    treeIndent = 16,
+  }: TableProps<T>,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) {
   /* ============ 列顺序 (内部状态, 跟 columns prop 保持同步, 但拖动时由内部主导) ============ */
-  const columnsKeySig = useMemo(
-    () => columns.map((c, i) => colKeyOf(c, i)).join('|'),
-    [columns],
-  );
-  const [colOrder, setColOrder] = useState<string[]>(() =>
-    columns.map((c, i) => colKeyOf(c, i)),
-  );
+  const columnsKeySig = useMemo(() => columns.map((c, i) => colKeyOf(c, i)).join('|'), [columns]);
+  const [colOrder, setColOrder] = useState<string[]>(() => columns.map((c, i) => colKeyOf(c, i)));
   // 当外部 columns 改变(增删/换 key), 同步重置内部顺序避免出现幽灵列
   useEffect(() => {
     setColOrder(columns.map((c, i) => colKeyOf(c, i)));
@@ -368,9 +378,7 @@ function Table<T = any>({
 
   /* ============ 行选 ============ */
   const selCtrl = rowSelection?.selectedRowKeys !== undefined;
-  const [innerSel, setInnerSel] = useState<React.Key[]>(
-    rowSelection?.defaultSelectedRowKeys ?? [],
-  );
+  const [innerSel, setInnerSel] = useState<React.Key[]>(rowSelection?.defaultSelectedRowKeys ?? []);
   const selectedKeys = selCtrl ? rowSelection!.selectedRowKeys! : innerSel;
   const selType = rowSelection?.type ?? 'checkbox';
 
@@ -392,7 +400,13 @@ function Table<T = any>({
 
   /** 树形数据: 把 children 字段递归展平成 [{ record, depth, key, hasChildren }],
    * 只展开的父节点的 children 才会出现在展平结果里 */
-  type FlatRow = { record: T; depth: number; key: React.Key; hasChildren: boolean; flatIndex: number };
+  type FlatRow = {
+    record: T;
+    depth: number;
+    key: React.Key;
+    hasChildren: boolean;
+    flatIndex: number;
+  };
   const flattenedRows: FlatRow[] = useMemo(() => {
     const out: FlatRow[] = [];
     const walk = (rows: T[], depth: number, parentBaseIndex: number) => {
@@ -412,8 +426,7 @@ function Table<T = any>({
   }, [pagedData, childrenColumnName, expandedKeys, rowKey, current, pageSize]);
 
   const allPageKeys = useMemo(
-    () =>
-      pagedData.map((r, i) => getKey(r, (current - 1) * pageSize + i, rowKey)),
+    () => pagedData.map((r, i) => getKey(r, (current - 1) * pageSize + i, rowKey)),
     [pagedData, current, pageSize, rowKey],
   );
 
@@ -426,10 +439,8 @@ function Table<T = any>({
   }, [allPageKeys, pagedData, rowSelection]);
 
   const allChecked =
-    pageSelectable.length > 0 &&
-    pageSelectable.every((k) => selectedKeys.includes(k));
-  const indeterminate =
-    pageSelectable.some((k) => selectedKeys.includes(k)) && !allChecked;
+    pageSelectable.length > 0 && pageSelectable.every((k) => selectedKeys.includes(k));
+  const indeterminate = pageSelectable.some((k) => selectedKeys.includes(k)) && !allChecked;
 
   const commitSelection = (next: React.Key[]) => {
     if (!selCtrl) setInnerSel(next);
@@ -462,7 +473,10 @@ function Table<T = any>({
 
   /* ============ 拖拽: 行 ============ */
   const [dragRowKey, setDragRowKey] = useState<React.Key | null>(null);
-  const [dragOverRow, setDragOverRow] = useState<{ key: React.Key; pos: 'before' | 'after' } | null>(null);
+  const [dragOverRow, setDragOverRow] = useState<{
+    key: React.Key;
+    pos: 'before' | 'after';
+  } | null>(null);
 
   const handleRowDragStart = (key: React.Key, e: React.DragEvent) => {
     if (sortOrder) return; // 排序激活时禁止拖拽避免视觉混淆
@@ -470,7 +484,9 @@ function Table<T = any>({
     e.dataTransfer.effectAllowed = 'move';
     try {
       e.dataTransfer.setData('text/plain', String(key));
-    } catch {/* Firefox 需要至少 setData 一次 */}
+    } catch {
+      /* Firefox 需要至少 setData 一次 */
+    }
   };
   const handleRowDragOver = (key: React.Key, e: React.DragEvent) => {
     if (dragRowKey == null) return;
@@ -493,7 +509,7 @@ function Table<T = any>({
     // 在当前 sorted (= 排序应用过, 含本地行序) 上做整体移动
     const baseKeys = sorted.map((r, i) => getKey(r, i, rowKey));
     const from = baseKeys.indexOf(dragRowKey);
-    let to = baseKeys.indexOf(key);
+    const to = baseKeys.indexOf(key);
     if (from < 0 || to < 0) {
       setDragRowKey(null);
       setDragOverRow(null);
@@ -522,14 +538,18 @@ function Table<T = any>({
 
   /* ============ 拖拽: 列 ============ */
   const [dragColKey, setDragColKey] = useState<string | null>(null);
-  const [dragOverCol, setDragOverCol] = useState<{ key: string; pos: 'before' | 'after' } | null>(null);
+  const [dragOverCol, setDragOverCol] = useState<{ key: string; pos: 'before' | 'after' } | null>(
+    null,
+  );
 
   const handleColDragStart = (k: string, e: React.DragEvent) => {
     setDragColKey(k);
     e.dataTransfer.effectAllowed = 'move';
     try {
       e.dataTransfer.setData('text/plain', k);
-    } catch {/* noop */}
+    } catch {
+      /* noop */
+    }
   };
   const handleColDragOver = (k: string, e: React.DragEvent) => {
     if (dragColKey == null) return;
@@ -594,12 +614,13 @@ function Table<T = any>({
   const dragHandleColWidth = 36;
 
   const tableBody = (
-    <table className="au-table__table" style={scroll?.x ? { width: scroll.x, minWidth: scroll.x } : undefined}>
+    <table
+      className="au-table__table"
+      style={scroll?.x ? { width: scroll.x, minWidth: scroll.x } : undefined}
+    >
       <colgroup>
         {draggableRows && <col style={{ width: dragHandleColWidth }} />}
-        {rowSelection && (
-          <col style={{ width: rowSelection.columnWidth ?? 48 }} />
-        )}
+        {rowSelection && <col style={{ width: rowSelection.columnWidth ?? 48 }} />}
         {showExpandColumn && <col style={{ width: 36 }} />}
         {leafColumns.map((c, i) => (
           <col key={colKeyOf(c, i)} style={c.width ? { width: c.width } : undefined} />
@@ -611,7 +632,11 @@ function Table<T = any>({
             <tr key={`hd-${depth}`}>
               {/* 这些固定列只在第一行出现, 跨整个表头高度 */}
               {depth === 0 && draggableRows && (
-                <th className="au-table__th au-table__th--drag" rowSpan={headerDepth} aria-label="拖拽列" />
+                <th
+                  className="au-table__th au-table__th--drag"
+                  rowSpan={headerDepth}
+                  aria-label="拖拽列"
+                />
               )}
               {depth === 0 && rowSelection && (
                 <th className="au-table__th au-table__th--selection" rowSpan={headerDepth}>
@@ -627,7 +652,11 @@ function Table<T = any>({
                 </th>
               )}
               {depth === 0 && showExpandColumn && (
-                <th className="au-table__th au-table__th--expand" rowSpan={headerDepth} aria-label="展开列" />
+                <th
+                  className="au-table__th au-table__th--expand"
+                  rowSpan={headerDepth}
+                  aria-label="展开列"
+                />
               )}
               {rowCols.map((col, i) => {
                 const k = colKeyOf(col, i);
@@ -703,9 +732,7 @@ function Table<T = any>({
               : true;
             const customAttrs = onRow?.(record, i) ?? {};
             const extraCls =
-              typeof rowClassName === 'function'
-                ? rowClassName(record, i)
-                : rowClassName ?? '';
+              typeof rowClassName === 'function' ? rowClassName(record, i) : (rowClassName ?? '');
             const isDragging = dragRowKey === key;
             const dropIndicator = dragOverRow?.key === key ? dragOverRow.pos : null;
             const rowCls = [
@@ -777,13 +804,25 @@ function Table<T = any>({
                     {(!expandable?.rowExpandable || expandable.rowExpandable(record)) && (
                       <button
                         type="button"
-                        className={['au-table__expand-btn', expandedKeys.includes(key) ? 'is-open' : ''].filter(Boolean).join(' ')}
+                        className={[
+                          'au-table__expand-btn',
+                          expandedKeys.includes(key) ? 'is-open' : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
                         onClick={() => toggleExpand(key, record)}
                         aria-label={expandedKeys.includes(key) ? '收起' : '展开'}
                         aria-expanded={expandedKeys.includes(key)}
                       >
                         <svg viewBox="0 0 8 8" width="8" height="8" aria-hidden>
-                          <path d="M1.5 2.5L4 5l2.5-2.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                          <path
+                            d="M1.5 2.5L4 5l2.5-2.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                       </button>
                     )}
@@ -813,21 +852,40 @@ function Table<T = any>({
                     <td
                       key={colKeyOf(col, j)}
                       className={cellCls}
-                      title={col.ellipsis && typeof content === 'string' ? (content as string) : undefined}
+                      title={
+                        col.ellipsis && typeof content === 'string'
+                          ? (content as string)
+                          : undefined
+                      }
                       {...restAttrs}
                     >
                       {isFirstCol && isTreeRow ? (
-                        <span className="au-table__tree-cell" style={{ paddingLeft: depth * treeIndent }}>
+                        <span
+                          className="au-table__tree-cell"
+                          style={{ paddingLeft: depth * treeIndent }}
+                        >
                           {hasChildren ? (
                             <button
                               type="button"
-                              className={['au-table__tree-toggle', expandedKeys.includes(key) ? 'is-open' : ''].filter(Boolean).join(' ')}
+                              className={[
+                                'au-table__tree-toggle',
+                                expandedKeys.includes(key) ? 'is-open' : '',
+                              ]
+                                .filter(Boolean)
+                                .join(' ')}
                               onClick={() => toggleExpand(key, record)}
                               aria-label={expandedKeys.includes(key) ? '收起' : '展开'}
                               aria-expanded={expandedKeys.includes(key)}
                             >
                               <svg viewBox="0 0 8 8" width="8" height="8" aria-hidden>
-                                <path d="M1.5 2.5L4 5l2.5-2.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                                <path
+                                  d="M1.5 2.5L4 5l2.5-2.5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.4"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
                               </svg>
                             </button>
                           ) : (
@@ -844,9 +902,9 @@ function Table<T = any>({
               </tr>,
               // expandable 详情行 — 在主行下面以 colSpan 整行渲染
               showExpandColumn &&
-                expandedKeys.includes(key) &&
-                expandable?.expandedRowRender &&
-                (!expandable?.rowExpandable || expandable.rowExpandable(record)) ? (
+              expandedKeys.includes(key) &&
+              expandable?.expandedRowRender &&
+              (!expandable?.rowExpandable || expandable.rowExpandable(record)) ? (
                 <tr key={`${key}__expanded`} className="au-table__row au-table__row--expanded">
                   <td
                     colSpan={
@@ -906,7 +964,7 @@ function Table<T = any>({
   const bottomPagination = pgProp && pgProp.position !== 'top' ? paginationNode : null;
 
   return (
-    <div className={cls} style={style}>
+    <div ref={ref} className={cls} style={style}>
       {topPagination}
       <Spin spinning={!!loading} tip="加载中">
         {scrollWrap}
@@ -915,5 +973,13 @@ function Table<T = any>({
     </div>
   );
 }
+
+/**
+ * forwardRef 包装 — 保留 TableInner 的泛型 T; 使用断言, React.forwardRef 内置签名会擦掉自定义泛型.
+ * 使用方: `<Table<Row> ref={tableRef} columns={...} dataSource={...} />`. ref 指向 wrapper div.
+ */
+const Table = React.forwardRef(TableInner) as <T = any>(
+  props: TableProps<T> & { ref?: React.Ref<HTMLDivElement> },
+) => React.ReactElement;
 
 export default Table;

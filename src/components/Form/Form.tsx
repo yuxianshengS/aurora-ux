@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useRef } from 'react';
+import React, { createContext, forwardRef, useRef } from 'react';
 import { useLocale } from '../ConfigProvider/ConfigProvider';
 import FormItem from './FormItem';
 import { useForm, type FormInstance, type FormStore } from './useForm';
@@ -32,9 +32,15 @@ export interface FormProps {
   /** 校验通过时触发 */
   onFinish?: (values: Record<string, unknown>) => void;
   /** 校验失败时触发 */
-  onFinishFailed?: (info: { errorFields: { name: string; errors: string[] }[]; values: Record<string, unknown> }) => void;
+  onFinishFailed?: (info: {
+    errorFields: { name: string; errors: string[] }[];
+    values: Record<string, unknown>;
+  }) => void;
   /** 任意字段值变更时触发 */
-  onValuesChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void;
+  onValuesChange?: (
+    changedValues: Record<string, unknown>,
+    allValues: Record<string, unknown>,
+  ) => void;
   layout?: FormLayout;
   labelWidth?: number | string;
   labelAlign?: 'left' | 'right';
@@ -47,57 +53,66 @@ export interface FormProps {
   onSubmit?: (e: React.FormEvent) => void;
 }
 
-const FormBase: React.FC<FormProps> = ({
-  form: ctrlForm,
-  initialValues,
-  onFinish,
-  onFinishFailed,
-  onValuesChange,
-  layout = 'horizontal',
-  labelWidth = 96,
-  labelAlign = 'right',
-  colon = true,
-  size = 'medium',
-  children,
-  className = '',
-  style,
-  onSubmit,
-}) => {
-  const [innerForm] = useForm();
-  const form = ctrlForm ?? innerForm;
-  const store = form.__store;
-  const locale = useLocale();
-  // 注入校验文案 — 让 useForm 内部 checkRule 能用到当前 locale 的错误消息
-  store.setLocaleMessages(locale.Form);
+const FormBase = forwardRef<HTMLFormElement, FormProps>(
+  (
+    {
+      form: ctrlForm,
+      initialValues,
+      onFinish,
+      onFinishFailed,
+      onValuesChange,
+      layout = 'horizontal',
+      labelWidth = 96,
+      labelAlign = 'right',
+      colon = true,
+      size = 'medium',
+      children,
+      className = '',
+      style,
+      onSubmit,
+    },
+    ref,
+  ) => {
+    const [innerForm] = useForm();
+    const form = ctrlForm ?? innerForm;
+    const store = form.__store;
+    const locale = useLocale();
+    // 注入校验文案 — 让 useForm 内部 checkRule 能用到当前 locale 的错误消息
+    store.setLocaleMessages(locale.Form);
 
-  // 只在第一次设置 initial values, 避免每次渲染重置用户输入
-  const initRef = useRef(false);
-  if (!initRef.current) {
-    store.setInitialValues(initialValues);
-    initRef.current = true;
-  }
-  store.setCallbacks({ onValuesChange });
+    // 只在第一次设置 initial values, 避免每次渲染重置用户输入
+    const initRef = useRef(false);
+    if (!initRef.current) {
+      store.setInitialValues(initialValues);
+      initRef.current = true;
+    }
+    store.setCallbacks({ onValuesChange });
 
-  const ctx: FormContextValue = { layout, labelWidth, colon, size, labelAlign, store };
-  const cls = ['au-form', `au-form--${layout}`, `au-form--${size}`, className].filter(Boolean).join(' ');
+    const ctx: FormContextValue = { layout, labelWidth, colon, size, labelAlign, store };
+    const cls = ['au-form', `au-form--${layout}`, `au-form--${size}`, className]
+      .filter(Boolean)
+      .join(' ');
 
-  return (
-    <FormContext.Provider value={ctx}>
-      <form
-        className={cls}
-        style={style}
-        onSubmit={(e) => {
-          e.preventDefault();
-          // 旧用法 onSubmit 兼容: 优先调用; 新用法 onFinish 走 store.submit (含校验)
-          if (onSubmit) onSubmit(e);
-          if (onFinish || onFinishFailed) store.submit(onFinish, onFinishFailed);
-        }}
-      >
-        {children}
-      </form>
-    </FormContext.Provider>
-  );
-};
+    return (
+      <FormContext.Provider value={ctx}>
+        <form
+          ref={ref}
+          className={cls}
+          style={style}
+          onSubmit={(e) => {
+            e.preventDefault();
+            // 旧用法 onSubmit 兼容: 优先调用; 新用法 onFinish 走 store.submit (含校验)
+            if (onSubmit) onSubmit(e);
+            if (onFinish || onFinishFailed) store.submit(onFinish, onFinishFailed);
+          }}
+        >
+          {children}
+        </form>
+      </FormContext.Provider>
+    );
+  },
+);
+FormBase.displayName = 'Form';
 
 const Form = FormBase as typeof FormBase & {
   Item: typeof FormItem;

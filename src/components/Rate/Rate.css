@@ -13,9 +13,11 @@
   display: inline-flex;
   cursor: pointer;
   color: rgba(0, 0, 0, 0.12);
-  transition: transform 0.12s var(--au-ease);
+  transition: transform var(--au-motion-fast, 150ms) var(--au-ease);
 }
-.au-rate__star.is-locked { cursor: default; }
+.au-rate__star.is-locked {
+  cursor: default;
+}
 .au-rate__star:hover:not(.is-locked) {
   transform: scale(1.12);
 }
@@ -37,7 +39,7 @@
   overflow: hidden;
   color: var(--au-rate-color);
   /* 半星: width 由 inline style 控制 */
-  transition: width 0.16s var(--au-ease);
+  transition: width var(--au-motion-fast, 150ms) var(--au-ease);
 }
 
 /* aurora variant: 满分时 5 颗星走极光渐变 */
@@ -78,5 +80,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .au-rate__star,
-  .au-rate__fg { transition: none; }
+  .au-rate__fg {
+    transition: none;
+  }
 }

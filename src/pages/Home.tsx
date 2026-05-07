@@ -66,9 +66,9 @@ const Home: React.FC = () => {
             <span className="home-hero__title-sub">为中后台与数据看板而生</span>
           </h1>
           <p className="home-hero__desc">
-            60+ 组件,数据可视化全套,可视化拖拽搭建器一套到底.
+            60+ 组件,数据可视化 + 大屏自适应 + 拖拽搭建器一套到底.
             <br />
-            开箱即用,主题可调,让每一个仪表盘都自带光感.
+            开箱即用,主题可调,让每一个仪表盘 / 大屏都自带光感.
           </p>
           <div className="home-hero__cta">
             <Link to="/docs/getting-started" className="home-hero__cta-primary">
@@ -76,11 +76,16 @@ const Home: React.FC = () => {
                 开始使用 →
               </Button>
             </Link>
-            <Link to="/builder">
-              <Button size="large">打开搭建器</Button>
+            <Link to="/builder" className="home-hero__cta-builder">
+              <span className="home-hero__cta-builder-icon" aria-hidden>
+                <svg viewBox="0 0 16 16" width="16" height="16">
+                  <path d="M3 3h4v4H3zm6 0h4v4H9zm-6 6h4v4H3zm6 0h4v4H9z" fill="currentColor" />
+                </svg>
+              </span>
+              <span>打开搭建器</span>
+              <span className="home-hero__cta-builder-badge">实时</span>
             </Link>
           </div>
-          <HeroInstallPill />
           <HomeStats />
         </div>
       </AuroraBg>
@@ -95,9 +100,8 @@ const Home: React.FC = () => {
           </span>
           <h2 className="home-section__title">用 Connector 画任何关系图</h2>
           <p className="home-section__sub">
-            DOM 之间画一条线, 自动跟随尺寸 / 滚动 / 拖动. 1-1, 1-many, mesh,
-            主从双向 — 4 种线形 + 极光渐变 + 流动虚线, 拓扑图 / 流程图 / 思维导图
-            一个组件搞定.
+            DOM 之间画一条线, 自动跟随尺寸 / 滚动 / 拖动. 1-1, 1-many, mesh, 主从双向 — 4 种线形 +
+            极光渐变 + 流动虚线, 拓扑图 / 流程图 / 思维导图 一个组件搞定.
           </p>
         </div>
         <div className="home-connector__inner">
@@ -219,7 +223,13 @@ const Home: React.FC = () => {
             glowColor="#22d3ee"
             icon="charts-bar"
             title="数据看板齐"
-            body="KpiCard / Sparkline / Heatmap / Funnel / Gauge 一套到底."
+            body="KpiCard / Sparkline / Heatmap / Funnel / Gauge / LiquidFill 一套到底."
+          />
+          <FeatureCard
+            glowColor="#0ea5e9"
+            icon="scenes"
+            title="大屏专精"
+            body="ScreenScale 自适应 + ECharts 主题桥接, 1920×1080 设计稿一套通吃 4K / FHD / 投屏."
           />
           <FeatureCard
             glowColor="#10b981"
@@ -268,14 +278,18 @@ const Home: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button type="ghost" size="medium">GitHub</Button>
+                <Button type="ghost" size="medium">
+                  GitHub
+                </Button>
               </a>
               <a
                 href="https://www.npmjs.com/package/aurora-ux"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button type="ghost" size="medium">npm</Button>
+                <Button type="ghost" size="medium">
+                  npm
+                </Button>
               </a>
             </div>
           </div>
@@ -294,6 +308,53 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* ===== 最终 CTA banner ===== */}
+      <section className="home-final home-reveal">
+        <div className="home-final__bg" aria-hidden />
+        <div className="home-final__inner">
+          <h2 className="home-final__title">
+            <GradientText
+              as="span"
+              preset="aurora"
+              animate
+              duration={6}
+              size={64}
+              weight={900}
+              style={{ display: 'block', lineHeight: 1.1, letterSpacing: '-0.02em' }}
+            >
+              准备好让看板自带光感了吗
+            </GradientText>
+          </h2>
+          <p className="home-final__sub">
+            一行 npm 装好,3 分钟搭出第一个仪表盘. 0 运行时依赖,改一个 token 改全套主题.
+          </p>
+          <div className="home-final__cta">
+            <Link to="/docs/getting-started">
+              <Button type="primary" size="large">
+                现在开始 →
+              </Button>
+            </Link>
+            <a
+              href="https://github.com/yuxianshengS/aurora-ux"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="home-final__star"
+            >
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
+                <path
+                  fill="currentColor"
+                  d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
+                />
+              </svg>
+              GitHub 上 Star
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Footer ===== */}
+      <HomeFooter />
     </div>
   );
 };
@@ -324,76 +385,135 @@ const HomeStats: React.FC = () => (
 
 /* ===== 手写 JSX 语法高亮: token 原子 ===== */
 type Tk = (s: React.ReactNode) => React.ReactElement;
-const k: Tk = (s) => <span className="tk-k">{s}</span>;   // keyword (import/from/export/default/function/return)
-const t: Tk = (s) => <span className="tk-t">{s}</span>;   // tag / 组件名
-const a: Tk = (s) => <span className="tk-a">{s}</span>;   // attr / prop
+const k: Tk = (s) => <span className="tk-k">{s}</span>; // keyword (import/from/export/default/function/return)
+const t: Tk = (s) => <span className="tk-t">{s}</span>; // tag / 组件名
+const a: Tk = (s) => <span className="tk-a">{s}</span>; // attr / prop
 const str: Tk = (s) => <span className="tk-s">{s}</span>; // string
-const n: Tk = (s) => <span className="tk-n">{s}</span>;   // number
-const p: Tk = (s) => <span className="tk-p">{s}</span>;   // punctuation (dim)
-const fn: Tk = (s) => <span className="tk-f">{s}</span>;  // function name
+const n: Tk = (s) => <span className="tk-n">{s}</span>; // number
+const p: Tk = (s) => <span className="tk-p">{s}</span>; // punctuation (dim)
+const fn: Tk = (s) => <span className="tk-f">{s}</span>; // function name
 const txt = (s: string) => <span className="tk-text">{s}</span>; // JSX 文本
 
 const CodeSnippet: React.FC = () => (
   <code className="tk-root">
-    <div>{k('import')} {p('{')} {t('AuroraBg')}{p(',')} {t('GradientText')}{p(',')} {t('NumberRoll')}{p(',')} {t('KpiCard')} {p('}')} {k('from')} {str("'aurora-ux'")}{p(';')}</div>
+    <div>
+      {k('import')} {p('{')} {t('AuroraBg')}
+      {p(',')} {t('GradientText')}
+      {p(',')} {t('NumberRoll')}
+      {p(',')} {t('KpiCard')} {p('}')} {k('from')} {str("'aurora-ux'")}
+      {p(';')}
+    </div>
     <div>&nbsp;</div>
-    <div>{k('export')} {k('default')} {k('function')} {fn('Dashboard')}{p('()')} {p('{')}</div>
-    <div>{'  '}{k('return')} {p('(')}</div>
-    <div>{'    '}{p('<')}{t('AuroraBg')} {a('preset')}{p('=')}{str('"aurora"')} {a('style')}{p('={{')} {a('minHeight')}{p(':')} {n('320')} {p('}}>')}</div>
-    <div>{'      '}{p('<')}{t('GradientText')} {a('size')}{p('={')}{n('56')}{p('}')} {a('weight')}{p('={')}{n('800')}{p('}>')}</div>
-    <div>{'        '}{txt('本月销售额')}</div>
-    <div>{'      '}{p('</')}{t('GradientText')}{p('>')}</div>
-    <div>{'      '}{p('<')}{t('NumberRoll')} {a('value')}{p('={')}{n('1284560')}{p('}')} {a('prefix')}{p('=')}{str('"¥"')} {a('size')}{p('={')}{n('64')}{p('}')} {p('/>')}</div>
+    <div>
+      {k('export')} {k('default')} {k('function')} {fn('Dashboard')}
+      {p('()')} {p('{')}
+    </div>
+    <div>
+      {'  '}
+      {k('return')} {p('(')}
+    </div>
+    <div>
+      {'    '}
+      {p('<')}
+      {t('AuroraBg')} {a('preset')}
+      {p('=')}
+      {str('"aurora"')} {a('style')}
+      {p('={{')} {a('minHeight')}
+      {p(':')} {n('320')} {p('}}>')}
+    </div>
+    <div>
+      {'      '}
+      {p('<')}
+      {t('GradientText')} {a('size')}
+      {p('={')}
+      {n('56')}
+      {p('}')} {a('weight')}
+      {p('={')}
+      {n('800')}
+      {p('}>')}
+    </div>
+    <div>
+      {'        '}
+      {txt('本月销售额')}
+    </div>
+    <div>
+      {'      '}
+      {p('</')}
+      {t('GradientText')}
+      {p('>')}
+    </div>
+    <div>
+      {'      '}
+      {p('<')}
+      {t('NumberRoll')} {a('value')}
+      {p('={')}
+      {n('1284560')}
+      {p('}')} {a('prefix')}
+      {p('=')}
+      {str('"¥"')} {a('size')}
+      {p('={')}
+      {n('64')}
+      {p('}')} {p('/>')}
+    </div>
     <div>&nbsp;</div>
-    <div>{'      '}{p('<')}{t('KpiCard')}</div>
-    <div>{'        '}{a('title')}{p('=')}{str('"新增用户"')}</div>
-    <div>{'        '}{a('value')}{p('=')}{str('"8,624"')}</div>
-    <div>{'        '}{a('delta')}{p('={{')} {a('value')}{p(':')} {n('5.2')}{p(',')} {a('suffix')}{p(':')} {str("'%'")} {p('}}')}</div>
-    <div>{'        '}{a('trend')}{p('={{')} {a('data')}{p(':')} {p('[')}{n('3')}{p(',')} {n('5')}{p(',')} {n('4')}{p(',')} {n('6')}{p(',')} {n('8')}{p(',')} {n('9')}{p(',')} {n('11')}{p(',')} {n('13')}{p('],')} {a('type')}{p(':')} {str("'area'")} {p('}}')}</div>
-    <div>{'      '}{p('/>')}</div>
-    <div>{'    '}{p('</')}{t('AuroraBg')}{p('>')}</div>
-    <div>{'  '}{p(');')}</div>
+    <div>
+      {'      '}
+      {p('<')}
+      {t('KpiCard')}
+    </div>
+    <div>
+      {'        '}
+      {a('title')}
+      {p('=')}
+      {str('"新增用户"')}
+    </div>
+    <div>
+      {'        '}
+      {a('value')}
+      {p('=')}
+      {str('"8,624"')}
+    </div>
+    <div>
+      {'        '}
+      {a('delta')}
+      {p('={{')} {a('value')}
+      {p(':')} {n('5.2')}
+      {p(',')} {a('suffix')}
+      {p(':')} {str("'%'")} {p('}}')}
+    </div>
+    <div>
+      {'        '}
+      {a('trend')}
+      {p('={{')} {a('data')}
+      {p(':')} {p('[')}
+      {n('3')}
+      {p(',')} {n('5')}
+      {p(',')} {n('4')}
+      {p(',')} {n('6')}
+      {p(',')} {n('8')}
+      {p(',')} {n('9')}
+      {p(',')} {n('11')}
+      {p(',')} {n('13')}
+      {p('],')} {a('type')}
+      {p(':')} {str("'area'")} {p('}}')}
+    </div>
+    <div>
+      {'      '}
+      {p('/>')}
+    </div>
+    <div>
+      {'    '}
+      {p('</')}
+      {t('AuroraBg')}
+      {p('>')}
+    </div>
+    <div>
+      {'  '}
+      {p(');')}
+    </div>
     <div>{p('}')}</div>
   </code>
 );
-
-const HeroInstallPill: React.FC = () => {
-  const cmd = 'npm i aurora-ux';
-  const [copied, setCopied] = useState(false);
-  const onCopy = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(cmd);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1400);
-    } catch {
-      /* noop */
-    }
-  };
-  return (
-    <div className="home-hero__pill">
-      <span className="home-hero__pill-prompt">$</span>
-      <code className="home-hero__pill-cmd">{cmd}</code>
-      <button
-        type="button"
-        className="home-hero__pill-copy"
-        onClick={onCopy}
-        aria-label="复制命令"
-      >
-        {copied ? '✓ 已复制' : '复制'}
-      </button>
-      <a
-        className="home-hero__pill-link"
-        href="https://www.npmjs.com/package/aurora-ux"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        npmjs ↗
-      </a>
-    </div>
-  );
-};
 
 const CopyLine: React.FC<{ prefix: string; command: string }> = ({ prefix, command }) => {
   const [copied, setCopied] = useState(false);
@@ -494,11 +614,7 @@ interface MiniNodeProps {
 }
 const MiniNode = React.forwardRef<HTMLDivElement, MiniNodeProps>(
   ({ icon, color, title, pulse, pos }, ref) => (
-    <div
-      ref={ref}
-      className="home-mini-node"
-      style={{ position: 'absolute', ...pos }}
-    >
+    <div ref={ref} className="home-mini-node" style={{ position: 'absolute', ...pos }}>
       <GlowCard glowColor={color} intensity={0.6} padding="10px 14px" radius={10}>
         <div className="home-mini-node__row">
           <Icon name={icon} size={16} style={{ color }} />
@@ -519,14 +635,19 @@ const ConnectorUseCase: React.FC<{
   body: string;
 }> = ({ to, color, icon, title, body }) => (
   <Link to={to} className="home-connector__usecase">
-    <span className="home-connector__usecase-icon" style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>
+    <span
+      className="home-connector__usecase-icon"
+      style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}
+    >
       <Icon name={icon} size={18} />
     </span>
     <div className="home-connector__usecase-text">
       <strong>{title}</strong>
       <span>{body}</span>
     </div>
-    <span className="home-connector__usecase-arrow" style={{ color }}>→</span>
+    <span className="home-connector__usecase-arrow" style={{ color }}>
+      →
+    </span>
   </Link>
 );
 
@@ -543,6 +664,95 @@ const FeatureCard: React.FC<{
     <h3 className="home-feature__title">{title}</h3>
     <p className="home-feature__body">{body}</p>
   </GlowCard>
+);
+
+/* ===== Footer — 4 列, 移动端单列 ===== */
+const HomeFooter: React.FC = () => (
+  <footer className="home-footer">
+    <div className="home-footer__inner">
+      <div className="home-footer__brand">
+        <div className="home-footer__logo">
+          <GradientText as="span" preset="aurora" size={22} weight={800}>
+            Aurora UX
+          </GradientText>
+          <span className="home-footer__version">v{pkg.version}</span>
+        </div>
+        <p className="home-footer__tagline">
+          为中后台与数据看板而生的 React 组件库.
+          <br />
+          MIT 协议, 可商用.
+        </p>
+      </div>
+
+      <div className="home-footer__col">
+        <h4>项目</h4>
+        <Link to="/docs/getting-started">快速开始</Link>
+        <Link to="/docs/design">设计理念</Link>
+        <Link to="/builder">拖拽搭建器</Link>
+        <Link to="/examples/screen">运营大屏</Link>
+        <Link to="/examples/dashboard">中后台样板</Link>
+      </div>
+
+      <div className="home-footer__col">
+        <h4>资源</h4>
+        <a href="https://www.npmjs.com/package/aurora-ux" target="_blank" rel="noopener noreferrer">
+          npm 包
+        </a>
+        <a
+          href="https://github.com/yuxianshengS/aurora-ux"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub 仓库
+        </a>
+        <a
+          href="https://github.com/yuxianshengS/aurora-ux/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          反馈 Issue
+        </a>
+        <a
+          href="https://github.com/yuxianshengS/aurora-ux/blob/main/CHANGELOG.md"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          更新日志
+        </a>
+      </div>
+
+      <div className="home-footer__col">
+        <h4>社区</h4>
+        <a
+          href="https://github.com/yuxianshengS/aurora-ux/discussions"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Discussions
+        </a>
+        <a
+          href="https://github.com/yuxianshengS/aurora-ux/blob/main/LICENSE"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          MIT License
+        </a>
+        <a
+          href="https://github.com/yuxianshengS/aurora-ux/stargazers"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Star 过的开发者
+        </a>
+      </div>
+    </div>
+    <div className="home-footer__bottom">
+      <span>© {new Date().getFullYear()} Aurora UX · 用 Aurora UX 自我搭建</span>
+      <span className="home-footer__bottom-tag">
+        <PulseDot status="live" size={6} /> 持续更新中
+      </span>
+    </div>
+  </footer>
 );
 
 export default Home;

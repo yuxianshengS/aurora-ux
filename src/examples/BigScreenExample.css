@@ -1,0 +1,957 @@
+/* ============================================================
+   实时业务监控大屏 — 监控中心蓝
+   - 全屏深海军蓝 + 青蓝 accent (单色克制, 不花哨)
+   - 状态色 (绿黄红) 仅用于状态指示位置
+   ============================================================ */
+
+.bs-root {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  inset: 0;
+  background: #04081a;
+  overflow: hidden;
+  color: #cfd9ff;
+  font-family:
+    'PingFang SC',
+    -apple-system,
+    'Microsoft YaHei',
+    'Segoe UI',
+    sans-serif;
+}
+
+.bs-stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  /* 主底色 — 深海军蓝, 跟你给的银行大屏同系 */
+  background:
+    radial-gradient(900px 600px at 50% 20%, rgba(30, 58, 138, 0.4), transparent 60%),
+    linear-gradient(180deg, #0a1430 0%, #050a1e 70%, #04081a 100%);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* 远景蓝色斑 — 低饱和, 只为打破纯色塑料感 */
+.bs-bg-blob {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(700px 400px at 12% 50%, rgba(56, 189, 248, 0.08), transparent 60%),
+    radial-gradient(700px 400px at 88% 60%, rgba(96, 165, 250, 0.08), transparent 60%);
+}
+
+/* 网格 mask */
+.bs-bg-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(99, 162, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 162, 255, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 90%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 90%);
+}
+
+/* ============ 顶栏 — 用原 JSON 的 PNG 素材合成 ============ */
+.bs-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 84px; /* 跟 大标题背景.png 高度一致 */
+  z-index: 20;
+}
+
+/* 全宽背景图 (1920x84) */
+.bs-top__bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 84px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* logo + 标题 容器 — 整体水平居中 */
+.bs-top__center {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 50px;
+  z-index: 4;
+}
+
+/* Aurora logo (单色青蓝, 跟主题一致) */
+.bs-top__mark {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7));
+  flex-shrink: 0;
+}
+
+/* 标题文字 */
+.bs-top__brand {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 8px;
+  white-space: nowrap;
+  text-shadow:
+    0 0 14px rgba(56, 189, 248, 0.85),
+    0 0 28px rgba(56, 189, 248, 0.45);
+  background: linear-gradient(180deg, #ffffff 50%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: '庞门正道标题体', '优设标题黑', 'PingFang SC', sans-serif;
+  /* 让 letter-spacing 不让最后一字偏右 */
+  margin-right: -8px;
+}
+
+/* 标题左右两侧装饰 (动 GIF, 跟原 JSON: 572,10 80x15 / 1268,10 80x15) */
+.bs-top__deco {
+  position: absolute;
+  width: 80px;
+  height: 15px;
+  top: 22px;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
+}
+.bs-top__deco--l {
+  left: 572px;
+}
+.bs-top__deco--r {
+  left: 1268px;
+  transform: scaleX(-1);
+}
+
+/* 标题底部光带: 电光.png (547,59 800x24) — 横跨标题下方的发光带 */
+.bs-top__beam {
+  position: absolute;
+  left: 547px;
+  top: 59px;
+  width: 800px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: screen;
+}
+
+/* 标题底部光线: 光线.png (709,56 141x14) */
+.bs-top__ray {
+  position: absolute;
+  left: 709px;
+  top: 56px;
+  width: 141px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: screen;
+  filter: brightness(1.2);
+}
+
+/* 左下日期 — 跟着头部背景的左下角槽位 */
+.bs-top__date {
+  position: absolute;
+  left: 32px;
+  top: 45px;
+  font-size: 14px;
+  color: rgba(207, 217, 255, 0.78);
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0.6px;
+  z-index: 5;
+}
+
+/* 右上 LIVE + 时钟 */
+.bs-top__live {
+  position: absolute;
+  right: 220px;
+  top: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.34);
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 5;
+}
+.bs-top__clock {
+  position: absolute;
+  right: 32px;
+  top: 38px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 1.5px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+  z-index: 5;
+}
+.bs-top__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.34);
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.bs-top__clock {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 1.5px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+/* ============ Hero (在中央列里, 顶部填满横向) ============ */
+.bs-hero {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 8px 0 16px;
+}
+.bs-hero__eb {
+  display: inline-block;
+  padding: 4px 16px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: rgba(207, 217, 255, 0.7);
+  letter-spacing: 1.5px;
+  border-top: 1px solid rgba(99, 162, 255, 0.3);
+  border-bottom: 1px solid rgba(99, 162, 255, 0.3);
+}
+.bs-hero__num {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+.bs-hero__currency {
+  font-size: 56px;
+  font-weight: 800;
+  color: #fff;
+  margin-right: 8px;
+  font-family: 'SF Mono', Menlo, monospace;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+}
+
+/* 翻牌器主题 — 监控中心蓝, 中等亮度不突兀 */
+.bs-hero__num .au-flip {
+  --au-flip-card-bg-top: #1e3a72;
+  --au-flip-card-bg-bot: #142854;
+  --au-flip-card-color: #fff;
+  --au-flip-card-radius: 8px;
+  --au-flip-card-split: rgba(125, 211, 252, 0.32);
+}
+/* 极淡描边 — 让卡边缘有形, 不抢镜 */
+.bs-hero__num .au-flip-digit__top,
+.bs-hero__num .au-flip-digit__bot {
+  outline: 1px solid rgba(125, 211, 252, 0.18);
+  outline-offset: -1px;
+}
+.bs-hero__trend {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+  font-variant-numeric: tabular-nums;
+}
+.bs-hero__arrow {
+  font-size: 18px;
+  font-weight: 800;
+}
+.bs-hero__pct {
+  font-size: 18px;
+  font-weight: 800;
+}
+.bs-hero__cmp {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-left: 4px;
+}
+
+/* hero 下面的迷你 stats 行 — 6 列横向铺满中央, 填补之前的空白 */
+.bs-hero__stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding: 0 4px;
+}
+.bs-hero__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px;
+  background: rgba(15, 35, 78, 0.5);
+  border: 1px solid rgba(99, 162, 255, 0.22);
+  border-radius: 4px;
+  position: relative;
+}
+.bs-hero__stat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(180deg, #38bdf8, transparent);
+}
+.bs-hero__stat-lbl {
+  font-size: 11px;
+  color: rgba(207, 217, 255, 0.55);
+  letter-spacing: 0.4px;
+}
+.bs-hero__stat strong {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+}
+.bs-hero__stat strong.is-warn {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+.bs-hero__stat strong.is-ok {
+  color: #4ade80;
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}
+
+/* ============ 左 / 右 列 (从 header 下方就开始, 满高) ============ */
+.bs-col {
+  position: absolute;
+  top: 80px;
+  bottom: 60px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 5;
+}
+.bs-col--l {
+  left: 24px;
+}
+.bs-col--r {
+  right: 24px;
+}
+/* 让 metric 卡均分剩余空间 */
+.bs-col--l .bs-metric {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ============ 通用卡 (蓝色边框 + 角标装饰) ============ */
+.bs-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(15, 35, 78, 0.5), rgba(7, 18, 42, 0.7));
+  border: 1px solid rgba(99, 162, 255, 0.25);
+  border-radius: 4px;
+  padding: 16px 18px;
+  box-shadow:
+    inset 0 0 16px rgba(56, 189, 248, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+}
+/* 卡片 4 角青色装饰 */
+.bs-card::before,
+.bs-card::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid #38bdf8;
+  pointer-events: none;
+}
+.bs-card::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.bs-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* ============ 标题装饰 (左右斜杠 + 中央文字) ============ */
+.bs-pt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: -4px 0 12px;
+  position: relative;
+}
+.bs-pt::before,
+.bs-pt::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 162, 255, 0.3));
+}
+.bs-pt::after {
+  background: linear-gradient(90deg, rgba(99, 162, 255, 0.3), transparent);
+}
+.bs-pt__bars {
+  width: 24px;
+  height: 12px;
+  background: linear-gradient(135deg, transparent 47%, #38bdf8 47%, #38bdf8 53%, transparent 53%) 0
+    0 / 6px 100% repeat-x;
+  opacity: 0.8;
+}
+.bs-pt__bars--r {
+  transform: scaleX(-1);
+}
+.bs-pt__text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+  white-space: nowrap;
+}
+
+/* ============ Metric 卡 ============ */
+.bs-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 12px;
+}
+.bs-metric__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bs-metric__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+.bs-metric__label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.4px;
+  flex: 1;
+}
+.bs-metric__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-family: 'SF Mono', Menlo, monospace;
+  flex-shrink: 0;
+}
+.bs-metric__delta.is-up {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.bs-metric__delta.is-down {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 主数字 + 昨日对比 同行 */
+.bs-metric__main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bs-metric__num {
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+  flex-shrink: 0;
+}
+.bs-metric__sub {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: 'SF Mono', Menlo, monospace;
+  white-space: nowrap;
+}
+.bs-metric__sub-lbl {
+  font-size: 11px;
+  color: rgba(207, 217, 255, 0.5);
+  letter-spacing: 0.3px;
+}
+.bs-metric__sub-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(207, 217, 255, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+
+.bs-metric__spark {
+  margin: 4px -8px 2px;
+  opacity: 0.95;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+}
+.bs-metric__spark > * {
+  width: 100% !important;
+}
+
+.bs-metric__bot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(99, 162, 255, 0.16);
+  font-size: 11px;
+  color: rgba(207, 217, 255, 0.55);
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.bs-metric__bot-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bs-metric__bot-sep {
+  color: rgba(99, 162, 255, 0.4);
+}
+
+/* ============ 中央 (Hero + 拓扑卡) ============ */
+.bs-center {
+  position: absolute;
+  left: 360px;
+  right: 360px;
+  top: 80px;
+  bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 5;
+}
+.bs-center__topo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bs-topo {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background:
+    radial-gradient(60% 60% at 30% 10%, rgba(56, 189, 248, 0.04), transparent 60%),
+    radial-gradient(60% 60% at 70% 90%, rgba(56, 189, 248, 0.04), transparent 60%);
+  border-radius: 4px;
+  isolation: isolate;
+  border: 1px dashed rgba(99, 162, 255, 0.18);
+}
+
+/* 拓扑节点 — 全部蓝色 (status='warning'/'danger' 才换色) */
+.bs-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  --n: #38bdf8;
+}
+.bs-node--warning {
+  --n: #fbbf24;
+}
+.bs-node--danger {
+  --n: #ef4444;
+}
+.bs-node__halo {
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--n) 26%, transparent) 0%,
+    transparent 65%
+  );
+  filter: blur(4px);
+  z-index: 0;
+}
+.bs-node__ring {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 1px solid var(--n);
+  opacity: 0.4;
+  z-index: 0;
+  animation: bs-ring 3s linear infinite;
+}
+@keyframes bs-ring {
+  0% {
+    transform: translateX(-50%) scale(0.92);
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateX(-50%) scale(1.18);
+    opacity: 0;
+  }
+}
+.bs-node__core {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      color-mix(in srgb, var(--n) 40%, transparent),
+      transparent 70%
+    ),
+    rgba(7, 18, 42, 0.9);
+  border: 1.5px solid var(--n);
+  color: var(--n);
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--n) 40%, transparent),
+    inset 0 0 10px color-mix(in srgb, var(--n) 25%, transparent);
+}
+.bs-node__txt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  position: relative;
+  z-index: 2;
+}
+.bs-node__txt strong {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--n) 60%, transparent);
+}
+.bs-node__txt span {
+  font-size: 10.5px;
+  color: rgba(207, 217, 255, 0.55);
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.bs-node__dot {
+  position: absolute;
+  top: 4px;
+  right: 50%;
+  transform: translateX(36px);
+  z-index: 3;
+}
+
+/* 24h 状态条 */
+.bs-statusbar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0 0;
+  flex-shrink: 0;
+}
+.bs-statusbar__label {
+  font-size: 11px;
+  color: rgba(207, 217, 255, 0.55);
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+}
+.bs-statusbar__bar {
+  flex: 1;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid rgba(99, 162, 255, 0.2);
+  width: 100%;
+}
+.bs-statusbar__seg {
+  height: 100%;
+  border-right: 1px solid rgba(0, 0, 0, 0.3);
+}
+.bs-statusbar__seg:last-child {
+  border-right: 0;
+}
+.bs-statusbar__seg--g {
+  background: linear-gradient(180deg, #4ade80, #16a34a);
+}
+.bs-statusbar__seg--y {
+  background: linear-gradient(180deg, #fbbf24, #d97706);
+}
+.bs-statusbar__seg--r {
+  background: linear-gradient(180deg, #f87171, #b91c1c);
+}
+.bs-statusbar__cursor {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: #fde047;
+  box-shadow: 0 0 6px #fde047;
+}
+.bs-statusbar__flag {
+  position: absolute;
+  left: 4px;
+  top: -20px;
+  padding: 2px 5px;
+  background: #fde047;
+  color: #422006;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 2px;
+  white-space: nowrap;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.bs-statusbar__ticks {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 10px;
+  color: rgba(207, 217, 255, 0.5);
+  font-family: 'SF Mono', Menlo, monospace;
+}
+
+/* ============ 右侧面板 ============ */
+.bs-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bs-side-card--c {
+  align-items: center;
+  flex-shrink: 0;
+}
+.bs-side-card--feed {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+/* 健康度 gauge 卡固定大小 */
+.bs-col--r > .bs-side-card:first-child {
+  flex-shrink: 0;
+}
+/* gauge 区: dial + 状态 pill */
+.bs-side-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0 8px;
+}
+.bs-side-gauge__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.bs-side-gauge__status.is-ok {
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+.bs-side-gauge__status.is-warn {
+  background: rgba(251, 191, 36, 0.16);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fde68a;
+}
+.bs-side-gauge__status.is-bad {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+/* 资源进度条 — CPU / 内存 / 网络 / 磁盘 */
+.bs-resources {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(99, 162, 255, 0.12);
+  width: 100%;
+}
+.bs-res {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bs-res__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: 'SF Mono', Menlo, monospace;
+}
+.bs-res__lbl {
+  font-size: 11px;
+  color: rgba(207, 217, 255, 0.65);
+  letter-spacing: 0.5px;
+}
+.bs-res__val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.bs-res__val.is-warn {
+  color: #fbbf24;
+  text-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+}
+.bs-res__unit {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(207, 217, 255, 0.5);
+  margin-left: 2px;
+}
+.bs-res__bar {
+  height: 5px;
+  background: rgba(99, 162, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.bs-res__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #60a5fa);
+  border-radius: inherit;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+}
+.bs-res__fill.is-warn {
+  background: linear-gradient(90deg, #fbbf24, #f97316);
+  box-shadow: 0 0 8px rgba(251, 146, 60, 0.4);
+}
+.bs-feed {
+  flex: 1;
+  min-height: 0;
+  margin: -4px -4px 0;
+  /* 内部 ActivityFeed 设了 maxHeight=100% + overflowY=auto, 这里保留高度容器即可 */
+  display: flex;
+  flex-direction: column;
+}
+.bs-feed > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ============ 底部 TickerTape ============ */
+.bs-bot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.5));
+  border-top: 1px solid rgba(99, 162, 255, 0.18);
+  display: flex;
+  align-items: center;
+  z-index: 15;
+}
+
+/* ============ 退出 — 圆形叉, 鼠标移进大屏从顶部滑下 ============ */
+.bs-exit {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translate(-50%, -200%);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.15s ease,
+    border-color 0.15s ease;
+  pointer-events: auto;
+}
+/* 鼠标进入大屏视口才滑下 */
+.bs-root:hover .bs-exit {
+  transform: translate(-50%, 0);
+}
+.bs-exit:hover {
+  background: rgba(239, 68, 68, 0.7);
+  color: #fff;
+  border-color: rgba(239, 68, 68, 0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-exit {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-node__ring {
+    animation: none;
+  }
+}

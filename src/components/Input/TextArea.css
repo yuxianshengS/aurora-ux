@@ -17,8 +17,8 @@
   resize: vertical;
   outline: none;
   transition:
-    border-color 0.15s var(--au-ease),
-    box-shadow 0.15s var(--au-ease);
+    border-color var(--au-motion-fast, 150ms) var(--au-ease),
+    box-shadow var(--au-motion-fast, 150ms) var(--au-ease);
 }
 .au-textarea__inner::placeholder {
   color: var(--au-text-3);
@@ -36,7 +36,13 @@
   border-color: var(--au-danger);
 }
 .au-textarea.is-error:focus-within .au-textarea__inner {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-danger) 15%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-textarea__inner {
+    transition: none;
+  }
 }
 
 .au-textarea--small .au-textarea__inner {
@@ -69,7 +75,7 @@
   pointer-events: none;
   background: var(--au-bg);
   padding: 0 4px;
-  border-radius: 4px;
+  border-radius: var(--au-radius-sm);
   line-height: 1.4;
 }
 .au-textarea--with-count .au-textarea__inner {

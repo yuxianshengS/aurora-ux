@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { confirm, info, success, error, warning } from './confirm';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -66,184 +66,194 @@ const CloseIcon: React.FC = () => (
   </svg>
 );
 
-const Modal: React.FC<ModalProps> & {
+const ModalBase = forwardRef<HTMLDivElement, ModalProps>(
+  (
+    {
+      open = false,
+      title,
+      children,
+      footer,
+      width = 520,
+      closable = true,
+      maskClosable = true,
+      keyboard = true,
+      centered,
+      okText,
+      cancelText,
+      okButtonProps,
+      cancelButtonProps,
+      confirmLoading,
+      zIndex = 1000,
+      className = '',
+      bodyStyle,
+      onOk,
+      onCancel,
+      afterClose,
+    },
+    ref,
+  ) => {
+    const locale = useLocale();
+    const okTextResolved = okText ?? locale.Modal.ok;
+    const cancelTextResolved = cancelText ?? locale.Modal.cancel;
+    const [mounted, setMounted] = useState(open);
+    const [visible, setVisible] = useState(false);
+    const locked = useRef(false);
+    const panelRef = useRef<HTMLDivElement>(null);
+    useFocusTrap(panelRef, mounted && visible);
+
+    useEffect(() => {
+      if (open) {
+        setMounted(true);
+        if (!locked.current) {
+          lockScroll();
+          locked.current = true;
+        }
+        const t = requestAnimationFrame(() => setVisible(true));
+        return () => cancelAnimationFrame(t);
+      } else if (mounted) {
+        setVisible(false);
+        const t = setTimeout(() => {
+          setMounted(false);
+          if (locked.current) {
+            unlockScroll();
+            locked.current = false;
+          }
+          afterClose?.();
+        }, 220);
+        return () => clearTimeout(t);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
+
+    useEffect(() => {
+      return () => {
+        if (locked.current) {
+          unlockScroll();
+          locked.current = false;
+        }
+      };
+    }, []);
+
+    useEffect(() => {
+      if (!open || !keyboard) return;
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onCancel?.();
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, [open, keyboard, onCancel]);
+
+    if (!mounted) return null;
+
+    const handleOk = async () => {
+      const ret = onOk?.();
+      if (ret && typeof (ret as Promise<void>).then === 'function') {
+        await ret;
+      }
+    };
+
+    const cls = ['au-modal', visible ? 'is-visible' : '', centered ? 'is-centered' : '', className]
+      .filter(Boolean)
+      .join(' ');
+
+    if (typeof document === 'undefined') return null;
+    return createPortal(
+      <div className={cls} style={{ zIndex }}>
+        <div
+          className="au-modal__mask"
+          onClick={() => {
+            if (maskClosable) onCancel?.();
+          }}
+        />
+        <div
+          className="au-modal__wrap"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && maskClosable) onCancel?.();
+          }}
+        >
+          <div
+            ref={(node) => {
+              (panelRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+              if (typeof ref === 'function') ref(node);
+              else if (ref) ref.current = node;
+            }}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+            className="au-modal__panel"
+            style={{ width }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(title || closable) && (
+              <div className="au-modal__header">
+                {title && <div className="au-modal__title">{title}</div>}
+                {closable && (
+                  <button
+                    type="button"
+                    className="au-modal__close"
+                    onClick={() => onCancel?.()}
+                    aria-label={locale.Common.close}
+                  >
+                    <CloseIcon />
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="au-modal__body" style={bodyStyle}>
+              {children}
+            </div>
+            {footer !== null && (
+              <div className="au-modal__footer">
+                {footer !== undefined ? (
+                  footer
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="au-btn au-btn--default au-btn--medium"
+                      onClick={() => onCancel?.()}
+                      {...cancelButtonProps}
+                    >
+                      {cancelTextResolved}
+                    </button>
+                    <button
+                      type="button"
+                      className={[
+                        'au-btn',
+                        'au-btn--primary',
+                        'au-btn--medium',
+                        confirmLoading ? 'is-loading' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={handleOk}
+                      disabled={confirmLoading}
+                      {...okButtonProps}
+                    >
+                      {confirmLoading && <span className="au-btn__spinner" />}
+                      {okTextResolved}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>,
+      document.body,
+    );
+  },
+);
+
+ModalBase.displayName = 'Modal';
+
+const Modal = ModalBase as typeof ModalBase & {
   confirm: typeof confirm;
   info: typeof info;
   success: typeof success;
   error: typeof error;
   warning: typeof warning;
-} = ({
-  open = false,
-  title,
-  children,
-  footer,
-  width = 520,
-  closable = true,
-  maskClosable = true,
-  keyboard = true,
-  centered,
-  okText,
-  cancelText,
-  okButtonProps,
-  cancelButtonProps,
-  confirmLoading,
-  zIndex = 1000,
-  className = '',
-  bodyStyle,
-  onOk,
-  onCancel,
-  afterClose,
-}) => {
-  const locale = useLocale();
-  const okTextResolved = okText ?? locale.Modal.ok;
-  const cancelTextResolved = cancelText ?? locale.Modal.cancel;
-  const [mounted, setMounted] = useState(open);
-  const [visible, setVisible] = useState(false);
-  const locked = useRef(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(panelRef, mounted && visible);
-
-  useEffect(() => {
-    if (open) {
-      setMounted(true);
-      if (!locked.current) {
-        lockScroll();
-        locked.current = true;
-      }
-      const t = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(t);
-    } else if (mounted) {
-      setVisible(false);
-      const t = setTimeout(() => {
-        setMounted(false);
-        if (locked.current) {
-          unlockScroll();
-          locked.current = false;
-        }
-        afterClose?.();
-      }, 220);
-      return () => clearTimeout(t);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  useEffect(() => {
-    return () => {
-      if (locked.current) {
-        unlockScroll();
-        locked.current = false;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!open || !keyboard) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel?.();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, keyboard, onCancel]);
-
-  if (!mounted) return null;
-
-  const handleOk = async () => {
-    const ret = onOk?.();
-    if (ret && typeof (ret as Promise<void>).then === 'function') {
-      await ret;
-    }
-  };
-
-  const cls = [
-    'au-modal',
-    visible ? 'is-visible' : '',
-    centered ? 'is-centered' : '',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  if (typeof document === 'undefined') return null;
-  return createPortal(
-    <div className={cls} style={{ zIndex }}>
-      <div
-        className="au-modal__mask"
-        onClick={() => {
-          if (maskClosable) onCancel?.();
-        }}
-      />
-      <div className="au-modal__wrap" onClick={(e) => {
-        if (e.target === e.currentTarget && maskClosable) onCancel?.();
-      }}>
-        <div
-          ref={panelRef}
-          role="dialog"
-          aria-modal="true"
-          tabIndex={-1}
-          className="au-modal__panel"
-          style={{ width }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {(title || closable) && (
-            <div className="au-modal__header">
-              {title && <div className="au-modal__title">{title}</div>}
-              {closable && (
-                <button
-                  type="button"
-                  className="au-modal__close"
-                  onClick={() => onCancel?.()}
-                  aria-label={locale.Common.close}
-                >
-                  <CloseIcon />
-                </button>
-              )}
-            </div>
-          )}
-          <div className="au-modal__body" style={bodyStyle}>
-            {children}
-          </div>
-          {footer !== null && (
-            <div className="au-modal__footer">
-              {footer !== undefined ? (
-                footer
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="au-btn au-btn--default au-btn--medium"
-                    onClick={() => onCancel?.()}
-                    {...cancelButtonProps}
-                  >
-                    {cancelTextResolved}
-                  </button>
-                  <button
-                    type="button"
-                    className={[
-                      'au-btn',
-                      'au-btn--primary',
-                      'au-btn--medium',
-                      confirmLoading ? 'is-loading' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    onClick={handleOk}
-                    disabled={confirmLoading}
-                    {...okButtonProps}
-                  >
-                    {confirmLoading && <span className="au-btn__spinner" />}
-                    {okTextResolved}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
 };
-
 Modal.confirm = confirm;
 Modal.info = info;
 Modal.success = success;

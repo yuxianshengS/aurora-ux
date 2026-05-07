@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useReactivePosition } from '../../hooks/useReactivePosition';
@@ -82,27 +75,30 @@ const CheckIcon: React.FC = () => (
   </svg>
 );
 
-function Select<V extends SelectValue = SelectValue>({
-  value,
-  defaultValue,
-  options,
-  placeholder,
-  disabled,
-  size = 'medium',
-  allowClear,
-  multiple,
-  filterable,
-  maxTagCount,
-  status,
-  className = '',
-  style,
-  popupClassName = '',
-  popupMaxHeight = 240,
-  onChange,
-  onSearch,
-  onOpenChange,
-  notFoundContent,
-}: SelectProps<V>) {
+function SelectInner<V extends SelectValue = SelectValue>(
+  {
+    value,
+    defaultValue,
+    options,
+    placeholder,
+    disabled,
+    size = 'medium',
+    allowClear,
+    multiple,
+    filterable,
+    maxTagCount,
+    status,
+    className = '',
+    style,
+    popupClassName = '',
+    popupMaxHeight = 240,
+    onChange,
+    onSearch,
+    onOpenChange,
+    notFoundContent,
+  }: SelectProps<V>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
   const locale = useLocale();
   const placeholderText = placeholder ?? locale.Select.placeholder;
   const notFoundText = notFoundContent ?? locale.Select.notFoundContent;
@@ -155,21 +151,17 @@ function Select<V extends SelectValue = SelectValue>({
   useOutsideClick([triggerRef, popupRef], () => setOpenSafe(false), open);
 
   // Position popup
-  useReactivePosition(
-    open,
-    () => {
-      if (!triggerRef.current) return;
-      const r = triggerRef.current.getBoundingClientRect();
-      const popupEl = popupRef.current;
-      const h = popupEl?.offsetHeight ?? popupMaxHeight;
-      let top = r.bottom + 4;
-      if (top + h > window.innerHeight - 8 && r.top - h - 4 > 8) {
-        top = r.top - h - 4;
-      }
-      setPos({ top, left: r.left, width: r.width });
-    },
-    [popupMaxHeight],
-  );
+  useReactivePosition(open, () => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    const popupEl = popupRef.current;
+    const h = popupEl?.offsetHeight ?? popupMaxHeight;
+    let top = r.bottom + 4;
+    if (top + h > window.innerHeight - 8 && r.top - h - 4 > 8) {
+      top = r.top - h - 4;
+    }
+    setPos({ top, left: r.left, width: r.width });
+  }, [popupMaxHeight]);
 
   useEffect(() => {
     if (open && filterable) {
@@ -253,7 +245,7 @@ function Select<V extends SelectValue = SelectValue>({
       onChange?.(next, opts);
     } else {
       const v = next[0] ?? null;
-      const opt = v != null ? options.find((o) => o.value === v) ?? null : null;
+      const opt = v != null ? (options.find((o) => o.value === v) ?? null) : null;
       onChange?.(v, opt);
     }
   };
@@ -355,15 +347,15 @@ function Select<V extends SelectValue = SelectValue>({
 
   const renderTags = () => {
     if (!hasValue && !keyword) {
-      return !filterable || !open ? (
-        <span className="au-select__ph">{placeholderText}</span>
-      ) : null;
+      return !filterable || !open ? <span className="au-select__ph">{placeholderText}</span> : null;
     }
     // maxTagCount 显式设置 = 固定 cap, 走老路;
     // 没设 = 用 overflowAt 自动按宽度裁 (-1 = 全部能放)
     const auto = maxTagCount == null;
     const cutoff = auto
-      ? (overflowAt < 0 ? current.length : overflowAt)
+      ? overflowAt < 0
+        ? current.length
+        : overflowAt
       : Math.min(maxTagCount, current.length);
     const shown = current.slice(0, cutoff);
     const rest = current.length - cutoff;
@@ -399,7 +391,11 @@ function Select<V extends SelectValue = SelectValue>({
   return (
     <>
       <div
-        ref={triggerRef}
+        ref={(node) => {
+          (triggerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          if (typeof forwardedRef === 'function') forwardedRef(node);
+          else if (forwardedRef) forwardedRef.current = node;
+        }}
         className={wrapperCls}
         style={style}
         tabIndex={disabled ? -1 : 0}
@@ -502,5 +498,13 @@ function Select<V extends SelectValue = SelectValue>({
     </>
   );
 }
+
+/**
+ * forwardRef 包装 — 保留 SelectInner 的泛型 V; 使用断言因为 React.forwardRef
+ * 的内置签名会擦掉自定义泛型. 使用方仍可 `<Select<MyValue> ref={r} />`.
+ */
+const Select = React.forwardRef(SelectInner) as <V extends SelectValue = SelectValue>(
+  props: SelectProps<V> & { ref?: React.Ref<HTMLDivElement> },
+) => React.ReactElement;
 
 export default Select;

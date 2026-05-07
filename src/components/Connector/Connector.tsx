@@ -68,10 +68,10 @@ export interface ConnectorSpec {
     | boolean
     | number
     | {
-        count?: number;   // 圆点个数, 默认 1
-        speed?: number;   // 一圈秒数, 默认 2
-        size?: number;    // 圆点半径 (px), 默认 3
-        color?: string;   // 圆点颜色, 默认跟随线色 (渐变取末端色)
+        count?: number; // 圆点个数, 默认 1
+        speed?: number; // 一圈秒数, 默认 2
+        size?: number; // 圆点半径 (px), 默认 3
+        color?: string; // 圆点颜色, 默认跟随线色 (渐变取末端色)
       };
   /** orthogonal 类型的拐角圆角 */
   radius?: number;
@@ -110,10 +110,7 @@ const ConnectorContext = createContext<RegistryCtx | null>(null);
 
 const toArray = <T,>(v: T | T[]): T[] => (Array.isArray(v) ? v : [v]);
 
-const resolveRef = (
-  ref: AnchorRef,
-  ids?: Record<string, AnchorRef>,
-): Element | null => {
+const resolveRef = (ref: AnchorRef, ids?: Record<string, AnchorRef>): Element | null => {
   if (!ref) return null;
   if (typeof ref === 'string') {
     if (ids && ids[ref]) return resolveRef(ids[ref], ids);
@@ -225,9 +222,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     const list: ConnectorSpec[] = [];
     childSpecs.current.forEach((spec, id) => list.push({ ...spec, id }));
     if (connections) {
-      connections.forEach((c, i) =>
-        list.push({ ...c, id: c.id ?? `cn-${i}` }),
-      );
+      connections.forEach((c, i) => list.push({ ...c, id: c.id ?? `cn-${i}` }));
     }
     return list;
   }, [connections, version]);
@@ -257,14 +252,12 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
       const fromList = toArray(spec.from);
       const toList = toArray(spec.to);
       const mode = spec.mode ?? 'mesh';
-      let pairs: Array<{ fromRef: AnchorRef; toRef: AnchorRef }> = [];
+      const pairs: Array<{ fromRef: AnchorRef; toRef: AnchorRef }> = [];
       if (mode === 'pairs') {
         const n = Math.min(fromList.length, toList.length);
-        for (let i = 0; i < n; i++)
-          pairs.push({ fromRef: fromList[i], toRef: toList[i] });
+        for (let i = 0; i < n; i++) pairs.push({ fromRef: fromList[i], toRef: toList[i] });
       } else {
-        for (const f of fromList)
-          for (const t of toList) pairs.push({ fromRef: f, toRef: t });
+        for (const f of fromList) for (const t of toList) pairs.push({ fromRef: f, toRef: t });
       }
 
       pairs.forEach((p, i) => {
@@ -293,11 +286,43 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
       otherCenter: Pt;
     };
     const endpoints: Endpoint[] = [];
+
+    // 父容器若被 transform: scale() 缩放 (例如 ScreenScale 大屏适配), getBoundingClientRect
+    // 读到的是 post-transform 视口尺寸, 而 SVG 在缩放层内绘制用的是 layout (offsetWidth) 坐标 —
+    // 两者不匹配会让连线错位. 这里通过 boundingRect.width / offsetWidth 反推父级 scale,
+    // 后续把所有 rect 数据都除以 scale 还原到 layout 坐标系.
+    let scale = 1;
+    if (containerEl) {
+      const cw = containerEl.offsetWidth;
+      const cbw = containerEl.getBoundingClientRect().width;
+      if (cw > 0 && cbw > 0) {
+        const s = cbw / cw;
+        // 容差: scale 接近 1 不做处理, 避免浮点抖动
+        if (Math.abs(s - 1) > 0.001) scale = s;
+      }
+    }
+
     const rectsCache = new Map<Element, DOMRect>();
-    const getRect = (el: Element) => {
+    const getRect = (el: Element): DOMRect => {
       let r = rectsCache.get(el);
       if (!r) {
-        r = el.getBoundingClientRect();
+        const raw = el.getBoundingClientRect();
+        if (scale !== 1) {
+          // 缩放下: 创建一份按 1/scale 还原的 rect-like
+          r = {
+            x: raw.x / scale,
+            y: raw.y / scale,
+            top: raw.top / scale,
+            left: raw.left / scale,
+            right: raw.right / scale,
+            bottom: raw.bottom / scale,
+            width: raw.width / scale,
+            height: raw.height / scale,
+            toJSON: () => ({}),
+          } as DOMRect;
+        } else {
+          r = raw;
+        }
         rectsCache.set(el, r);
       }
       return r;
@@ -359,11 +384,13 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     // SVG 是 container 的 absolute 子元素, 跟节点共用 container 的"内容坐标系"(随 scroll 走).
     // getBoundingClientRect 返回视口坐标, 减掉容器视口位置后还是视口坐标 (受 scroll 影响).
     // 必须加回 container 的 scrollLeft/Top, 才能换算到内容坐标系, 跟节点 CSS left 对齐.
+    // 注意: scale != 1 时 (父容器被 transform 缩放), containerRect.left 也是 post-transform 值,
+    // 同样除以 scale 还原到 layout 坐标系. getRect() 已经把节点 rect 除过了, 这里 container 偏移要对齐.
     const containerRect = containerEl?.getBoundingClientRect();
     const scrollLeft = containerEl?.scrollLeft ?? 0;
     const scrollTop = containerEl?.scrollTop ?? 0;
-    const offsetX = containerRect ? -containerRect.left + scrollLeft : 0;
-    const offsetY = containerRect ? -containerRect.top + scrollTop : 0;
+    const offsetX = containerRect ? -containerRect.left / scale + scrollLeft : 0;
+    const offsetY = containerRect ? -containerRect.top / scale + scrollTop : 0;
 
     const drawnLines: DrawnLine[] = lines.map((line, idx) => {
       const fromEp = endpoints.find((e) => e.lineIdx === idx && e.role === 'from')!;
@@ -392,7 +419,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
         (type === 'step' || type === 'orthogonal') &&
         (line.spec.avoid !== undefined ? !!line.spec.avoid : autoAvoid);
       if (wantAvoid) {
-        let obstacleEls: Element[] = [];
+        const obstacleEls: Element[] = [];
         if (Array.isArray(line.spec.avoid)) {
           // 显式数组: 只避这些
           for (const ref of line.spec.avoid) {
@@ -470,9 +497,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     });
 
     // zIndex 排序
-    drawnLines.sort(
-      (a, b) => (a.spec.zIndex ?? 0) - (b.spec.zIndex ?? 0),
-    );
+    drawnLines.sort((a, b) => (a.spec.zIndex ?? 0) - (b.spec.zIndex ?? 0));
 
     // === 关键: 直接写入 SVG 元素属性, 与浏览器滚动同帧 ===
     // 这一步同步执行, scroll 触发 → 立刻 setAttribute → 浏览器同帧 paint
@@ -580,8 +605,7 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
     >
       <defs>
         {drawn.map((line) => {
-          const colorRaw =
-            line.spec.color ?? defaultColor ?? 'var(--au-primary, #5b8def)';
+          const colorRaw = line.spec.color ?? defaultColor ?? 'var(--au-primary, #5b8def)';
           const colors = resolveColors(colorRaw);
           if (colors.length <= 1) return null;
           return (
@@ -599,21 +623,15 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
               }}
             >
               {colors.map((c, i) => (
-                <stop
-                  key={i}
-                  offset={`${(i / (colors.length - 1)) * 100}%`}
-                  stopColor={c}
-                />
+                <stop key={i} offset={`${(i / (colors.length - 1)) * 100}%`} stopColor={c} />
               ))}
             </linearGradient>
           );
         })}
         {drawn.map((line) => {
-          const colorRaw =
-            line.spec.color ?? defaultColor ?? 'var(--au-primary, #5b8def)';
+          const colorRaw = line.spec.color ?? defaultColor ?? 'var(--au-primary, #5b8def)';
           const colors = resolveColors(colorRaw);
-          const stroke =
-            colors.length > 1 ? `url(#au-conn-grad-${line.id})` : colors[0];
+          const stroke = colors.length > 1 ? `url(#au-conn-grad-${line.id})` : colors[0];
           const arrowSize = line.spec.arrowSize ?? 8;
           const arrow = line.spec.arrow ?? defaultArrow;
           const showEnd = arrow === 'end' || arrow === 'both';
@@ -656,11 +674,9 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
         })}
       </defs>
       {drawn.map((line) => {
-        const colorRaw =
-          line.spec.color ?? defaultColor ?? 'var(--au-primary, #5b8def)';
+        const colorRaw = line.spec.color ?? defaultColor ?? 'var(--au-primary, #5b8def)';
         const colors = resolveColors(colorRaw);
-        const stroke =
-          colors.length > 1 ? `url(#au-conn-grad-${line.id})` : colors[0];
+        const stroke = colors.length > 1 ? `url(#au-conn-grad-${line.id})` : colors[0];
         const arrow = line.spec.arrow ?? defaultArrow;
         const showEnd = arrow === 'end' || arrow === 'both';
         const showStart = arrow === 'start' || arrow === 'both';
@@ -777,14 +793,14 @@ const ConnectorGroup: React.FC<ConnectorGroupProps> = ({
             containerEl,
           )
         : typeof document !== 'undefined'
-        ? createPortal(
-            <>
-              {svg}
-              {labelsLayer}
-            </>,
-            document.body,
-          )
-        : null}
+          ? createPortal(
+              <>
+                {svg}
+                {labelsLayer}
+              </>,
+              document.body,
+            )
+          : null}
     </ConnectorContext.Provider>
   );
 };

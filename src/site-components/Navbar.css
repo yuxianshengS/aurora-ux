@@ -26,6 +26,8 @@
   color: var(--au-text-1);
   font-weight: 600;
   font-size: 17px;
+  flex-shrink: 0;
+  min-width: 0;
 }
 .site-logo:hover {
   color: var(--au-text-1);
@@ -36,6 +38,12 @@
   border-radius: 6px;
   background: linear-gradient(135deg, #5b8def, #9d6fea, #22d3ee);
   box-shadow: 0 2px 8px rgba(91, 141, 239, 0.5);
+  flex-shrink: 0;
+}
+.site-logo__name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .site-logo__ver {
   font-size: 11px;
@@ -44,6 +52,7 @@
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .site-nav {
@@ -58,6 +67,7 @@
   font-size: 14px;
   font-weight: 500;
   transition: all 0.15s var(--au-ease);
+  white-space: nowrap;
 }
 .site-nav a:hover {
   color: var(--au-primary);
@@ -72,8 +82,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 .site-ghlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   color: var(--au-text-2);
   padding: 6px 12px;
@@ -84,4 +98,192 @@
 .site-ghlink:hover {
   border-color: var(--au-primary);
   color: var(--au-primary);
+}
+.site-ghlink__icon {
+  display: none;
+}
+
+/* ===== 汉堡按钮 — desktop 隐藏, 小屏幕显示 ===== */
+.site-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--au-border);
+  background: var(--au-bg);
+  border-radius: var(--au-radius-sm);
+  cursor: pointer;
+  color: var(--au-text-1);
+  transition:
+    border-color 0.15s var(--au-ease),
+    background 0.15s var(--au-ease);
+}
+.site-hamburger:hover {
+  border-color: var(--au-primary);
+}
+.site-hamburger__line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transform-origin: center;
+  transition:
+    transform 0.25s var(--au-ease, ease),
+    opacity 0.2s ease;
+}
+.site-hamburger__svg.is-open .site-hamburger__line--1 {
+  transform: translateY(5px) rotate(45deg);
+}
+.site-hamburger__svg.is-open .site-hamburger__line--2 {
+  opacity: 0;
+}
+.site-hamburger__svg.is-open .site-hamburger__line--3 {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+/* ===== 移动端展开菜单 (从顶部下推) ===== */
+.site-mobile-menu {
+  position: fixed;
+  top: var(--au-navbar-h);
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: var(--au-bg);
+  border-bottom: 1px solid var(--au-border);
+  padding: 16px 20px 24px;
+  transform: translateY(-12px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.22s var(--au-ease, ease),
+    opacity 0.22s ease,
+    visibility 0.22s;
+  display: none; /* 默认 desktop 完全不渲染, 媒体查询打开 */
+}
+.site-mobile-menu.is-open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+.site-mobile-menu__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.site-mobile-menu__nav a {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--au-text-1);
+  border-radius: var(--au-radius-sm);
+  transition: background 0.15s var(--au-ease);
+}
+.site-mobile-menu__nav a:hover,
+.site-mobile-menu__nav a.active {
+  background: var(--au-primary-soft);
+  color: var(--au-primary);
+}
+.site-mobile-menu__divider {
+  height: 1px;
+  background: var(--au-border);
+  margin: 12px 0;
+}
+.site-mobile-menu__ghlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--au-text-2);
+  border: 1px solid var(--au-border);
+  border-radius: var(--au-radius-sm);
+  text-decoration: none;
+  transition: border-color 0.15s var(--au-ease);
+}
+.site-mobile-menu__ghlink:hover {
+  border-color: var(--au-primary);
+  color: var(--au-primary);
+}
+
+.site-mobile-menu__backdrop {
+  position: fixed;
+  inset: var(--au-navbar-h) 0 0 0;
+  z-index: 98;
+  background: rgba(15, 23, 42, 0.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: none;
+}
+
+/* ===== Compact 模式 — 由 JS 检测内容溢出后挂上 .is-compact ===== */
+.site-navbar.is-compact .site-navbar__inner {
+  padding: 0 20px;
+  gap: 16px;
+}
+.site-navbar.is-compact .site-nav {
+  display: none;
+}
+.site-navbar.is-compact .site-actions {
+  margin-left: auto;
+  gap: 8px;
+}
+.site-navbar.is-compact .site-hamburger {
+  display: inline-flex;
+}
+.site-navbar.is-compact .site-mobile-menu {
+  display: block;
+}
+.site-navbar.is-compact .site-mobile-menu__backdrop {
+  display: block;
+}
+/* GitHub 链接缩成图标 */
+.site-navbar.is-compact .site-ghlink {
+  padding: 6px 10px;
+}
+.site-navbar.is-compact .site-ghlink__text {
+  display: none;
+}
+.site-navbar.is-compact .site-ghlink__icon {
+  display: inline-flex;
+}
+
+/* ===== 极小屏精修 — 这部分跟视口尺寸有关, 保留媒体查询 ===== */
+@media (max-width: 480px) {
+  .site-navbar.is-compact .site-navbar__inner {
+    padding: 0 14px;
+    gap: 8px;
+  }
+  /* 极小屏: logo 只留 mark + name, 隐藏版本号 pill */
+  .site-logo {
+    font-size: 16px;
+    gap: 6px;
+  }
+  .site-logo__ver {
+    display: none;
+  }
+  /* GitHub 压缩到只有图标 */
+  .site-navbar.is-compact .site-ghlink {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  /* 360px 以下: logo 只留 mark, 文字也藏起来 */
+  .site-logo__name {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-mobile-menu,
+  .site-hamburger__line {
+    transition: none;
+  }
 }

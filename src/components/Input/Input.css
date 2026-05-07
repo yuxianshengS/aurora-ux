@@ -1,6 +1,7 @@
 .au-input {
   --au-input-active: var(--au-primary);
-  --au-input-hover-bg: rgba(73, 133, 224, 0.12);
+  /* hover 背景跟着主色走, 暗色 / 自定义 brand 自动适配 */
+  --au-input-hover-bg: color-mix(in srgb, var(--au-primary) 12%, transparent);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -8,8 +9,8 @@
   width: 240px;
   max-width: 100%;
   transition:
-    border-color 0.15s var(--au-ease),
-    box-shadow 0.15s var(--au-ease);
+    border-color var(--au-motion-fast, 150ms) var(--au-ease),
+    box-shadow var(--au-motion-fast, 150ms) var(--au-ease);
 }
 
 /* ---- outlined (default) ---- */
@@ -30,7 +31,7 @@
   border-color: var(--au-danger);
 }
 .au-input--outlined.is-error:focus-within {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--au-danger) 15%, transparent);
 }
 
 /* ---- underline (animated border) ---- */
@@ -39,7 +40,7 @@
   padding: 0 8px;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgba(221, 221, 221, 0.39);
+  border-bottom: 1px solid var(--au-border);
   border-radius: 0;
 }
 .au-input--underline:hover:not(.is-disabled) .au-input__inner {
@@ -58,7 +59,7 @@
   height: 2px;
   width: 0%;
   background: var(--au-input-active);
-  transition: width 0.3s var(--au-ease);
+  transition: width var(--au-motion-base, 250ms) var(--au-ease);
   pointer-events: none;
 }
 .au-input--underline:focus-within:not(.is-disabled) .au-input__border {
@@ -81,7 +82,7 @@
   border-radius: var(--au-radius);
   background: transparent;
   color: var(--au-text-1);
-  transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color var(--au-motion-fast, 150ms) var(--au-ease);
   height: 100%;
 }
 .au-input--floating .au-input__inner:focus,
@@ -98,7 +99,7 @@
   transform: translateY(-50%);
   color: var(--au-text-3);
   pointer-events: none;
-  transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--au-motion-fast, 150ms) var(--au-ease);
   background: var(--au-bg);
   padding: 0 4px;
   font-size: inherit;
@@ -156,7 +157,7 @@
   color: inherit;
   font: inherit;
   padding: 0;
-  transition: background 0.18s var(--au-ease);
+  transition: background var(--au-motion-fast, 150ms) var(--au-ease);
   border-radius: inherit;
 }
 .au-input__inner::placeholder {
@@ -187,7 +188,9 @@
   border-radius: 50%;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s var(--au-ease, ease), color 0.15s var(--au-ease, ease);
+  transition:
+    background var(--au-motion-fast, 150ms) var(--au-ease),
+    color var(--au-motion-fast, 150ms) var(--au-ease);
   /* 默认半透明, hover input 整体或 hover 自身才提亮 — 让按钮不抢眼 */
   opacity: 0.7;
 }
@@ -203,6 +206,11 @@
   display: none;
 }
 @media (prefers-reduced-motion: reduce) {
+  .au-input,
+  .au-input__inner,
+  .au-input__border,
+  .au-input__floating-label,
+  .au-input--floating .au-input__inner,
   .au-input__clear {
     transition: none;
   }

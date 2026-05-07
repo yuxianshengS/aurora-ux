@@ -13,10 +13,7 @@ const InputDoc: React.FC = () => {
 
       <h2>代码演示</h2>
 
-      <DemoBlock
-        title="基础用法"
-        code={`<Input placeholder="请输入内容" />`}
-      >
+      <DemoBlock title="基础用法" code={`<Input placeholder="请输入内容" />`}>
         <Input placeholder="请输入内容" />
       </DemoBlock>
 
@@ -31,10 +28,7 @@ const InputDoc: React.FC = () => {
         <Input size="small" placeholder="Small" />
       </DemoBlock>
 
-      <DemoBlock
-        title="前后缀"
-        code={`<Input prefix="¥" suffix="RMB" placeholder="金额" />`}
-      >
+      <DemoBlock title="前后缀" code={`<Input prefix="¥" suffix="RMB" placeholder="金额" />`}>
         <Input prefix="¥" suffix="RMB" placeholder="金额" />
       </DemoBlock>
 
@@ -44,10 +38,17 @@ const InputDoc: React.FC = () => {
         code={`// 非受控 — defaultValue 起手, allowClear 立刻能看到
 <Input defaultValue="hello world" allowClear placeholder="可清除" />
 
-// 受控 — onChange 收到 value === ''
-<Input value={v} onChange={(e) => setV(e.target.value)} allowClear />`}
+// 受控 — 输入后右侧出现 ✕, 点击触发 onChange 收到 value === ''
+const [v, setV] = useState('');
+<Input value={v} onChange={(e) => setV(e.target.value)} allowClear placeholder="输入试试" />`}
       >
         <Input defaultValue="hello world" allowClear placeholder="可清除" />
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          allowClear
+          placeholder="输入试试,右侧会出现 ✕"
+        />
       </DemoBlock>
 
       <DemoBlock
@@ -90,12 +91,7 @@ const InputDoc: React.FC = () => {
       >
         <Input variant="floating" label="First Name" />
         <Input variant="floating" label="Email" activeColor="#38d39f" />
-        <Input
-          variant="floating"
-          label="Password"
-          type="password"
-          activeColor="#f5a623"
-        />
+        <Input variant="floating" label="Password" type="password" activeColor="#f5a623" />
       </DemoBlock>
 
       <DemoBlock
@@ -108,9 +104,7 @@ const InputDoc: React.FC = () => {
           onChange={(e) => setValue(e.target.value)}
           placeholder="试着输入看看"
         />
-        <span style={{ color: '#6b7280', fontSize: 13 }}>
-          当前值：{value || '（空）'}
-        </span>
+        <span style={{ color: '#6b7280', fontSize: 13 }}>当前值：{value || '（空）'}</span>
       </DemoBlock>
 
       <h2>TextArea 文本域</h2>
@@ -168,11 +162,22 @@ const InputDoc: React.FC = () => {
         component={Input}
         controls={[
           { name: 'placeholder', type: 'text', default: '请输入内容' },
-          { name: 'variant', type: 'select', options: ['outlined', 'underline', 'floating'], default: 'outlined' },
+          {
+            name: 'variant',
+            type: 'select',
+            options: ['outlined', 'underline', 'floating'],
+            default: 'outlined',
+          },
           { name: 'label', type: 'text', label: 'label(floating)', default: '' },
-          { name: 'size', type: 'select', options: ['small', 'medium', 'large'], default: 'medium' },
+          {
+            name: 'size',
+            type: 'select',
+            options: ['small', 'medium', 'large'],
+            default: 'medium',
+          },
           { name: 'error', type: 'boolean', default: false },
           { name: 'disabled', type: 'boolean', default: false },
+          { name: 'allowClear', type: 'boolean', default: false },
           { name: 'prefix', type: 'text', label: 'prefix(文本)', default: '' },
           { name: 'suffix', type: 'text', label: 'suffix(文本)', default: '' },
           { name: 'activeColor', type: 'text', label: 'activeColor(underline)', default: '' },
@@ -215,6 +220,18 @@ const InputDoc: React.FC = () => {
           },
           { prop: 'prefix', desc: '前缀内容', type: 'ReactNode', default: '-' },
           { prop: 'suffix', desc: '后缀内容', type: 'ReactNode', default: '-' },
+          {
+            prop: 'allowClear',
+            desc: '显示清除按钮 — value 非空且非 disabled 时右侧出现 ✕,点击清空',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            prop: 'onClear',
+            desc: '点击清除按钮触发(可选,一般跟 onChange 联动够用)',
+            type: '() => void',
+            default: '-',
+          },
           {
             prop: 'error',
             desc: '是否为错误状态',

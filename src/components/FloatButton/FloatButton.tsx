@@ -3,11 +3,7 @@ import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useLocale } from '../ConfigProvider/ConfigProvider';
 import './FloatButton.css';
 
-export type FloatButtonPosition =
-  | 'bottom-right'
-  | 'bottom-left'
-  | 'top-right'
-  | 'top-left';
+export type FloatButtonPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 export interface FloatButtonAction {
   /** 唯一 key */
@@ -51,13 +47,26 @@ export interface FloatButtonProps {
 
 const PlusIcon: React.FC = () => (
   <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden>
-    <path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <path
+      d="M8 3v10M3 8h10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
 const ArrowUpIcon: React.FC = () => (
   <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden>
-    <path d="M8 13V3M4 7l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M8 13V3M4 7l4-4 4 4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -86,6 +95,7 @@ const FloatButton: React.FC<FloatButtonProps> = ({
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(!backTop);
   const rootRef = useRef<HTMLDivElement>(null);
+  const locale = useLocale();
 
   // backTop 模式监听滚动
   useEffect(() => {
@@ -128,8 +138,7 @@ const FloatButton: React.FC<FloatButtonProps> = ({
     else positionStyle.top = oy;
   }
 
-  const locale = useLocale();
-  const mainIcon = isBackTop ? <ArrowUpIcon /> : icon ?? <PlusIcon />;
+  const mainIcon = isBackTop ? <ArrowUpIcon /> : (icon ?? <PlusIcon />);
   const mainTooltip = isBackTop ? locale.FloatButton.backTop : tooltip;
 
   return (
@@ -173,22 +182,14 @@ const FloatButton: React.FC<FloatButtonProps> = ({
 
       <button
         type="button"
-        className={[
-          'au-fab',
-          'au-fab--main',
-          `au-fab--${variant}`,
-          `au-fab--${shape}`,
-        ].join(' ')}
+        className={['au-fab', 'au-fab--main', `au-fab--${variant}`, `au-fab--${shape}`].join(' ')}
         style={{ width: size, height: size }}
         onClick={handleMain}
         aria-label={typeof mainTooltip === 'string' ? mainTooltip : 'FloatButton'}
         aria-expanded={hasActions ? open : undefined}
       >
         <span
-          className={[
-            'au-fab__icon',
-            hasActions && open ? 'is-rotated' : '',
-          ]
+          className={['au-fab__icon', hasActions && open ? 'is-rotated' : '']
             .filter(Boolean)
             .join(' ')}
         >

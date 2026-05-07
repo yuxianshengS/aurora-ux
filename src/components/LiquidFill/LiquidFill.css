@@ -1,0 +1,141 @@
+.au-liquid {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  border-radius: inherit;
+}
+
+.au-liquid__svg {
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.au-liquid__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+  padding: 4px;
+  gap: 2px;
+}
+
+.au-liquid__value {
+  font-size: clamp(18px, 22%, 32px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  display: inline-flex;
+  align-items: baseline;
+}
+.au-liquid__unit {
+  font-size: 0.55em;
+  margin-left: 2px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.au-liquid__label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+
+/* 边框外的 glow 光晕 — opt-in (glow prop) */
+.au-liquid.has-glow::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: var(--au-liquid-glow-color, var(--au-primary));
+  filter: blur(18px);
+  opacity: 0.32;
+  z-index: 0;
+  pointer-events: none;
+}
+.au-liquid.has-glow .au-liquid__svg {
+  filter: drop-shadow(
+    0 0 8px color-mix(in srgb, var(--au-liquid-glow-color, var(--au-primary)) 50%, transparent)
+  );
+}
+
+/* 波浪横移 — 由 inline style 注入 --au-liquid-shift (px, 等于 1 个 sine 周期 = size, 含正负号方向).
+ * 用绝对像素避开 translateX(-50%) 在不同浏览器对 transform-box 的解读差异.
+ * 不同层方向相反时, --au-liquid-shift 取正值/负值, 互相错向移动制造干涉. */
+@keyframes au-liquid-flow {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--au-liquid-shift, 0));
+  }
+}
+
+/* 整体水体"呼吸"上下浮动 — 模拟水面被轻微扰动的起伏感, 让画面不死板.
+ * 用 ease-in-out 让起伏自然, 比纯线性匀速更像液体. */
+@keyframes au-liquid-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.au-liquid__wave {
+  will-change: transform;
+}
+.au-liquid__body,
+.au-liquid__level {
+  will-change: transform;
+}
+
+/* 加载态: skeleton — 只是占位灰块, 跟其他骨架一致 */
+.au-liquid.is-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.au-liquid__skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(
+    100deg,
+    var(--au-bg-mute) 30%,
+    var(--au-bg-soft) 50%,
+    var(--au-bg-mute) 70%
+  );
+  background-size: 200% 100%;
+  animation: au-liquid-skel 1.4s linear infinite;
+}
+@keyframes au-liquid-skel {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-liquid__wave,
+  .au-liquid__body,
+  .au-liquid__level {
+    animation: none !important;
+  }
+  .au-liquid__skeleton {
+    animation: none;
+  }
+}

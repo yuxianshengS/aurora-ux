@@ -52,16 +52,68 @@ interface Order {
 }
 
 const orders: Order[] = [
-  { id: 'O-2026-0419-08', customer: '腾讯云', product: '企业版年度订阅', amount: 48000, status: 'paid', time: '10:42' },
-  { id: 'O-2026-0419-07', customer: '字节跳动', product: '私有化部署', amount: 128000, status: 'pending', time: '10:28' },
-  { id: 'O-2026-0419-06', customer: '小米科技', product: '专业版 10 席', amount: 8800, status: 'paid', time: '10:02' },
-  { id: 'O-2026-0419-05', customer: '美团研究院', product: '扩容包 · 50GB', amount: 1200, status: 'paid', time: '09:48' },
-  { id: 'O-2026-0419-04', customer: 'Bilibili', product: '专业版 5 席', amount: 4400, status: 'refund', time: '09:30' },
-  { id: 'O-2026-0419-03', customer: '滴滴出行', product: '企业定制', amount: 65000, status: 'paid', time: '09:18' },
-  { id: 'O-2026-0419-02', customer: '网易云音乐', product: '扩容包 · 200GB', amount: 3600, status: 'cancel', time: '08:55' },
+  {
+    id: 'O-2026-0419-08',
+    customer: '腾讯云',
+    product: '企业版年度订阅',
+    amount: 48000,
+    status: 'paid',
+    time: '10:42',
+  },
+  {
+    id: 'O-2026-0419-07',
+    customer: '字节跳动',
+    product: '私有化部署',
+    amount: 128000,
+    status: 'pending',
+    time: '10:28',
+  },
+  {
+    id: 'O-2026-0419-06',
+    customer: '小米科技',
+    product: '专业版 10 席',
+    amount: 8800,
+    status: 'paid',
+    time: '10:02',
+  },
+  {
+    id: 'O-2026-0419-05',
+    customer: '美团研究院',
+    product: '扩容包 · 50GB',
+    amount: 1200,
+    status: 'paid',
+    time: '09:48',
+  },
+  {
+    id: 'O-2026-0419-04',
+    customer: 'Bilibili',
+    product: '专业版 5 席',
+    amount: 4400,
+    status: 'refund',
+    time: '09:30',
+  },
+  {
+    id: 'O-2026-0419-03',
+    customer: '滴滴出行',
+    product: '企业定制',
+    amount: 65000,
+    status: 'paid',
+    time: '09:18',
+  },
+  {
+    id: 'O-2026-0419-02',
+    customer: '网易云音乐',
+    product: '扩容包 · 200GB',
+    amount: 3600,
+    status: 'cancel',
+    time: '08:55',
+  },
 ];
 
-const statusMap: Record<Order['status'], { label: string; color: 'success' | 'warning' | 'danger' | 'default' }> = {
+const statusMap: Record<
+  Order['status'],
+  { label: string; color: 'success' | 'warning' | 'danger' | 'default' }
+> = {
   paid: { label: '已支付', color: 'success' },
   pending: { label: '待确认', color: 'warning' },
   refund: { label: '已退款', color: 'danger' },
@@ -69,13 +121,64 @@ const statusMap: Record<Order['status'], { label: string; color: 'success' | 'wa
 };
 
 const activities: ActivityItem[] = [
-  { id: 1, time: new Date(Date.now() - 60_000), user: { name: '腾讯云' }, title: '创建了订单 #O-2026-0419-08', description: '¥48,000 · 企业版', type: 'primary', tag: '订单' },
-  { id: 2, time: new Date(Date.now() - 8 * 60_000), user: { name: 'Mia' }, title: '审核通过退款单 #R-2134', type: 'success', tag: '退款' },
-  { id: 3, time: new Date(Date.now() - 22 * 60_000), user: { name: '系统' }, title: '检测到异常登录', description: 'IP 103.x.x.x · 新设备', type: 'warning', tag: '风控' },
-  { id: 4, time: new Date(Date.now() - 48 * 60_000), user: { name: 'Noah' }, title: '上传了 12 张合同扫描件', type: 'info', tag: '存储' },
-  { id: 5, time: new Date(Date.now() - 95 * 60_000), user: { name: '沈知秋' }, title: '删除了测试项目', description: '项目 #P-0419', type: 'danger', tag: '危险操作' },
-  { id: 6, time: new Date(Date.now() - 180 * 60_000), user: { name: '林可' }, title: '调整了报表定时任务', type: 'default' },
-  { id: 7, time: new Date(Date.now() - 310 * 60_000), user: { name: 'Bilibili' }, title: '取消了未支付订单', description: '订单 #O-2026-0419-02', type: 'default' },
+  {
+    id: 1,
+    time: new Date(Date.now() - 60_000),
+    user: { name: '腾讯云' },
+    title: '创建了订单 #O-2026-0419-08',
+    description: '¥48,000 · 企业版',
+    type: 'primary',
+    tag: '订单',
+  },
+  {
+    id: 2,
+    time: new Date(Date.now() - 8 * 60_000),
+    user: { name: 'Mia' },
+    title: '审核通过退款单 #R-2134',
+    type: 'success',
+    tag: '退款',
+  },
+  {
+    id: 3,
+    time: new Date(Date.now() - 22 * 60_000),
+    user: { name: '系统' },
+    title: '检测到异常登录',
+    description: 'IP 103.x.x.x · 新设备',
+    type: 'warning',
+    tag: '风控',
+  },
+  {
+    id: 4,
+    time: new Date(Date.now() - 48 * 60_000),
+    user: { name: 'Noah' },
+    title: '上传了 12 张合同扫描件',
+    type: 'info',
+    tag: '存储',
+  },
+  {
+    id: 5,
+    time: new Date(Date.now() - 95 * 60_000),
+    user: { name: '沈知秋' },
+    title: '删除了测试项目',
+    description: '项目 #P-0419',
+    type: 'danger',
+    tag: '危险操作',
+  },
+  {
+    id: 6,
+    time: new Date(Date.now() - 180 * 60_000),
+    user: { name: '林可' },
+    title: '调整了报表定时任务',
+    type: 'default',
+  },
+  {
+    id: 7,
+    time: new Date(Date.now() - 310 * 60_000),
+    user: { name: 'Bilibili' },
+    title: '取消了未支付订单',
+    description: '订单 #O-2026-0419-02',
+    type: 'default',
+  },
 ];
 
 const funnelSteps = [
@@ -209,12 +312,15 @@ const sidebarItems: MenuItem[] = [
 
 /* ---------- main ---------- */
 
+type TimeRange = 'today' | 'week' | 'month';
+
 const DashboardExample: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [active, setActive] = useState('overview');
   const [tableKeys, setTableKeys] = useState<React.Key[]>([]);
   const heatmapData = useMemo(genHeatmap, []);
   const [feed, setFeed] = useState<ActivityItem[]>(activities);
+  const [range, setRange] = useState<TimeRange>('today');
 
   // 实时跳动: GMV / 订单数 / 转化率, 给看板"活着"的感觉
   const [gmv, setGmv] = useState(328450);
@@ -257,7 +363,9 @@ const DashboardExample: React.FC = () => {
       align: 'right',
       sorter: true,
       render: (v: number) => (
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>¥ {v.toLocaleString()}</span>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+          ¥ {v.toLocaleString()}
+        </span>
       ),
       width: 130,
     },
@@ -357,21 +465,39 @@ const DashboardExample: React.FC = () => {
         <header className="dash__topbar">
           <div className="dash__topbar-left">
             <Breadcrumb
-              items={[
-                { title: <Link to="/">首页</Link> },
-                { title: '概览' },
-                { title: '今日' },
-              ]}
+              items={[{ title: <Link to="/">首页</Link> }, { title: '概览' }, { title: '今日' }]}
             />
           </div>
           <div className="dash__topbar-right">
-            <Input
-              placeholder="搜索订单、客户…"
-              style={{ width: 220 }}
-              prefix={<Icon name="search" size={14} />}
-            />
-            <Badge dot>
-              <button className="dash-icon-btn" aria-label="通知" onClick={triggerDemoEvent} title="点击模拟新事件">
+            {/* 时间段切换 — segment switcher */}
+            <div className="dash__range" role="tablist" aria-label="时间段">
+              {(['today', 'week', 'month'] as TimeRange[]).map((r) => (
+                <button
+                  key={r}
+                  role="tab"
+                  aria-selected={range === r}
+                  className={['dash__range-btn', range === r ? 'is-active' : ''].join(' ')}
+                  onClick={() => setRange(r)}
+                >
+                  {r === 'today' ? '今日' : r === 'week' ? '本周' : '本月'}
+                </button>
+              ))}
+            </div>
+            <div className="dash__search">
+              <Input
+                placeholder="搜索订单、客户…"
+                style={{ width: 240 }}
+                prefix={<Icon name="search" size={14} />}
+                suffix={<span className="dash__search-kbd">⌘K</span>}
+              />
+            </div>
+            <Badge count={feed.length > 9 ? '9+' : feed.length}>
+              <button
+                className="dash-icon-btn"
+                aria-label="通知"
+                onClick={triggerDemoEvent}
+                title="点击模拟新事件"
+              >
                 <Icon name="trade-alert" size={18} />
               </button>
             </Badge>
@@ -389,7 +515,9 @@ const DashboardExample: React.FC = () => {
               }}
             >
               <div className="dash__user">
-                <Avatar size="small" background="var(--au-primary)" color="#fff">Y</Avatar>
+                <Avatar size="small" background="var(--au-primary)" color="#fff">
+                  Y
+                </Avatar>
                 {!collapsed && <span className="dash__user-name">赵子龙</span>}
               </div>
             </Dropdown>
@@ -418,13 +546,20 @@ const DashboardExample: React.FC = () => {
               </div>
               <div className="dash__hero-right">
                 <div className="dash__hero-bignum">
-                  <NumberRoll
-                    value={gmv}
-                    prefix="¥ "
-                    size={56}
-                    weight={800}
-                    color="white"
-                  />
+                  <NumberRoll value={gmv} prefix="¥ " size={56} weight={800} color="white" />
+                  <span className="dash__hero-trend" title="较昨日">
+                    <svg viewBox="0 0 12 12" aria-hidden>
+                      <path
+                        d="M2 8L5 5L7 7L10 4M10 4H7M10 4V7"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    +12.5%
+                  </span>
                 </div>
                 <div className="dash__hero-deltas">
                   <span className="dash__hero-delta">
@@ -454,6 +589,7 @@ const DashboardExample: React.FC = () => {
           {/* KPI Row */}
           <div className="dash__kpi-row">
             <KpiCard
+              className="dash__kpi--hero"
               title="今日 GMV"
               prefix="¥"
               value={gmv}
@@ -475,7 +611,10 @@ const DashboardExample: React.FC = () => {
               suffix="%"
               status="warning"
               delta={{ value: -0.7, label: '较昨日' }}
-              trend={{ data: [5.2, 5.1, 5.0, 4.9, 5.0, 4.9, 4.8, 4.7, 4.8, 4.8, 4.9, 4.8], type: 'line' }}
+              trend={{
+                data: [5.2, 5.1, 5.0, 4.9, 5.0, 4.9, 4.8, 4.7, 4.8, 4.8, 4.9, 4.8],
+                type: 'line',
+              }}
             />
             <KpiCard
               title="退款率"
@@ -484,7 +623,10 @@ const DashboardExample: React.FC = () => {
               suffix="%"
               status="danger"
               delta={{ value: -0.4, label: '较昨日', mode: 'positive-down' }}
-              trend={{ data: [1.8, 1.7, 1.9, 1.6, 1.5, 1.5, 1.4, 1.3, 1.3, 1.2, 1.3, 1.2], type: 'line' }}
+              trend={{
+                data: [1.8, 1.7, 1.9, 1.6, 1.5, 1.5, 1.4, 1.3, 1.3, 1.2, 1.3, 1.2],
+                type: 'line',
+              }}
             />
           </div>
 
@@ -494,13 +636,16 @@ const DashboardExample: React.FC = () => {
               <h3>今日时间线</h3>
               <Space>
                 <span className="dash__panel-meta">
-                  <span className="dash__legend-dot" style={{ background: 'var(--au-success)' }} /> 订单成功
+                  <span className="dash__legend-dot" style={{ background: 'var(--au-success)' }} />{' '}
+                  订单成功
                 </span>
                 <span className="dash__panel-meta">
-                  <span className="dash__legend-dot" style={{ background: 'var(--au-warning)' }} /> 告警
+                  <span className="dash__legend-dot" style={{ background: 'var(--au-warning)' }} />{' '}
+                  告警
                 </span>
                 <span className="dash__panel-meta">
-                  <span className="dash__legend-dot" style={{ background: 'var(--au-danger)' }} /> 异常/退款
+                  <span className="dash__legend-dot" style={{ background: 'var(--au-danger)' }} />{' '}
+                  异常/退款
                 </span>
               </Space>
             </div>
@@ -613,10 +758,7 @@ const DashboardExample: React.FC = () => {
                     label: '里程碑',
                     children: (
                       <div style={{ maxHeight: 400, overflowY: 'auto', padding: '8px 4px 4px' }}>
-                        <Timeline
-                          items={milestones}
-                          pending="下一次定时部署 · 20:00"
-                        />
+                        <Timeline items={milestones} pending="下一次定时部署 · 20:00" />
                       </div>
                     ),
                   },
@@ -708,13 +850,30 @@ const DashboardExample: React.FC = () => {
           </div>
 
           <footer className="dash__footer">
-            <GradientText preset="aurora" size={13} weight={600} as="span">
-              Aurora Admin
-            </GradientText>
-            <span> · 由 aurora-ux 驱动 · </span>
-            <Link to="/docs/getting-started">组件文档</Link>
-            <span> · </span>
-            <Link to="/builder">搭建器</Link>
+            <span className="dash__footer-pill">
+              <span className="dash__footer-status" aria-hidden />
+              <span>系统运行正常</span>
+            </span>
+            <span className="dash__footer-pill">
+              <GradientText preset="aurora" size={12.5} weight={700} as="span">
+                Aurora Admin
+              </GradientText>
+              <span style={{ color: 'var(--au-text-3)' }}>by aurora-ux</span>
+            </span>
+            <span className="dash__footer-pill">
+              <Link to="/docs/getting-started">组件文档</Link>
+              <span className="dash__footer-divider">·</span>
+              <Link to="/builder">搭建器</Link>
+              <span className="dash__footer-divider">·</span>
+              <a
+                href="https://github.com/yuxianshengS/aurora-ux"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'var(--au-text-2)', textDecoration: 'none' }}
+              >
+                GitHub
+              </a>
+            </span>
           </footer>
         </main>
       </div>

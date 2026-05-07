@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useId, useState } from 'react';
 import { FormContext, type FormLayout } from './Form';
 import type { Rule } from './useForm';
 
@@ -51,6 +51,7 @@ const FormItem: React.FC<FormItemProps> = ({
   const parent = useContext(FormContext);
   const store = parent.store;
   const [, forceTick] = useState(0);
+  const errorId = useId();
 
   // 注册到 store, 保持 rules 同步; store 内部更新时调 onStoreChange 触发本组件刷新
   useEffect(() => {
@@ -109,11 +110,19 @@ const FormItem: React.FC<FormItemProps> = ({
       }
     };
 
-    renderedChildren = React.cloneElement(children, {
+    const injected: Record<string, unknown> = {
       [valuePropName]: value,
       [trigger]: ourTrigger,
       onBlur: ourBlur,
-    } as React.HTMLAttributes<HTMLElement>);
+    };
+    if (displayError) {
+      injected['aria-invalid'] = true;
+      const existingDescribedBy = childProps['aria-describedby'];
+      injected['aria-describedby'] = existingDescribedBy
+        ? `${existingDescribedBy} ${errorId}`
+        : errorId;
+    }
+    renderedChildren = React.cloneElement(children, injected as React.HTMLAttributes<HTMLElement>);
   }
 
   const cls = [
@@ -141,7 +150,11 @@ const FormItem: React.FC<FormItemProps> = ({
           : undefined
       }
     >
-      {isRequired && <span className="au-form-item__asterisk" aria-hidden>*</span>}
+      {isRequired && (
+        <span className="au-form-item__asterisk" aria-hidden>
+          *
+        </span>
+      )}
       <span className="au-form-item__label-text">
         {label}
         {effectiveColon && <span className="au-form-item__colon">:</span>}
@@ -154,7 +167,11 @@ const FormItem: React.FC<FormItemProps> = ({
       {labelEl}
       <div className="au-form-item__body">
         <div className="au-form-item__control">{renderedChildren}</div>
-        {displayError && <div className="au-form-item__error">{displayError}</div>}
+        {displayError && (
+          <div id={errorId} role="alert" className="au-form-item__error">
+            {displayError}
+          </div>
+        )}
         {help && !displayError && <div className="au-form-item__help">{help}</div>}
         {extra && <div className="au-form-item__extra">{extra}</div>}
       </div>

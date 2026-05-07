@@ -22,6 +22,10 @@ export { useFocusTrap } from './hooks/useFocusTrap';
 export { useInView, type UseInViewOptions } from './hooks/useInView';
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useReactivePosition } from './hooks/useReactivePosition';
+export { useEChartsTheme } from './hooks/useEChartsTheme';
+
+// ECharts 主题桥接 — 让 ECharts 自动跟 Aurora 主题色板 + 文字色 + dark mode 走
+export { getAuroraEChartsTheme, type AuroraEChartsThemeOptions } from './utils/echartsTheme';
 
 // i18n locale 包
 export { zhCN, enUS } from './locale';
