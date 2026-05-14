@@ -100,6 +100,7 @@ export const navGroups: NavGroup[] = [
   {
     title: '可视化',
     items: [
+      { title: 'EChart 通用图表', path: '/docs/echart' },
       { title: 'KpiCard 指标卡片', path: '/docs/kpi-card' },
       { title: 'Sparkline 迷你趋势', path: '/docs/sparkline' },
       { title: 'Gauge 仪表盘', path: '/docs/gauge' },

@@ -12,8 +12,8 @@ const SparklineDoc: React.FC = () => {
     <>
       <h1>Sparkline 迷你趋势线</h1>
       <p>
-        用于在有限空间内快速展示数值趋势,常嵌入 KPI 卡片、表格单元、导航项右侧。
-        纯 SVG,三种形态,自动算极值并适配容器,支持 Catmull-Rom 平滑。
+        用于在有限空间内快速展示数值趋势,常嵌入 KPI 卡片、表格单元、导航项右侧。 纯
+        SVG,三种形态,自动算极值并适配容器,支持 Catmull-Rom 平滑。
       </p>
 
       <h2>代码演示</h2>
@@ -21,9 +21,11 @@ const SparklineDoc: React.FC = () => {
       <DemoBlock
         title="三种形态"
         description="line (默认) / area (带填充) / bar。"
-        code={`<Sparkline data={[...]} type="line" />
-<Sparkline data={[...]} type="area" />
-<Sparkline data={[...]} type="bar" />`}
+        code={`const data = [3, 6, 4, 9, 7, 12, 10, 15, 13, 18];
+
+<Sparkline data={data} type="line" />
+<Sparkline data={data} type="area" />
+<Sparkline data={data} type="bar" />`}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -66,27 +68,74 @@ const SparklineDoc: React.FC = () => {
         title="表格内嵌"
         description="在表格单元内展示趋势。"
         code={`<td>
-  <Sparkline data={[...]} type="line" width={80} height={20} />
+  <Sparkline data={[10, 12, 11, 14, 13, 16, 18, 17, 19, 21]} type="line" width={80} height={20} />
 </td>`}
       >
         <table style={{ width: '100%', fontSize: 13 }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '8px 12px', color: 'var(--au-text-3)', fontWeight: 500 }}>股票</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--au-text-3)', fontWeight: 500 }}>价格</th>
-              <th style={{ textAlign: 'center', padding: '8px 12px', color: 'var(--au-text-3)', fontWeight: 500 }}>今日走势</th>
-              <th style={{ textAlign: 'right', padding: '8px 12px', color: 'var(--au-text-3)', fontWeight: 500 }}>涨跌</th>
+              <th
+                style={{
+                  textAlign: 'left',
+                  padding: '8px 12px',
+                  color: 'var(--au-text-3)',
+                  fontWeight: 500,
+                }}
+              >
+                股票
+              </th>
+              <th
+                style={{
+                  textAlign: 'right',
+                  padding: '8px 12px',
+                  color: 'var(--au-text-3)',
+                  fontWeight: 500,
+                }}
+              >
+                价格
+              </th>
+              <th
+                style={{
+                  textAlign: 'center',
+                  padding: '8px 12px',
+                  color: 'var(--au-text-3)',
+                  fontWeight: 500,
+                }}
+              >
+                今日走势
+              </th>
+              <th
+                style={{
+                  textAlign: 'right',
+                  padding: '8px 12px',
+                  color: 'var(--au-text-3)',
+                  fontWeight: 500,
+                }}
+              >
+                涨跌
+              </th>
             </tr>
           </thead>
           <tbody>
             {[
               { name: 'AAPL', price: 182.34, tr: rise, delta: 2.8 },
               { name: 'TSLA', price: 238.45, tr: dip, delta: -3.4 },
-              { name: 'NVDA', price: 865.18, tr: [10, 12, 11, 14, 13, 16, 18, 17, 19, 21], delta: 5.2 },
+              {
+                name: 'NVDA',
+                price: 865.18,
+                tr: [10, 12, 11, 14, 13, 16, 18, 17, 19, 21],
+                delta: 5.2,
+              },
             ].map((s) => (
               <tr key={s.name}>
                 <td style={{ padding: '10px 12px' }}>{s.name}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                <td
+                  style={{
+                    padding: '10px 12px',
+                    textAlign: 'right',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
                   ${s.price}
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
@@ -99,8 +148,16 @@ const SparklineDoc: React.FC = () => {
                     showDot={false}
                   />
                 </td>
-                <td style={{ padding: '10px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.delta >= 0 ? 'var(--au-success)' : 'var(--au-danger)' }}>
-                  {s.delta >= 0 ? '+' : ''}{s.delta}%
+                <td
+                  style={{
+                    padding: '10px 12px',
+                    textAlign: 'right',
+                    fontVariantNumeric: 'tabular-nums',
+                    color: s.delta >= 0 ? 'var(--au-success)' : 'var(--au-danger)',
+                  }}
+                >
+                  {s.delta >= 0 ? '+' : ''}
+                  {s.delta}%
                 </td>
               </tr>
             ))}
@@ -114,7 +171,12 @@ const SparklineDoc: React.FC = () => {
           { prop: 'data', desc: '数值数组', type: 'number[]', default: '-' },
           { prop: 'type', desc: '形态', type: `'line' | 'area' | 'bar'`, default: `'line'` },
           { prop: 'width / height', desc: '尺寸 (px)', type: 'number', default: '100 / 28' },
-          { prop: 'color', desc: '描边 / 填充色 (任意 CSS)', type: 'string', default: `'var(--au-primary)'` },
+          {
+            prop: 'color',
+            desc: '描边 / 填充色 (任意 CSS)',
+            type: 'string',
+            default: `'var(--au-primary)'`,
+          },
           { prop: 'smooth', desc: 'line / area 是否平滑', type: 'boolean', default: 'true' },
           { prop: 'showDot', desc: 'line / area 末端加实心点', type: 'boolean', default: 'true' },
           { prop: 'fillOpacity', desc: 'area 填充透明度', type: 'number', default: '0.18' },

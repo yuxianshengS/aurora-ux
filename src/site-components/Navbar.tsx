@@ -2,8 +2,12 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import ThemeSwitch from '../components/ThemeSwitch';
+import { openDocsSearch } from './DocsSearch';
 import pkg from '../../package.json';
 import './Navbar.css';
+
+const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
+const SEARCH_KBD = isMac ? '⌘ K' : 'Ctrl K';
 
 const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
   { to: '/', label: '首页', end: true },
@@ -137,6 +141,24 @@ const Navbar: React.FC = () => {
         </nav>
 
         <div className="site-actions" ref={actionsRef}>
+          <button
+            type="button"
+            className="site-search-trigger"
+            onClick={openDocsSearch}
+            aria-label="搜索"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm5.5-3 4 4"
+              />
+            </svg>
+            <span className="site-search-trigger__placeholder">搜索…</span>
+            <span className="site-search-trigger__kbd">{SEARCH_KBD}</span>
+          </button>
           <ThemeSwitch
             size="small"
             checked={isDark}

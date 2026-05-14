@@ -55,7 +55,15 @@ const RadioDoc: React.FC = () => {
         description="传入 value 进入受控模式。"
         code={`const [v, setV] = useState('a');
 
-<Radio.Group value={v} onChange={setV} options={...} />`}
+<Radio.Group
+  value={v}
+  onChange={setV}
+  options={[
+    { label: '选项 A', value: 'a' },
+    { label: '选项 B', value: 'b' },
+    { label: '选项 C', value: 'c' },
+  ]}
+/>`}
       >
         <ControlledDemo />
       </DemoBlock>
@@ -197,7 +205,12 @@ const RadioDoc: React.FC = () => {
       <h3>Radio</h3>
       <ApiTable
         rows={[
-          { prop: 'value', desc: '选项值 (Group 用它标识)', type: 'string | number | boolean', default: '-' },
+          {
+            prop: 'value',
+            desc: '选项值 (Group 用它标识)',
+            type: 'string | number | boolean',
+            default: '-',
+          },
           { prop: 'checked', desc: '受控选中', type: 'boolean', default: '-' },
           { prop: 'defaultChecked', desc: '非受控默认选中', type: 'boolean', default: 'false' },
           { prop: 'disabled', desc: '禁用', type: 'boolean', default: 'false' },
@@ -210,9 +223,24 @@ const RadioDoc: React.FC = () => {
           { prop: 'value', desc: '受控选中值', type: 'string | number | boolean', default: '-' },
           { prop: 'defaultValue', desc: '默认值', type: 'string | number | boolean', default: '-' },
           { prop: 'onChange', desc: '值变化', type: '(value) => void', default: '-' },
-          { prop: 'options', desc: '选项数组 (与 children 二选一)', type: '{ label, value, disabled? }[]', default: '-' },
-          { prop: 'optionType', desc: '样式类型', type: `'default' | 'button'`, default: `'default'` },
-          { prop: 'direction', desc: '排列方向', type: `'horizontal' | 'vertical'`, default: `'horizontal'` },
+          {
+            prop: 'options',
+            desc: '选项数组 (与 children 二选一)',
+            type: '{ label, value, disabled? }[]',
+            default: '-',
+          },
+          {
+            prop: 'optionType',
+            desc: '样式类型',
+            type: `'default' | 'button'`,
+            default: `'default'`,
+          },
+          {
+            prop: 'direction',
+            desc: '排列方向',
+            type: `'horizontal' | 'vertical'`,
+            default: `'horizontal'`,
+          },
           { prop: 'size', desc: '尺寸', type: `'small' | 'medium' | 'large'`, default: `'medium'` },
           { prop: 'disabled', desc: '整组禁用', type: 'boolean', default: 'false' },
         ]}

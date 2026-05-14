@@ -50,6 +50,8 @@ export default defineConfig(({ mode }) => {
             'react-dom/client',
             'html2canvas',
             'jspdf',
+            'echarts',
+            'echarts-for-react',
           ],
           output: {
             globals: {

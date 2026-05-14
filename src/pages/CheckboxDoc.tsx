@@ -15,8 +15,8 @@ const CheckboxDoc: React.FC = () => {
     <>
       <h1>Checkbox 多选框</h1>
       <p>
-        多选框。独立使用或通过 <code>Checkbox.Group</code> 组织成组。
-        支持半选 (<code>indeterminate</code>) 状态,常用于全选表头。
+        多选框。独立使用或通过 <code>Checkbox.Group</code> 组织成组。 支持半选 (
+        <code>indeterminate</code>) 状态,常用于全选表头。
       </p>
 
       <h2>代码演示</h2>
@@ -51,7 +51,15 @@ const CheckboxDoc: React.FC = () => {
         description="传入 value 进入受控模式,值为数组。"
         code={`const [v, setV] = useState(['read']);
 
-<Checkbox.Group value={v} onChange={setV} options={...} />`}
+<Checkbox.Group
+  value={v}
+  onChange={setV}
+  options={[
+    { label: '读', value: 'read' },
+    { label: '写', value: 'write' },
+    { label: '管理', value: 'admin' },
+  ]}
+/>`}
       >
         <ControlledDemo />
       </DemoBlock>
@@ -100,9 +108,30 @@ const partial = value.length > 0 && value.length < all;
 <Checkbox.Group size="large"  defaultValue={['a']} options={opts} />`}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Checkbox.Group size="small" defaultValue={['a']} options={[{ label: '小', value: 'a' }, { label: '项', value: 'b' }]} />
-          <Checkbox.Group size="medium" defaultValue={['a']} options={[{ label: '中', value: 'a' }, { label: '项', value: 'b' }]} />
-          <Checkbox.Group size="large" defaultValue={['a']} options={[{ label: '大', value: 'a' }, { label: '项', value: 'b' }]} />
+          <Checkbox.Group
+            size="small"
+            defaultValue={['a']}
+            options={[
+              { label: '小', value: 'a' },
+              { label: '项', value: 'b' },
+            ]}
+          />
+          <Checkbox.Group
+            size="medium"
+            defaultValue={['a']}
+            options={[
+              { label: '中', value: 'a' },
+              { label: '项', value: 'b' },
+            ]}
+          />
+          <Checkbox.Group
+            size="large"
+            defaultValue={['a']}
+            options={[
+              { label: '大', value: 'a' },
+              { label: '项', value: 'b' },
+            ]}
+          />
         </div>
       </DemoBlock>
 
@@ -125,7 +154,14 @@ const partial = value.length > 0 && value.length < all;
 />`}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Checkbox.Group disabled defaultValue={['a']} options={[{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }]} />
+          <Checkbox.Group
+            disabled
+            defaultValue={['a']}
+            options={[
+              { label: 'A', value: 'a' },
+              { label: 'B', value: 'b' },
+            ]}
+          />
           <Checkbox.Group
             defaultValue={['a']}
             options={[
@@ -141,7 +177,12 @@ const partial = value.length > 0 && value.length < all;
       <h3>Checkbox</h3>
       <ApiTable
         rows={[
-          { prop: 'value', desc: '选项值 (Group 用它标识)', type: 'string | number | boolean', default: '-' },
+          {
+            prop: 'value',
+            desc: '选项值 (Group 用它标识)',
+            type: 'string | number | boolean',
+            default: '-',
+          },
           { prop: 'checked', desc: '受控选中', type: 'boolean', default: '-' },
           { prop: 'defaultChecked', desc: '非受控默认选中', type: 'boolean', default: 'false' },
           { prop: 'indeterminate', desc: '半选状态', type: 'boolean', default: 'false' },
@@ -152,11 +193,31 @@ const partial = value.length > 0 && value.length < all;
       <h3>Checkbox.Group</h3>
       <ApiTable
         rows={[
-          { prop: 'value', desc: '受控选中值数组', type: 'Array<string | number | boolean>', default: '-' },
-          { prop: 'defaultValue', desc: '默认值', type: 'Array<string | number | boolean>', default: '[]' },
+          {
+            prop: 'value',
+            desc: '受控选中值数组',
+            type: 'Array<string | number | boolean>',
+            default: '-',
+          },
+          {
+            prop: 'defaultValue',
+            desc: '默认值',
+            type: 'Array<string | number | boolean>',
+            default: '[]',
+          },
           { prop: 'onChange', desc: '值变化', type: '(value) => void', default: '-' },
-          { prop: 'options', desc: '选项数组 (与 children 二选一)', type: '{ label, value, disabled? }[]', default: '-' },
-          { prop: 'direction', desc: '排列方向', type: `'horizontal' | 'vertical'`, default: `'horizontal'` },
+          {
+            prop: 'options',
+            desc: '选项数组 (与 children 二选一)',
+            type: '{ label, value, disabled? }[]',
+            default: '-',
+          },
+          {
+            prop: 'direction',
+            desc: '排列方向',
+            type: `'horizontal' | 'vertical'`,
+            default: `'horizontal'`,
+          },
           { prop: 'size', desc: '尺寸', type: `'small' | 'medium' | 'large'`, default: `'medium'` },
           { prop: 'disabled', desc: '整组禁用', type: 'boolean', default: 'false' },
         ]}
@@ -191,11 +252,7 @@ const CheckAllDemo: React.FC = () => {
           marginBottom: 10,
         }}
       >
-        <Checkbox
-          checked={checkedAll}
-          indeterminate={partial}
-          onChange={(c) => setV(c ? all : [])}
-        >
+        <Checkbox checked={checkedAll} indeterminate={partial} onChange={(c) => setV(c ? all : [])}>
           全选 ({v.length}/{all.length})
         </Checkbox>
       </div>

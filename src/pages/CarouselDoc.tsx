@@ -29,8 +29,8 @@ const CarouselDoc: React.FC = () => {
     <>
       <h1>Carousel 轮播图</h1>
       <p>
-        子节点 = 幻灯片。支持自动播放、左右箭头、底部指示点、键盘 ←/→ 切换、
-        触摸 swipe、loop 循环、slide / fade 两种切换效果,以及 ref 命令式 API。
+        子节点 = 幻灯片。支持自动播放、左右箭头、底部指示点、键盘 ←/→ 切换、 触摸 swipe、loop
+        循环、slide / fade 两种切换效果,以及 ref 命令式 API。
       </p>
 
       <h2>代码演示</h2>
@@ -109,7 +109,15 @@ const CarouselDoc: React.FC = () => {
   {/* 多张图片 / 卡片 */}
 </Carousel>`}
       >
-        <Carousel slidesPerView={1} centerMode gap={16} arrows autoplay={4000} loop style={{ width: '100%' }}>
+        <Carousel
+          slidesPerView={1}
+          centerMode
+          gap={16}
+          arrows
+          autoplay={4000}
+          loop
+          style={{ width: '100%' }}
+        >
           {[0, 1, 2, 3, 4].map((i) => (
             <Slide key={i} idx={i} text={`Center ${i + 1}`} />
           ))}
@@ -151,7 +159,11 @@ const CarouselDoc: React.FC = () => {
   loop
   height={280}
 >
-  {...}
+  {covers.map((c) => (
+    <div key={c.id}>
+      <img src={c.cover} alt={c.title} />
+    </div>
+  ))}
 </Carousel>`}
       >
         <Carousel
@@ -176,7 +188,15 @@ const CarouselDoc: React.FC = () => {
   {/* 8 张图 */}
 </Carousel>`}
       >
-        <Carousel slidesPerView={3} centerMode gap={12} arrows loop autoplay={3000} style={{ width: '100%' }}>
+        <Carousel
+          slidesPerView={3}
+          centerMode
+          gap={12}
+          arrows
+          loop
+          autoplay={3000}
+          style={{ width: '100%' }}
+        >
           {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
             <Slide key={i} idx={i} text={`${i + 1}`} />
           ))}
@@ -204,26 +224,81 @@ const CarouselDoc: React.FC = () => {
       <h2>API</h2>
       <ApiTable
         rows={[
-          { prop: 'children', desc: '幻灯片 (每个 ReactNode 一张)', type: 'ReactNode', default: '-' },
-          { prop: 'current / defaultCurrent', desc: '受控 / 默认当前下标', type: 'number', default: '0' },
+          {
+            prop: 'children',
+            desc: '幻灯片 (每个 ReactNode 一张)',
+            type: 'ReactNode',
+            default: '-',
+          },
+          {
+            prop: 'current / defaultCurrent',
+            desc: '受控 / 默认当前下标',
+            type: 'number',
+            default: '0',
+          },
           { prop: 'effect', desc: '切换效果', type: `'slide' | 'fade'`, default: `'slide'` },
-          { prop: 'autoplay', desc: '自动播放间隔 (ms; true=3000; 0 / false 关闭)', type: 'number | boolean', default: '0' },
-          { prop: 'pauseOnHover', desc: '鼠标 hover 时暂停自动播放', type: 'boolean', default: 'true' },
+          {
+            prop: 'autoplay',
+            desc: '自动播放间隔 (ms; true=3000; 0 / false 关闭)',
+            type: 'number | boolean',
+            default: '0',
+          },
+          {
+            prop: 'pauseOnHover',
+            desc: '鼠标 hover 时暂停自动播放',
+            type: 'boolean',
+            default: 'true',
+          },
           { prop: 'loop', desc: '循环 (走完最后一张回到第一张)', type: 'boolean', default: 'true' },
           { prop: 'arrows', desc: '显示左右箭头', type: 'boolean', default: 'false' },
           { prop: 'dots', desc: '显示底部指示点', type: 'boolean', default: 'true' },
-          { prop: 'dotPosition', desc: '指示点位置', type: `'bottom' | 'top'`, default: `'bottom'` },
-          { prop: 'height', desc: '高度 (fade 模式必传或最外层有高度)', type: 'number | string', default: '-' },
+          {
+            prop: 'dotPosition',
+            desc: '指示点位置',
+            type: `'bottom' | 'top'`,
+            default: `'bottom'`,
+          },
+          {
+            prop: 'height',
+            desc: '高度 (fade 模式必传或最外层有高度)',
+            type: 'number | string',
+            default: '-',
+          },
           { prop: 'duration', desc: '切换动画时长 ms', type: 'number', default: '400' },
           { prop: 'keyboard', desc: '容器 focus 时 ←/→ 切换', type: 'boolean', default: 'true' },
           { prop: 'draggable', desc: '触摸 / 鼠标拖拽切换', type: 'boolean', default: 'true' },
           { prop: 'swipeThreshold', desc: '拖动多少 px 触发翻页', type: 'number', default: '50' },
-          { prop: 'slidesPerView', desc: '同时显示几张 (slide 模式), 1 = 单张, 3 = 一屏 3 张', type: 'number', default: '1' },
-          { prop: 'centerMode', desc: 'active slide 居中, 左右两侧露出邻近 slide', type: 'boolean', default: 'false' },
+          {
+            prop: 'slidesPerView',
+            desc: '同时显示几张 (slide 模式), 1 = 单张, 3 = 一屏 3 张',
+            type: 'number',
+            default: '1',
+          },
+          {
+            prop: 'centerMode',
+            desc: 'active slide 居中, 左右两侧露出邻近 slide',
+            type: 'boolean',
+            default: 'false',
+          },
           { prop: 'gap', desc: '幻灯片之间的间隔 px (slide 模式)', type: 'number', default: '0' },
-          { prop: 'peek', desc: 'Coverflow 缩放数组 — index=距中心远近, 值=scale (0~1). 例 [1, 0.5, 0.2, 0.1]. 设置后 slidesPerView/centerMode/gap 被忽略', type: 'number[]', default: '-' },
-          { prop: 'slideWidth', desc: 'peek 模式下中心 slide 的宽度 (px)', type: 'number', default: 'viewportW * 0.5' },
-          { prop: 'peekStep', desc: 'peek 模式下相邻两张中心点的水平距离 (px)', type: 'number', default: 'slideWidth * 0.55' },
+          {
+            prop: 'peek',
+            desc: 'Coverflow 缩放数组 — index=距中心远近, 值=scale (0~1). 例 [1, 0.5, 0.2, 0.1]. 设置后 slidesPerView/centerMode/gap 被忽略',
+            type: 'number[]',
+            default: '-',
+          },
+          {
+            prop: 'slideWidth',
+            desc: 'peek 模式下中心 slide 的宽度 (px)',
+            type: 'number',
+            default: 'viewportW * 0.5',
+          },
+          {
+            prop: 'peekStep',
+            desc: 'peek 模式下相邻两张中心点的水平距离 (px)',
+            type: 'number',
+            default: 'slideWidth * 0.55',
+          },
           { prop: 'onChange', desc: '切换时触发', type: '(index, prev) => void', default: '-' },
         ]}
       />
@@ -231,7 +306,12 @@ const CarouselDoc: React.FC = () => {
       <h2>CarouselRef (命令式)</h2>
       <ApiTable
         rows={[
-          { prop: 'goTo', desc: '跳到指定下标 (按 loop 处理越界)', type: '(index: number) => void', default: '-' },
+          {
+            prop: 'goTo',
+            desc: '跳到指定下标 (按 loop 处理越界)',
+            type: '(index: number) => void',
+            default: '-',
+          },
           { prop: 'next', desc: '下一张', type: '() => void', default: '-' },
           { prop: 'prev', desc: '上一张', type: '() => void', default: '-' },
         ]}
@@ -252,7 +332,9 @@ const ImperativeDemo: React.FC = () => {
       <div style={{ display: 'flex', gap: 8 }}>
         <Button onClick={() => ref.current?.prev()}>上一张</Button>
         <Button onClick={() => ref.current?.next()}>下一张</Button>
-        <Button type="primary" onClick={() => ref.current?.goTo(2)}>跳到第 3 张</Button>
+        <Button type="primary" onClick={() => ref.current?.goTo(2)}>
+          跳到第 3 张
+        </Button>
       </div>
     </div>
   );

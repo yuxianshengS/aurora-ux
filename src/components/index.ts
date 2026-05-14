@@ -203,6 +203,9 @@ export { default as LiquidFill } from './LiquidFill';
 export type { LiquidFillProps, LiquidFillThreshold } from './LiquidFill';
 export { default as ScreenScale } from './ScreenScale';
 export type { ScreenScaleProps, ScreenScaleHandle, ScreenScaleMode } from './ScreenScale';
+// 通用 ECharts 薄壳: 自动注 Aurora 主题, option 直接传 ECharts DSL.
+export { default as EChart } from './EChart';
+export type { EChartProps } from './EChart';
 export { default as ActivityFeed } from './ActivityFeed';
 export type { ActivityFeedProps, ActivityItem, ActivityType } from './ActivityFeed';
 export { default as Form, FormItem, useForm } from './Form';

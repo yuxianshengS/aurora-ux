@@ -126,9 +126,8 @@ const CascaderDoc: React.FC = () => {
     <>
       <h1>Cascader 级联选择</h1>
       <p>
-        从一组关联数据集合里逐级选择. 适合层级深 (≤ 4 级) 但每级宽度可控的场景:
-        省市区 / 商品分类 / 部门组织. 跟 TreeSelect 的差别: Cascader 横向"逐级钻入",
-        TreeSelect 纵向"整棵树展开看".
+        从一组关联数据集合里逐级选择. 适合层级深 (≤ 4 级) 但每级宽度可控的场景: 省市区 / 商品分类 /
+        部门组织. 跟 TreeSelect 的差别: Cascader 横向"逐级钻入", TreeSelect 纵向"整棵树展开看".
       </p>
 
       <h2>代码演示</h2>
@@ -142,7 +141,11 @@ const CascaderDoc: React.FC = () => {
       { value: 'mh', label: '闵行区' },
     ]},
   ]},
-  // ...
+  { value: 'gd', label: '广东省', children: [
+    { value: 'gz', label: '广州市', children: [
+      { value: 'th', label: '天河区' },
+    ]},
+  ]},
 ];
 
 <Cascader
@@ -255,17 +258,12 @@ const CascaderDoc: React.FC = () => {
       >
         <Cascader
           options={regionOptions}
-          displayRender={(labels) =>
-            labels.length === 0 ? null : labels[labels.length - 1]
-          }
+          displayRender={(labels) => (labels.length === 0 ? null : labels[labels.length - 1])}
           placeholder="只显示最末一级"
         />
       </DemoBlock>
 
-      <DemoBlock
-        title="禁用某项"
-        code={`{ value: 'xc', label: '西城区', disabled: true }`}
-      >
+      <DemoBlock title="禁用某项" code={`{ value: 'xc', label: '西城区', disabled: true }`}>
         <p style={{ color: 'var(--au-text-3)', marginTop: 0 }}>
           上面"基础用法"里的「华北 / 北京 / 西城区」就是禁用项.
         </p>
@@ -275,21 +273,56 @@ const CascaderDoc: React.FC = () => {
       <ApiTable
         rows={[
           { prop: 'options', desc: '级联数据', type: 'CascaderOption[]', default: '-' },
-          { prop: 'value / defaultValue', desc: '受控 / 默认值 (路径数组)', type: '(string | number)[]', default: '-' },
+          {
+            prop: 'value / defaultValue',
+            desc: '受控 / 默认值 (路径数组)',
+            type: '(string | number)[]',
+            default: '-',
+          },
           { prop: 'placeholder', desc: '占位文字', type: 'string', default: `'请选择'` },
           { prop: 'disabled', desc: '禁用', type: 'boolean', default: 'false' },
           { prop: 'allowClear', desc: '允许清除', type: 'boolean', default: 'false' },
-          { prop: 'multiple', desc: '多选模式 (仅叶子可勾, 触发器显示 tag 列表)', type: 'boolean', default: 'false' },
-          { prop: 'maxTagCount', desc: '多选时最多展示的 tag 数, 超出显示 +N. 0 = 全显', type: 'number', default: '0' },
+          {
+            prop: 'multiple',
+            desc: '多选模式 (仅叶子可勾, 触发器显示 tag 列表)',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            prop: 'maxTagCount',
+            desc: '多选时最多展示的 tag 数, 超出显示 +N. 0 = 全显',
+            type: 'number',
+            default: '0',
+          },
           { prop: 'size', desc: '尺寸', type: `'small' | 'medium' | 'large'`, default: `'medium'` },
-          { prop: 'expandTrigger', desc: '钻入下一级的触发方式', type: `'click' | 'hover'`, default: `'click'` },
+          {
+            prop: 'expandTrigger',
+            desc: '钻入下一级的触发方式',
+            type: `'click' | 'hover'`,
+            default: `'click'`,
+          },
           { prop: 'changeOnSelect', desc: '允许选中非叶子节点', type: 'boolean', default: 'false' },
-          { prop: 'displayRender', desc: '自定义触发器路径展示', type: '(labels, options) => ReactNode', default: 'separator 拼接' },
+          {
+            prop: 'displayRender',
+            desc: '自定义触发器路径展示',
+            type: '(labels, options) => ReactNode',
+            default: 'separator 拼接',
+          },
           { prop: 'separator', desc: '路径分隔符', type: 'ReactNode', default: `'/'` },
           { prop: 'status', desc: '状态色', type: `'error' | 'warning'`, default: '-' },
           { prop: 'columnWidth', desc: '单列宽度 (px)', type: 'number', default: '140' },
-          { prop: 'columnMaxHeight', desc: '列最大高度 (px, 超出滚动)', type: 'number', default: '240' },
-          { prop: 'onChange', desc: '选中回调', type: '(value, selectedOptions) => void', default: '-' },
+          {
+            prop: 'columnMaxHeight',
+            desc: '列最大高度 (px, 超出滚动)',
+            type: 'number',
+            default: '240',
+          },
+          {
+            prop: 'onChange',
+            desc: '选中回调',
+            type: '(value, selectedOptions) => void',
+            default: '-',
+          },
           { prop: 'onOpenChange', desc: '弹层显隐回调', type: '(open) => void', default: '-' },
         ]}
       />

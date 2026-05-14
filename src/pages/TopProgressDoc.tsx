@@ -18,7 +18,7 @@ const TopProgressDoc: React.FC = () => {
         title="命令式 API (推荐)"
         description="start() 开启自动爬升; done() 设为 100% 并淡出。适合事件里直接调用, 无需维护状态。"
         code={`TopProgress.start();     // 从 0 开始自动爬升到 90%
-// ...请求返回后...
+await fetch('/api/data');
 TopProgress.done();      // 跳到 100% 并淡出
 
 // 手动递增:
@@ -82,7 +82,12 @@ TopProgress.set(70);      // 直接设为 70%`}
           { prop: 'percent', desc: '0-100; 不传则自动爬升到 90%', type: 'number', default: '-' },
           { prop: 'height', desc: '条形高度 (px)', type: 'number', default: '3' },
           { prop: 'color', desc: '主色, 覆盖 --au-primary', type: 'string', default: '-' },
-          { prop: 'showSpinner', desc: '右上角是否显示旋转小圆圈', type: 'boolean', default: 'false' },
+          {
+            prop: 'showSpinner',
+            desc: '右上角是否显示旋转小圆圈',
+            type: 'boolean',
+            default: 'false',
+          },
           { prop: 'zIndex', desc: '层级', type: 'number', default: '9999' },
           { prop: 'fadeDuration', desc: '淡出时长 (ms)', type: 'number', default: '400' },
         ]}
@@ -91,10 +96,30 @@ TopProgress.set(70);      // 直接设为 70%`}
       <h3>命令式方法</h3>
       <ApiTable
         rows={[
-          { prop: 'TopProgress.start()', desc: '开启并自动爬升到 90%', type: '() => void', default: '-' },
-          { prop: 'TopProgress.set(n)', desc: '设置为指定百分比 (0-100)', type: '(n: number) => void', default: '-' },
-          { prop: 'TopProgress.inc(amount?)', desc: '递增, 默认 +5, 上限 95', type: '(amount?: number) => void', default: '-' },
-          { prop: 'TopProgress.done()', desc: '设为 100% 并淡出关闭', type: '() => void', default: '-' },
+          {
+            prop: 'TopProgress.start()',
+            desc: '开启并自动爬升到 90%',
+            type: '() => void',
+            default: '-',
+          },
+          {
+            prop: 'TopProgress.set(n)',
+            desc: '设置为指定百分比 (0-100)',
+            type: '(n: number) => void',
+            default: '-',
+          },
+          {
+            prop: 'TopProgress.inc(amount?)',
+            desc: '递增, 默认 +5, 上限 95',
+            type: '(amount?: number) => void',
+            default: '-',
+          },
+          {
+            prop: 'TopProgress.done()',
+            desc: '设为 100% 并淡出关闭',
+            type: '() => void',
+            default: '-',
+          },
         ]}
       />
     </>
@@ -171,9 +196,12 @@ const ControlledDemo: React.FC = () => {
   const [pct, setPct] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    [],
+  );
 
   const run = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -196,9 +224,7 @@ const ControlledDemo: React.FC = () => {
       <button className="au-btn au-btn--primary" onClick={run}>
         开始
       </button>
-      <span style={{ marginLeft: 12, color: 'var(--au-text-2)' }}>
-        当前: {pct}%
-      </span>
+      <span style={{ marginLeft: 12, color: 'var(--au-text-2)' }}>当前: {pct}%</span>
       <TopProgress visible={visible} percent={pct} />
     </div>
   );

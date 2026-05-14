@@ -85,7 +85,10 @@ const ActivityFeedDoc: React.FC = () => {
   },
   { id: 2, time: new Date(Date.now() - 5*60_000),
     user: { name: 'Mia' }, title: '审核退款单 #R-2134', type: 'success', tag: '退款' },
-  // ...
+  { id: 3, time: new Date(Date.now() - 12*60_000),
+    user: { name: '王小明' }, title: '部署生产环境 v2.4.1', type: 'warning', tag: '部署' },
+  { id: 4, time: new Date(Date.now() - 45*60_000),
+    user: { name: '系统' }, title: 'API 调用峰值预警', description: 'QPS 突破 10000', type: 'danger', tag: '告警' },
 ];
 
 <ActivityFeed items={items} />`}
@@ -111,7 +114,7 @@ useEffect(() => {
       <DemoBlock
         title="紧凑模式"
         description="compact 降低行距,适合侧栏。"
-        code={`<ActivityFeed compact items={...} maxHeight={240} />`}
+        code={`<ActivityFeed compact items={items} maxHeight={240} />`}
       >
         <ActivityFeed
           compact
@@ -140,7 +143,7 @@ useEffect(() => {
       <DemoBlock
         title="绝对时间模式"
         description="relativeTime={false} 展示完整时间戳。"
-        code={`<ActivityFeed relativeTime={false} items={...} />`}
+        code={`<ActivityFeed relativeTime={false} items={items} />`}
       >
         <ActivityFeed relativeTime={false} items={sampleItems.slice(0, 4)} />
       </DemoBlock>
@@ -149,11 +152,21 @@ useEffect(() => {
       <ApiTable
         rows={[
           { prop: 'items', desc: '动态项', type: 'ActivityItem[]', default: '-' },
-          { prop: 'maxHeight', desc: '容器最大高度 (超出滚动)', type: 'number | string', default: '-' },
+          {
+            prop: 'maxHeight',
+            desc: '容器最大高度 (超出滚动)',
+            type: 'number | string',
+            default: '-',
+          },
           { prop: 'compact', desc: '紧凑模式', type: 'boolean', default: 'false' },
           { prop: 'reverse', desc: '新在顶 (默认)', type: 'boolean', default: 'true' },
           { prop: 'highlightNew', desc: '新项插入时闪烁', type: 'boolean', default: 'true' },
-          { prop: 'relativeTime', desc: '相对时间 (刚刚 / X 分钟前)', type: 'boolean', default: 'true' },
+          {
+            prop: 'relativeTime',
+            desc: '相对时间 (刚刚 / X 分钟前)',
+            type: 'boolean',
+            default: 'true',
+          },
           { prop: 'emptyText', desc: '无数据文案', type: 'ReactNode', default: `'暂无动态'` },
         ]}
       />
@@ -163,12 +176,27 @@ useEffect(() => {
           { prop: 'time', desc: '发生时间', type: 'string | Date', default: '-' },
           { prop: 'title', desc: '标题', type: 'ReactNode', default: '-' },
           { prop: 'description', desc: '描述', type: 'ReactNode', default: '-' },
-          { prop: 'user', desc: '用户 { name?, avatar?, initials? }', type: 'object', default: '-' },
+          {
+            prop: 'user',
+            desc: '用户 { name?, avatar?, initials? }',
+            type: 'object',
+            default: '-',
+          },
           { prop: 'icon', desc: '自定义左侧图标 (替代头像)', type: 'ReactNode', default: '-' },
-          { prop: 'type', desc: '语义类型 (决定头像/图标色)', type: `'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'`, default: `'default'` },
+          {
+            prop: 'type',
+            desc: '语义类型 (决定头像/图标色)',
+            type: `'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'`,
+            default: `'default'`,
+          },
           { prop: 'tag', desc: '右上角小标签', type: 'ReactNode', default: '-' },
           { prop: 'meta', desc: '底部元信息 (时间后方)', type: 'ReactNode', default: '-' },
-          { prop: 'id', desc: '唯一 key (用于 highlight 去重)', type: 'string | number', default: '-' },
+          {
+            prop: 'id',
+            desc: '唯一 key (用于 highlight 去重)',
+            type: 'string | number',
+            default: '-',
+          },
           { prop: 'onClick', desc: '点击', type: '() => void', default: '-' },
         ]}
       />
@@ -184,10 +212,27 @@ const LiveDemo: React.FC = () => {
     if (!running) return;
     const events: Omit<ActivityItem, 'time' | 'id'>[] = [
       { user: { name: '交易所' }, title: 'BTC 突破 $68,000', type: 'success', tag: '行情' },
-      { user: { name: '风控' }, title: '拦截可疑登录', description: 'IP: 45.x.x.x', type: 'warning', tag: '安全' },
+      {
+        user: { name: '风控' },
+        title: '拦截可疑登录',
+        description: 'IP: 45.x.x.x',
+        type: 'warning',
+        tag: '安全',
+      },
       { user: { name: 'Mia' }, title: '提交了新的工单 #4182', type: 'primary', tag: '工单' },
-      { user: { name: '系统' }, title: '部署完成', description: 'v2.4.1 已发布到生产', type: 'info', tag: '发布' },
-      { user: { name: 'Noah' }, title: '评论了任务', description: '@赵子龙 需要你关注一下', type: 'default' },
+      {
+        user: { name: '系统' },
+        title: '部署完成',
+        description: 'v2.4.1 已发布到生产',
+        type: 'info',
+        tag: '发布',
+      },
+      {
+        user: { name: 'Noah' },
+        title: '评论了任务',
+        description: '@赵子龙 需要你关注一下',
+        type: 'default',
+      },
     ];
     const id = setInterval(() => {
       const pick = events[Math.floor(Math.random() * events.length)];
@@ -206,7 +251,10 @@ const LiveDemo: React.FC = () => {
         >
           {running ? '停止推送' : '开始推送 (每 2.5s)'}
         </button>
-        <button className="au-btn au-btn--default au-btn--small" onClick={() => setItems(sampleItems.slice(0, 4))}>
+        <button
+          className="au-btn au-btn--default au-btn--small"
+          onClick={() => setItems(sampleItems.slice(0, 4))}
+        >
           重置
         </button>
       </div>

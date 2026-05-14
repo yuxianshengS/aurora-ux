@@ -6,7 +6,11 @@ import ApiTable from '../site-components/ApiTable';
 const ALL_FRAMEWORKS = [
   { value: 'react', label: 'React', description: 'A JavaScript library for building UIs' },
   { value: 'vue', label: 'Vue', description: 'The Progressive JavaScript Framework' },
-  { value: 'angular', label: 'Angular', description: 'Platform for building mobile and desktop apps' },
+  {
+    value: 'angular',
+    label: 'Angular',
+    description: 'Platform for building mobile and desktop apps',
+  },
   { value: 'svelte', label: 'Svelte', description: 'Cybernetically enhanced web apps' },
   { value: 'solid', label: 'Solid', description: 'Simple and performant reactivity' },
   { value: 'qwik', label: 'Qwik', description: 'Resumable framework' },
@@ -17,8 +21,8 @@ const AutoCompleteDoc: React.FC = () => {
     <>
       <h1>AutoComplete 自动完成</h1>
       <p>
-        输入框 + 下拉建议。跟 Select 区别:**值不限于 options 列表**, 用户可以输任何字符串,
-        options 只是辅助提示。适合搜索框、邮箱后缀补全、命令面板等场景。
+        输入框 + 下拉建议。跟 Select 区别:**值不限于 options 列表**, 用户可以输任何字符串, options
+        只是辅助提示。适合搜索框、邮箱后缀补全、命令面板等场景。
       </p>
 
       <h2>代码演示</h2>
@@ -48,8 +52,9 @@ const AutoCompleteDoc: React.FC = () => {
         code={`<AutoComplete
   options={[
     { value: 'react', label: 'React', description: 'A JavaScript library for building UIs' },
-    { value: 'vue', label: 'Vue', description: 'The Progressive JavaScript Framework' },
-    /* ... */
+    { value: 'vue',   label: 'Vue',   description: 'The Progressive JavaScript Framework' },
+    { value: 'svelte', label: 'Svelte', description: 'Cybernetically enhanced web apps' },
+    { value: 'solid',  label: 'Solid',  description: 'Simple and performant reactivity' },
   ]}
 />`}
       >
@@ -78,9 +83,15 @@ const AutoCompleteDoc: React.FC = () => {
 
       <DemoBlock
         title="允许清除 + 不同尺寸"
-        code={`<AutoComplete options={...} allowClear size="small" />
-<AutoComplete options={...} allowClear size="medium" />
-<AutoComplete options={...} allowClear size="large" />`}
+        code={`const options = [
+  { value: 'react', label: 'React' },
+  { value: 'vue', label: 'Vue' },
+  { value: 'svelte', label: 'Svelte' },
+];
+
+<AutoComplete options={options} allowClear size="small" />
+<AutoComplete options={options} allowClear size="medium" />
+<AutoComplete options={options} allowClear size="large" />`}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {(['small', 'medium', 'large'] as const).map((s) => (
@@ -102,16 +113,41 @@ const AutoCompleteDoc: React.FC = () => {
           { prop: 'options', desc: '候选项', type: 'AutoCompleteOption[]', default: '[]' },
           { prop: 'value / defaultValue', desc: '受控/初始值', type: 'string', default: '-' },
           { prop: 'placeholder', desc: '占位符', type: 'string', default: '-' },
-          { prop: 'onChange', desc: '值变化 (输入或选中触发)', type: '(value) => void', default: '-' },
-          { prop: 'onSelect', desc: '从下拉里选中触发', type: '(value, option) => void', default: '-' },
-          { prop: 'onSearch', desc: '输入变化时触发, 异步取候选项用', type: '(value) => void', default: '-' },
-          { prop: 'filterOption', desc: '前端过滤函数 (默认 includes 模糊匹配)', type: '(input, option) => boolean', default: '默认模糊匹配' },
+          {
+            prop: 'onChange',
+            desc: '值变化 (输入或选中触发)',
+            type: '(value) => void',
+            default: '-',
+          },
+          {
+            prop: 'onSelect',
+            desc: '从下拉里选中触发',
+            type: '(value, option) => void',
+            default: '-',
+          },
+          {
+            prop: 'onSearch',
+            desc: '输入变化时触发, 异步取候选项用',
+            type: '(value) => void',
+            default: '-',
+          },
+          {
+            prop: 'filterOption',
+            desc: '前端过滤函数 (默认 includes 模糊匹配)',
+            type: '(input, option) => boolean',
+            default: '默认模糊匹配',
+          },
           { prop: 'allowClear', desc: '显示清除按钮', type: 'boolean', default: 'false' },
           { prop: 'size', desc: '尺寸', type: `'small' | 'medium' | 'large'`, default: `'medium'` },
           { prop: 'maxHeight', desc: '下拉最大高度 (px)', type: 'number', default: '240' },
           { prop: 'notFoundContent', desc: '无匹配时显示', type: 'ReactNode', default: `'无匹配'` },
           { prop: 'disabled', desc: '禁用', type: 'boolean', default: 'false' },
-          { prop: 'inputProps', desc: '透传给底层 <input>', type: 'InputHTMLAttributes', default: '-' },
+          {
+            prop: 'inputProps',
+            desc: '透传给底层 <input>',
+            type: 'InputHTMLAttributes',
+            default: '-',
+          },
         ]}
       />
 

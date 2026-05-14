@@ -16,8 +16,8 @@ const DropdownDoc: React.FC = () => {
     <>
       <h1>Dropdown 下拉菜单</h1>
       <p>
-        点击 / 悬停后展开的小型操作菜单。常用于表格行操作、头像菜单、更多按钮等。
-        portal 渲染,自动避开视口边缘。
+        点击 / 悬停后展开的小型操作菜单。常用于表格行操作、头像菜单、更多按钮等。 portal
+        渲染,自动避开视口边缘。
       </p>
 
       <h2>代码演示</h2>
@@ -50,7 +50,15 @@ const DropdownDoc: React.FC = () => {
       <DemoBlock
         title="点击触发"
         description="trigger='click' 适合需要明确触发的场景。"
-        code={`<Dropdown trigger="click" menu={{ items: [...] }}>
+        code={`<Dropdown
+  trigger="click"
+  menu={{
+    items: [
+      { key: 'edit', label: '编辑' },
+      { key: 'delete', label: '删除', danger: true },
+    ],
+  }}
+>
   <button>点击展开</button>
 </Dropdown>`}
       >
@@ -62,21 +70,44 @@ const DropdownDoc: React.FC = () => {
       <DemoBlock
         title="位置"
         description="placement 支持 6 个方位。"
-        code={`<Dropdown placement="bottomRight" menu={{ items: [...] }}>...</Dropdown>`}
+        code={`const items = [
+  { key: 'edit', label: '编辑' },
+  { key: 'share', label: '分享' },
+  { type: 'divider' },
+  { key: 'delete', label: '删除', danger: true },
+];
+
+(['bottomLeft', 'bottom', 'bottomRight', 'topLeft', 'top', 'topRight'] as const).map((p) => (
+  <Dropdown key={p} placement={p} menu={{ items }}>
+    <button>{p}</button>
+  </Dropdown>
+))`}
       >
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {(['bottomLeft', 'bottom', 'bottomRight', 'topLeft', 'top', 'topRight'] as const).map((p) => (
-            <Dropdown key={p} placement={p} menu={{ items: commonItems }}>
-              <button className="au-btn au-btn--default au-btn--small">{p}</button>
-            </Dropdown>
-          ))}
+          {(['bottomLeft', 'bottom', 'bottomRight', 'topLeft', 'top', 'topRight'] as const).map(
+            (p) => (
+              <Dropdown key={p} placement={p} menu={{ items: commonItems }}>
+                <button className="au-btn au-btn--default au-btn--small">{p}</button>
+              </Dropdown>
+            ),
+          )}
         </div>
       </DemoBlock>
 
       <DemoBlock
         title="带箭头"
         description="arrow 显示三角指示。"
-        code={`<Dropdown arrow menu={{ items: [...] }}>
+        code={`<Dropdown
+  arrow
+  menu={{
+    items: [
+      { key: 'edit', label: '编辑' },
+      { key: 'share', label: '分享' },
+      { type: 'divider' },
+      { key: 'delete', label: '删除', danger: true },
+    ],
+  }}
+>
   <button>带箭头 ▾</button>
 </Dropdown>`}
       >
@@ -159,10 +190,30 @@ const DropdownDoc: React.FC = () => {
       <h2>API</h2>
       <ApiTable
         rows={[
-          { prop: 'menu', desc: '菜单配置 { items, onClick? }', type: '{ items, onClick }', default: '-' },
-          { prop: 'trigger', desc: '触发方式', type: `'click' | 'hover' | Array<…>`, default: `'hover'` },
-          { prop: 'placement', desc: '弹出位置', type: `'bottomLeft'|'bottom'|'bottomRight'|'topLeft'|'top'|'topRight'`, default: `'bottomLeft'` },
-          { prop: 'open / defaultOpen', desc: '受控 / 默认显隐', type: 'boolean', default: 'false' },
+          {
+            prop: 'menu',
+            desc: '菜单配置 { items, onClick? }',
+            type: '{ items, onClick }',
+            default: '-',
+          },
+          {
+            prop: 'trigger',
+            desc: '触发方式',
+            type: `'click' | 'hover' | Array<…>`,
+            default: `'hover'`,
+          },
+          {
+            prop: 'placement',
+            desc: '弹出位置',
+            type: `'bottomLeft'|'bottom'|'bottomRight'|'topLeft'|'top'|'topRight'`,
+            default: `'bottomLeft'`,
+          },
+          {
+            prop: 'open / defaultOpen',
+            desc: '受控 / 默认显隐',
+            type: 'boolean',
+            default: 'false',
+          },
           { prop: 'onOpenChange', desc: '显隐变化', type: '(open) => void', default: '-' },
           { prop: 'arrow', desc: '显示箭头', type: 'boolean', default: 'false' },
           { prop: 'disabled', desc: '禁用', type: 'boolean', default: 'false' },

@@ -157,10 +157,15 @@ const ScreenScaleDoc: React.FC = () => {
         <code>{`// 把整个 viewport 当大屏容器
 <div style={{ width: '100vw', height: '100vh' }}>
   <ScreenScale baseWidth={1920} baseHeight={1080} mode="fit" background="#020308">
-    {/* 内部用绝对定位摆放各种 panel */}
-    <header style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 80 }}>...</header>
-    <div style={{ position: 'absolute', left: 24, top: 100, width: 460 }}>...</div>
-    {/* ... */}
+    <header style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 80 }}>
+      标题栏
+    </header>
+    <div style={{ position: 'absolute', left: 24, top: 100, width: 460 }}>
+      左侧面板
+    </div>
+    <div style={{ position: 'absolute', right: 24, top: 100, width: 460 }}>
+      右侧面板
+    </div>
   </ScreenScale>
 </div>`}</code>
       </pre>

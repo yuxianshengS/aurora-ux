@@ -8,9 +8,9 @@ const FloatButtonDoc: React.FC = () => {
     <>
       <h1>FloatButton 悬浮按钮 (FAB)</h1>
       <p>
-        绝对定位贴角的圆按钮 — 反馈 / 回到顶部 / 快速操作菜单 (speed dial)。
-        跟 Button 是不同范式:Button 是流式排版方块,这是固定贴角的圆。
-        Aurora 招牌:默认 <code>variant="aurora"</code> 极光渐变 + 光晕。
+        绝对定位贴角的圆按钮 — 反馈 / 回到顶部 / 快速操作菜单 (speed dial)。 跟 Button
+        是不同范式:Button 是流式排版方块,这是固定贴角的圆。 Aurora 招牌:默认{' '}
+        <code>variant="aurora"</code> 极光渐变 + 光晕。
       </p>
 
       <h2>代码演示</h2>
@@ -28,9 +28,9 @@ const FloatButtonDoc: React.FC = () => {
         description="actions 数组定义子按钮, 点主按钮展开/收起,子按钮带 hover 提示。"
         code={`<FloatButton
   actions={[
-    { key: 'doc', icon: '📄', tooltip: '新建文档', onClick: ... },
-    { key: 'image', icon: '🖼', tooltip: '上传图片', onClick: ... },
-    { key: 'link', icon: '🔗', tooltip: '插入链接', onClick: ... },
+    { key: 'doc',   icon: '📄', tooltip: '新建文档', onClick: () => console.log('doc') },
+    { key: 'image', icon: '🖼', tooltip: '上传图片', onClick: () => console.log('image') },
+    { key: 'link',  icon: '🔗', tooltip: '插入链接', onClick: () => console.log('link') },
   ]}
 />`}
       >
@@ -58,9 +58,25 @@ const FloatButtonDoc: React.FC = () => {
 <FloatButton variant="default" inline />     // 中性`}
       >
         <Space size="large" style={{ padding: '20px 0' }}>
-          <FloatButton variant="aurora" inline tooltip="aurora" onClick={() => message.info('aurora')} />
-          <FloatButton variant="primary" inline tooltip="primary" onClick={() => message.info('primary')} />
-          <FloatButton variant="default" inline tooltip="default" icon={<span style={{ fontSize: 18 }}>★</span>} onClick={() => message.info('default')} />
+          <FloatButton
+            variant="aurora"
+            inline
+            tooltip="aurora"
+            onClick={() => message.info('aurora')}
+          />
+          <FloatButton
+            variant="primary"
+            inline
+            tooltip="primary"
+            onClick={() => message.info('primary')}
+          />
+          <FloatButton
+            variant="default"
+            inline
+            tooltip="default"
+            icon={<span style={{ fontSize: 18 }}>★</span>}
+            onClick={() => message.info('default')}
+          />
         </Space>
       </DemoBlock>
 
@@ -69,16 +85,56 @@ const FloatButtonDoc: React.FC = () => {
         rows={[
           { prop: 'icon', desc: '主按钮图标', type: 'ReactNode', default: '+' },
           { prop: 'tooltip', desc: '主按钮 hover 提示', type: 'ReactNode', default: '-' },
-          { prop: 'onClick', desc: '点击 (没 actions 时直接触发)', type: '() => void', default: '-' },
-          { prop: 'actions', desc: 'speed dial 子按钮数组', type: 'FloatButtonAction[]', default: '-' },
-          { prop: 'position', desc: '贴角位置', type: `'bottom-right'|'bottom-left'|'top-right'|'top-left'`, default: `'bottom-right'` },
-          { prop: 'offset', desc: '边距 (px), 覆盖默认 24', type: '{ x?: number; y?: number }', default: '{ x: 24, y: 24 }' },
-          { prop: 'variant', desc: '视觉风格', type: `'aurora'|'primary'|'default'`, default: `'aurora'` },
+          {
+            prop: 'onClick',
+            desc: '点击 (没 actions 时直接触发)',
+            type: '() => void',
+            default: '-',
+          },
+          {
+            prop: 'actions',
+            desc: 'speed dial 子按钮数组',
+            type: 'FloatButtonAction[]',
+            default: '-',
+          },
+          {
+            prop: 'position',
+            desc: '贴角位置',
+            type: `'bottom-right'|'bottom-left'|'top-right'|'top-left'`,
+            default: `'bottom-right'`,
+          },
+          {
+            prop: 'offset',
+            desc: '边距 (px), 覆盖默认 24',
+            type: '{ x?: number; y?: number }',
+            default: '{ x: 24, y: 24 }',
+          },
+          {
+            prop: 'variant',
+            desc: '视觉风格',
+            type: `'aurora'|'primary'|'default'`,
+            default: `'aurora'`,
+          },
           { prop: 'shape', desc: '形状', type: `'circle'|'square'`, default: `'circle'` },
           { prop: 'size', desc: '主按钮直径 (px)', type: 'number', default: '48' },
-          { prop: 'backTop', desc: '返回顶部模式 (滚一定距离才显示)', type: 'boolean', default: 'false' },
-          { prop: 'backTopThreshold', desc: 'backTop 模式触发阈值 (scrollY > 这个值)', type: 'number', default: '200' },
-          { prop: 'inline', desc: '脱离 fixed,以普通 inline-block 渲染。适合内嵌 / doc 预览', type: 'boolean', default: 'false' },
+          {
+            prop: 'backTop',
+            desc: '返回顶部模式 (滚一定距离才显示)',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            prop: 'backTopThreshold',
+            desc: 'backTop 模式触发阈值 (scrollY > 这个值)',
+            type: 'number',
+            default: '200',
+          },
+          {
+            prop: 'inline',
+            desc: '脱离 fixed,以普通 inline-block 渲染。适合内嵌 / doc 预览',
+            type: 'boolean',
+            default: 'false',
+          },
         ]}
       />
 
@@ -102,10 +158,7 @@ const ToggleDemo: React.FC = () => {
       <Switch checked={on} onChange={setOn} />
       <span style={{ color: 'var(--au-text-3)' }}>右下角悬浮按钮</span>
       {on && (
-        <FloatButton
-          tooltip="点我打个招呼"
-          onClick={() => message.success('Hi from Aurora 👋')}
-        />
+        <FloatButton tooltip="点我打个招呼" onClick={() => message.success('Hi from Aurora 👋')} />
       )}
     </Space>
   );
@@ -121,9 +174,24 @@ const SpeedDialDemo: React.FC = () => {
         <FloatButton
           tooltip="新建"
           actions={[
-            { key: 'doc', icon: '📄', tooltip: '新建文档', onClick: () => message.info('新建文档') },
-            { key: 'image', icon: '🖼', tooltip: '上传图片', onClick: () => message.info('上传图片') },
-            { key: 'link', icon: '🔗', tooltip: '插入链接', onClick: () => message.info('插入链接') },
+            {
+              key: 'doc',
+              icon: '📄',
+              tooltip: '新建文档',
+              onClick: () => message.info('新建文档'),
+            },
+            {
+              key: 'image',
+              icon: '🖼',
+              tooltip: '上传图片',
+              onClick: () => message.info('上传图片'),
+            },
+            {
+              key: 'link',
+              icon: '🔗',
+              tooltip: '插入链接',
+              onClick: () => message.info('插入链接'),
+            },
           ]}
         />
       )}
@@ -142,12 +210,7 @@ const BackTopDemo: React.FC = () => {
         </span>
       </Space>
       {on && (
-        <FloatButton
-          backTop
-          backTopThreshold={300}
-          position="bottom-left"
-          tooltip="回到顶部"
-        />
+        <FloatButton backTop backTopThreshold={300} position="bottom-left" tooltip="回到顶部" />
       )}
     </Space>
   );

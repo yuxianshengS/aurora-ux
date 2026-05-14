@@ -15,11 +15,51 @@ interface User {
 }
 
 const users: User[] = [
-  { id: 1, name: '赵子龙', role: 'admin', age: 28, email: 'yu@example.com', status: 'online', balance: 12850 },
-  { id: 2, name: '林可', role: 'member', age: 34, email: 'lin@example.com', status: 'offline', balance: 4250 },
-  { id: 3, name: 'Noah', role: 'member', age: 31, email: 'noah@example.com', status: 'online', balance: 8810 },
-  { id: 4, name: 'Mia', role: 'guest', age: 22, email: 'mia@example.com', status: 'offline', balance: 650 },
-  { id: 5, name: '沈知秋', role: 'admin', age: 40, email: 'shen@example.com', status: 'online', balance: 23200 },
+  {
+    id: 1,
+    name: '赵子龙',
+    role: 'admin',
+    age: 28,
+    email: 'yu@example.com',
+    status: 'online',
+    balance: 12850,
+  },
+  {
+    id: 2,
+    name: '林可',
+    role: 'member',
+    age: 34,
+    email: 'lin@example.com',
+    status: 'offline',
+    balance: 4250,
+  },
+  {
+    id: 3,
+    name: 'Noah',
+    role: 'member',
+    age: 31,
+    email: 'noah@example.com',
+    status: 'online',
+    balance: 8810,
+  },
+  {
+    id: 4,
+    name: 'Mia',
+    role: 'guest',
+    age: 22,
+    email: 'mia@example.com',
+    status: 'offline',
+    balance: 650,
+  },
+  {
+    id: 5,
+    name: '沈知秋',
+    role: 'admin',
+    age: 40,
+    email: 'shen@example.com',
+    status: 'online',
+    balance: 23200,
+  },
 ];
 
 const roleColor: Record<User['role'], 'danger' | 'primary' | 'default'> = {
@@ -79,12 +119,7 @@ const columns = [
   render: (r) => <Tag color={roleColor[r]}>{r}</Tag>,
 }`}
       >
-        <Table
-          rowKey="id"
-          columns={customColumns()}
-          dataSource={users}
-          pagination={false}
-        />
+        <Table rowKey="id" columns={customColumns()} dataSource={users} pagination={false} />
       </DemoBlock>
 
       <DemoBlock
@@ -100,7 +135,13 @@ const columns = [
           columns={[
             { title: '姓名', dataIndex: 'name', sorter: true },
             { title: '年龄', dataIndex: 'age', sorter: true, align: 'right', width: 100 },
-            { title: '余额', dataIndex: 'balance', sorter: (a, b) => a.balance - b.balance, align: 'right', render: (v: number) => `¥ ${v.toLocaleString()}` },
+            {
+              title: '余额',
+              dataIndex: 'balance',
+              sorter: (a, b) => a.balance - b.balance,
+              align: 'right',
+              render: (v: number) => `¥ ${v.toLocaleString()}`,
+            },
           ]}
           dataSource={users}
           pagination={false}
@@ -119,7 +160,10 @@ const columns = [
     onChange: (ks) => setKeys(ks),
     getCheckboxProps: (r) => ({ disabled: r.role === 'guest' }),
   }}
-  columns={...}
+  columns={[
+    { title: '姓名', dataIndex: 'name' },
+    { title: '角色', dataIndex: 'role' },
+  ]}
   dataSource={users}
 />`}
       >
@@ -132,14 +176,20 @@ const columns = [
         code={`<Table
   rowKey="id"
   pagination={{ pageSize: 3, showTotal: (t) => \`共 \${t} 条\` }}
-  columns={...}
+  columns={[
+    { title: '姓名', dataIndex: 'name' },
+    { title: '角色', dataIndex: 'role' },
+  ]}
   dataSource={users}
 />`}
       >
         <Table
           rowKey="id"
           columns={customColumns()}
-          dataSource={[...users, ...users.map((u) => ({ ...u, id: u.id + 10, name: u.name + '·复制' }))]}
+          dataSource={[
+            ...users,
+            ...users.map((u) => ({ ...u, id: u.id + 10, name: u.name + '·复制' })),
+          ]}
           pagination={{ pageSize: 3, showSizeChanger: true, showTotal: (t) => `共 ${t} 条` }}
         />
       </DemoBlock>
@@ -147,7 +197,15 @@ const columns = [
       <DemoBlock
         title="加载态 · 空数据 · 样式"
         description="loading / empty + bordered / striped / size。"
-        code={`<Table loading bordered striped size="small" ... />`}
+        code={`<Table
+  loading
+  bordered
+  striped
+  size="small"
+  rowKey="id"
+  columns={columns}
+  dataSource={dataSource}
+/>`}
       >
         <LoadingDemo />
       </DemoBlock>
@@ -159,8 +217,8 @@ const columns = [
   title: '操作',
   render: (_, r) => (
     <Space split={<Divider type="vertical" />}>
-      <a onClick={...}>编辑</a>
-      <Popconfirm title="确定删除?" onConfirm={...}>
+      <a onClick={() => message.info(\`编辑 \${r.name}\`)}>编辑</a>
+      <Popconfirm title="确定删除?" onConfirm={() => message.success(\`已删除 \${r.name}\`)}>
         <a style={{ color: 'var(--au-danger)' }}>删除</a>
       </Popconfirm>
     </Space>
@@ -183,10 +241,27 @@ const columns = [
             { title: 'ID', dataIndex: 'id', width: 80 },
             { title: '姓名', dataIndex: 'name', width: 120 },
             { title: '邮箱', dataIndex: 'email', width: 200 },
-            { title: '角色', dataIndex: 'role', width: 120, render: (r: User['role']) => <Tag color={roleColor[r]}>{r}</Tag> },
+            {
+              title: '角色',
+              dataIndex: 'role',
+              width: 120,
+              render: (r: User['role']) => <Tag color={roleColor[r]}>{r}</Tag>,
+            },
             { title: '年龄', dataIndex: 'age', width: 100, align: 'right' },
-            { title: '余额', dataIndex: 'balance', width: 160, align: 'right', render: (v: number) => `¥ ${v.toLocaleString()}` },
-            { title: '状态', dataIndex: 'status', width: 120, render: (s: User['status']) => (s === 'online' ? <Tag color="success">在线</Tag> : <Tag>离线</Tag>) },
+            {
+              title: '余额',
+              dataIndex: 'balance',
+              width: 160,
+              align: 'right',
+              render: (v: number) => `¥ ${v.toLocaleString()}`,
+            },
+            {
+              title: '状态',
+              dataIndex: 'status',
+              width: 120,
+              render: (s: User['status']) =>
+                s === 'online' ? <Tag color="success">在线</Tag> : <Tag>离线</Tag>,
+            },
             { title: '操作', width: 140, render: () => <a>查看详情</a> },
           ]}
           dataSource={users}
@@ -378,23 +453,68 @@ const columns = [
         rows={[
           { prop: 'columns', desc: '列配置', type: 'TableColumn[]', default: '-' },
           { prop: 'dataSource', desc: '数据源', type: 'any[]', default: '-' },
-          { prop: 'rowKey', desc: '行 key (字段名 或 取值函数)', type: `string | (record) => Key`, default: `'key' | 'id'` },
+          {
+            prop: 'rowKey',
+            desc: '行 key (字段名 或 取值函数)',
+            type: `string | (record) => Key`,
+            default: `'key' | 'id'`,
+          },
           { prop: 'loading', desc: '加载态 (叠加 Spin 蒙层)', type: 'boolean', default: 'false' },
-          { prop: 'pagination', desc: '分页配置 (同 Pagination); false 关闭', type: 'PaginationProps | false', default: '默认启用' },
+          {
+            prop: 'pagination',
+            desc: '分页配置 (同 Pagination); false 关闭',
+            type: 'PaginationProps | false',
+            default: '默认启用',
+          },
           { prop: 'rowSelection', desc: '行选择配置', type: 'RowSelection', default: '-' },
           { prop: 'bordered', desc: '外框线', type: 'boolean', default: 'false' },
           { prop: 'striped', desc: '斑马纹', type: 'boolean', default: 'false' },
           { prop: 'size', desc: '尺寸', type: `'small' | 'middle' | 'large'`, default: `'middle'` },
-          { prop: 'scroll', desc: '滚动配置', type: `{ x?: number | string; y?: number | string }`, default: '-' },
+          {
+            prop: 'scroll',
+            desc: '滚动配置',
+            type: `{ x?: number | string; y?: number | string }`,
+            default: '-',
+          },
           { prop: 'showHeader', desc: '显示表头', type: 'boolean', default: 'true' },
           { prop: 'sticky', desc: '表头吸顶 (需 scroll.y)', type: 'boolean', default: 'false' },
           { prop: 'empty', desc: '空态内容', type: 'ReactNode', default: '<Empty />' },
-          { prop: 'onRow', desc: '自定义行属性', type: '(record, index) => HTMLAttributes', default: '-' },
-          { prop: 'rowClassName', desc: '自定义行 className', type: 'string | (record, index) => string', default: '-' },
-          { prop: 'draggableRows', desc: '行拖拽排序 (左侧加拖拽手柄列)', type: 'boolean', default: 'false' },
-          { prop: 'onRowReorder', desc: '行排序变化回调', type: '(next, { from, to }) => void', default: '-' },
-          { prop: 'draggableColumns', desc: '列拖拽改顺序 (拖表头)', type: 'boolean', default: 'false' },
-          { prop: 'onColumnReorder', desc: '列排序变化回调', type: '(next, { from, to }) => void', default: '-' },
+          {
+            prop: 'onRow',
+            desc: '自定义行属性',
+            type: '(record, index) => HTMLAttributes',
+            default: '-',
+          },
+          {
+            prop: 'rowClassName',
+            desc: '自定义行 className',
+            type: 'string | (record, index) => string',
+            default: '-',
+          },
+          {
+            prop: 'draggableRows',
+            desc: '行拖拽排序 (左侧加拖拽手柄列)',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            prop: 'onRowReorder',
+            desc: '行排序变化回调',
+            type: '(next, { from, to }) => void',
+            default: '-',
+          },
+          {
+            prop: 'draggableColumns',
+            desc: '列拖拽改顺序 (拖表头)',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            prop: 'onColumnReorder',
+            desc: '列排序变化回调',
+            type: '(next, { from, to }) => void',
+            default: '-',
+          },
         ]}
       />
       <h3>TableColumn</h3>
@@ -403,13 +523,38 @@ const columns = [
           { prop: 'title', desc: '列头', type: 'ReactNode', default: '-' },
           { prop: 'dataIndex', desc: '取值字段 (支持 a.b.c)', type: 'string', default: '-' },
           { prop: 'key', desc: '唯一 key (排序依赖)', type: 'string', default: 'dataIndex' },
-          { prop: 'render', desc: '自定义渲染', type: '(value, record, index) => ReactNode', default: '-' },
+          {
+            prop: 'render',
+            desc: '自定义渲染',
+            type: '(value, record, index) => ReactNode',
+            default: '-',
+          },
           { prop: 'width', desc: '列宽', type: 'number | string', default: '-' },
-          { prop: 'align', desc: '内容对齐', type: `'left' | 'center' | 'right'`, default: `'left'` },
+          {
+            prop: 'align',
+            desc: '内容对齐',
+            type: `'left' | 'center' | 'right'`,
+            default: `'left'`,
+          },
           { prop: 'ellipsis', desc: '超长省略', type: 'boolean', default: 'false' },
-          { prop: 'sorter', desc: '排序 (true 默认比较; 或传比较函数)', type: 'boolean | (a, b, order) => number', default: '-' },
-          { prop: 'defaultSortOrder', desc: '默认排序方向', type: `'ascend' | 'descend' | null`, default: '-' },
-          { prop: 'draggable', desc: '此列是否参与拖拽 (Table draggableColumns 开启时)', type: 'boolean', default: 'true' },
+          {
+            prop: 'sorter',
+            desc: '排序 (true 默认比较; 或传比较函数)',
+            type: 'boolean | (a, b, order) => number',
+            default: '-',
+          },
+          {
+            prop: 'defaultSortOrder',
+            desc: '默认排序方向',
+            type: `'ascend' | 'descend' | null`,
+            default: '-',
+          },
+          {
+            prop: 'draggable',
+            desc: '此列是否参与拖拽 (Table draggableColumns 开启时)',
+            type: 'boolean',
+            default: 'true',
+          },
         ]}
       />
       <h3>RowSelection</h3>
@@ -419,9 +564,19 @@ const columns = [
           { prop: 'selectedRowKeys', desc: '受控选中 keys', type: 'Key[]', default: '-' },
           { prop: 'defaultSelectedRowKeys', desc: '默认选中 keys', type: 'Key[]', default: '[]' },
           { prop: 'onChange', desc: '选中变化', type: '(keys, rows) => void', default: '-' },
-          { prop: 'getCheckboxProps', desc: '按行控制禁用', type: '(record) => { disabled? }', default: '-' },
+          {
+            prop: 'getCheckboxProps',
+            desc: '按行控制禁用',
+            type: '(record) => { disabled? }',
+            default: '-',
+          },
           { prop: 'columnWidth', desc: '选择列宽', type: 'number', default: '48' },
-          { prop: 'hideSelectAll', desc: '隐藏表头全选 (仅 checkbox)', type: 'boolean', default: 'false' },
+          {
+            prop: 'hideSelectAll',
+            desc: '隐藏表头全选 (仅 checkbox)',
+            type: 'boolean',
+            default: 'false',
+          },
         ]}
       />
     </>
@@ -492,10 +647,27 @@ const DraggableDemo: React.FC = () => {
   const [rows, setRows] = useState<User[]>(users);
   const [cols, setCols] = useState<TableColumn<User>[]>(() => [
     { title: '姓名', dataIndex: 'name', width: 160 },
-    { title: '角色', dataIndex: 'role', width: 120, render: (r: User['role']) => <Tag color={roleColor[r]}>{r}</Tag> },
+    {
+      title: '角色',
+      dataIndex: 'role',
+      width: 120,
+      render: (r: User['role']) => <Tag color={roleColor[r]}>{r}</Tag>,
+    },
     { title: '邮箱', dataIndex: 'email' },
-    { title: '余额', dataIndex: 'balance', width: 140, align: 'right', render: (v: number) => `¥ ${v.toLocaleString()}` },
-    { title: '状态', dataIndex: 'status', width: 100, render: (s: User['status']) => (s === 'online' ? <Tag color="success">在线</Tag> : <Tag>离线</Tag>) },
+    {
+      title: '余额',
+      dataIndex: 'balance',
+      width: 140,
+      align: 'right',
+      render: (v: number) => `¥ ${v.toLocaleString()}`,
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 100,
+      render: (s: User['status']) =>
+        s === 'online' ? <Tag color="success">在线</Tag> : <Tag>离线</Tag>,
+    },
   ]);
   return (
     <Table<User>
@@ -537,18 +709,29 @@ const LoadingDemo: React.FC = () => {
         >
           加载 1.5s
         </button>
-        <button className="au-btn au-btn--default au-btn--small" onClick={() => setEmpty((x) => !x)}>
+        <button
+          className="au-btn au-btn--default au-btn--small"
+          onClick={() => setEmpty((x) => !x)}
+        >
           {empty ? '恢复数据' : '切为空数据'}
         </button>
-        <button className="au-btn au-btn--default au-btn--small" onClick={() => setBordered((x) => !x)}>
+        <button
+          className="au-btn au-btn--default au-btn--small"
+          onClick={() => setBordered((x) => !x)}
+        >
           bordered: {String(bordered)}
         </button>
-        <button className="au-btn au-btn--default au-btn--small" onClick={() => setStriped((x) => !x)}>
+        <button
+          className="au-btn au-btn--default au-btn--small"
+          onClick={() => setStriped((x) => !x)}
+        >
           striped: {String(striped)}
         </button>
         <button
           className="au-btn au-btn--default au-btn--small"
-          onClick={() => setSize((s) => (s === 'small' ? 'middle' : s === 'middle' ? 'large' : 'small'))}
+          onClick={() =>
+            setSize((s) => (s === 'small' ? 'middle' : s === 'middle' ? 'large' : 'small'))
+          }
         >
           size: {size}
         </button>
@@ -603,9 +786,27 @@ const ActionsDemo: React.FC = () => {
 
 const ExpandableDemo: React.FC = () => {
   const data = [
-    { id: 1, name: '订单 #A001', amount: 980, status: '已发货', detail: '北京市朝阳区 / 顺丰 SF1234567 / 预计 2026-05-08 送达' },
-    { id: 2, name: '订单 #A002', amount: 320, status: '处理中', detail: '上海市浦东 / 待打包 / 预计今晚发货' },
-    { id: 3, name: '订单 #A003', amount: 1280, status: '已完成', detail: '广州市天河 / 圆通 YT9876543 / 已签收' },
+    {
+      id: 1,
+      name: '订单 #A001',
+      amount: 980,
+      status: '已发货',
+      detail: '北京市朝阳区 / 顺丰 SF1234567 / 预计 2026-05-08 送达',
+    },
+    {
+      id: 2,
+      name: '订单 #A002',
+      amount: 320,
+      status: '处理中',
+      detail: '上海市浦东 / 待打包 / 预计今晚发货',
+    },
+    {
+      id: 3,
+      name: '订单 #A003',
+      amount: 1280,
+      status: '已完成',
+      detail: '广州市天河 / 圆通 YT9876543 / 已签收',
+    },
   ];
   return (
     <Table
@@ -631,11 +832,15 @@ const ExpandableDemo: React.FC = () => {
 const TreeDataDemo: React.FC = () => {
   const data = [
     {
-      id: 1, name: '前端', count: 12,
+      id: 1,
+      name: '前端',
+      count: 12,
       children: [
         { id: 11, name: 'React 组', count: 5 },
         {
-          id: 12, name: 'Vue 组', count: 4,
+          id: 12,
+          name: 'Vue 组',
+          count: 4,
           children: [
             { id: 121, name: '小李', count: 1 },
             { id: 122, name: '小张', count: 2 },
@@ -646,7 +851,9 @@ const TreeDataDemo: React.FC = () => {
       ],
     },
     {
-      id: 2, name: '后端', count: 8,
+      id: 2,
+      name: '后端',
+      count: 8,
       children: [
         { id: 21, name: 'Java 组', count: 5 },
         { id: 22, name: 'Go 组', count: 3 },

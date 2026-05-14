@@ -23,9 +23,8 @@ const MentionsDoc: React.FC = () => {
     <>
       <h1>Mentions @ 提及</h1>
       <p>
-        多行输入框 + @ 触发的浮层选人 / 选项。仿微博 / Slack / Notion 的 mention
-        体验, 支持多前缀(同时 <code>@</code> 选人 / <code>#</code> 选 tag)、自定义过滤、
-        头像与描述。
+        多行输入框 + @ 触发的浮层选人 / 选项。仿微博 / Slack / Notion 的 mention 体验,
+        支持多前缀(同时 <code>@</code> 选人 / <code>#</code> 选 tag)、自定义过滤、 头像与描述。
       </p>
 
       <h2>代码演示</h2>
@@ -42,12 +41,7 @@ const MentionsDoc: React.FC = () => {
   rows={3}
 />`}
       >
-        <Mentions
-          items={USERS}
-          placeholder="试试输入 @"
-          rows={3}
-          style={{ width: 480 }}
-        />
+        <Mentions items={USERS} placeholder="试试输入 @" rows={3} style={{ width: 480 }} />
       </DemoBlock>
 
       <DemoBlock
@@ -61,7 +55,8 @@ const MentionsDoc: React.FC = () => {
       avatar: <img src="/alice.jpg" />,
       description: '前端工程师',
     },
-    /* ... */
+    { value: 'bob',     label: 'Bob',     description: '后端工程师' },
+    { value: 'charlie', label: 'Charlie', description: '产品经理' },
   ]}
 />`}
       >
@@ -135,8 +130,12 @@ const MentionsDoc: React.FC = () => {
           filter={(search, item) => {
             const kw = search.toLowerCase();
             return (
-              String(item.label ?? item.value).toLowerCase().includes(kw) ||
-              String(item.description ?? '').toLowerCase().includes(kw)
+              String(item.label ?? item.value)
+                .toLowerCase()
+                .includes(kw) ||
+              String(item.description ?? '')
+                .toLowerCase()
+                .includes(kw)
             );
           }}
           style={{ width: 480 }}
@@ -146,25 +145,60 @@ const MentionsDoc: React.FC = () => {
       <h2>API</h2>
       <ApiTable
         rows={[
-          { prop: 'items', desc: '候选项 (无前缀切换时统一这一组)', type: 'MentionItem[]', default: '[]' },
-          { prop: 'prefix', desc: '触发字符 (单个或多个)', type: `string | string[]`, default: `'@'` },
+          {
+            prop: 'items',
+            desc: '候选项 (无前缀切换时统一这一组)',
+            type: 'MentionItem[]',
+            default: '[]',
+          },
+          {
+            prop: 'prefix',
+            desc: '触发字符 (单个或多个)',
+            type: `string | string[]`,
+            default: `'@'`,
+          },
           { prop: 'value / defaultValue', desc: '受控/初始内容', type: 'string', default: '-' },
           { prop: 'placeholder', desc: '占位符', type: 'string', default: '-' },
           { prop: 'rows', desc: 'textarea 行数', type: 'number', default: '3' },
           { prop: 'onChange', desc: '内容变化', type: '(value) => void', default: '-' },
-          { prop: 'onSearch', desc: '弹层打开 / 搜索关键字变化', type: '(search, prefix) => void', default: '-' },
-          { prop: 'onSelect', desc: '从浮层选了某项', type: '(item, prefix) => void', default: '-' },
-          { prop: 'filter', desc: '前端过滤函数 (默认 includes)', type: '(search, item) => bool', default: '默认模糊匹配' },
+          {
+            prop: 'onSearch',
+            desc: '弹层打开 / 搜索关键字变化',
+            type: '(search, prefix) => void',
+            default: '-',
+          },
+          {
+            prop: 'onSelect',
+            desc: '从浮层选了某项',
+            type: '(item, prefix) => void',
+            default: '-',
+          },
+          {
+            prop: 'filter',
+            desc: '前端过滤函数 (默认 includes)',
+            type: '(search, item) => bool',
+            default: '默认模糊匹配',
+          },
           { prop: 'popupMaxHeight', desc: '浮层最大高度 (px)', type: 'number', default: '240' },
           { prop: 'disabled', desc: '禁用', type: 'boolean', default: 'false' },
-          { prop: 'textareaProps', desc: '透传给底层 <textarea>', type: 'TextareaHTMLAttributes', default: '-' },
+          {
+            prop: 'textareaProps',
+            desc: '透传给底层 <textarea>',
+            type: 'TextareaHTMLAttributes',
+            default: '-',
+          },
         ]}
       />
 
       <h2>MentionItem 类型</h2>
       <ApiTable
         rows={[
-          { prop: 'value', desc: '回填到内容里的字符串 (会跟 prefix 拼接)', type: 'string', default: '-' },
+          {
+            prop: 'value',
+            desc: '回填到内容里的字符串 (会跟 prefix 拼接)',
+            type: 'string',
+            default: '-',
+          },
           { prop: 'label', desc: '浮层显示的标签', type: 'ReactNode', default: 'value' },
           { prop: 'avatar', desc: '头像 / 图标', type: 'ReactNode', default: '-' },
           { prop: 'description', desc: '描述行', type: 'ReactNode', default: '-' },
@@ -176,7 +210,9 @@ const MentionsDoc: React.FC = () => {
 };
 
 const MultiPrefixDemo: React.FC = () => {
-  const [items, setItems] = React.useState(USERS as Array<{ value: string; label?: React.ReactNode; description?: React.ReactNode }>);
+  const [items, setItems] = React.useState(
+    USERS as Array<{ value: string; label?: React.ReactNode; description?: React.ReactNode }>,
+  );
   return (
     <Mentions
       items={items}

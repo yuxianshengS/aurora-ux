@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './site-components/Navbar';
+import DocsSearch from './site-components/DocsSearch';
 import DocLayout from './layouts/DocLayout';
 import Home from './pages/Home';
 
@@ -69,6 +70,7 @@ const KpiCardDoc = lazy(() => import('./pages/KpiCardDoc'));
 const GaugeDoc = lazy(() => import('./pages/GaugeDoc'));
 const LiquidFillDoc = lazy(() => import('./pages/LiquidFillDoc'));
 const ScreenScaleDoc = lazy(() => import('./pages/ScreenScaleDoc'));
+const EChartDoc = lazy(() => import('./pages/EChartDoc'));
 const FunnelDoc = lazy(() => import('./pages/FunnelDoc'));
 const HeatmapDoc = lazy(() => import('./pages/HeatmapDoc'));
 const ActivityFeedDoc = lazy(() => import('./pages/ActivityFeedDoc'));
@@ -120,6 +122,7 @@ const AppShell: React.FC = () => {
   return (
     <>
       {!hideNavbar && <Navbar />}
+      <DocsSearch />
       <Suspense fallback={<RouteFallback />}>
         <AppRoutes />
       </Suspense>
@@ -214,6 +217,7 @@ const AppRoutes: React.FC = () => (
       <Route path="gauge" element={<GaugeDoc />} />
       <Route path="liquid-fill" element={<LiquidFillDoc />} />
       <Route path="screen-scale" element={<ScreenScaleDoc />} />
+      <Route path="echart" element={<EChartDoc />} />
       <Route path="funnel" element={<FunnelDoc />} />
       <Route path="heatmap" element={<HeatmapDoc />} />
       <Route path="activity-feed" element={<ActivityFeedDoc />} />

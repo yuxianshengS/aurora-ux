@@ -11,7 +11,9 @@ const generateData = (days: number, endDate = new Date()) => {
     // Random-ish: weekday more active, some days empty
     const roll = Math.random();
     if (roll < 0.25) continue;
-    const base = [0, 1, 2, 3, 4, 5, 6].includes(d.getDay()) ? Math.floor(Math.random() * 10) + 1 : Math.floor(Math.random() * 15);
+    const base = [0, 1, 2, 3, 4, 5, 6].includes(d.getDay())
+      ? Math.floor(Math.random() * 10) + 1
+      : Math.floor(Math.random() * 15);
     const val = Math.max(1, Math.floor(base * (roll + 0.3)));
     data.push({
       date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
@@ -59,7 +61,11 @@ const HeatmapDoc: React.FC = () => {
   endDate="2026-04-20"
 />`}
       >
-        <Heatmap data={shortData} startDate={new Date(Date.now() - 120 * 86400000)} endDate={new Date()} />
+        <Heatmap
+          data={shortData}
+          startDate={new Date(Date.now() - 120 * 86400000)}
+          endDate={new Date()}
+        />
       </DemoBlock>
 
       <DemoBlock
@@ -96,12 +102,20 @@ const data = [
   { date: '2026-04-20', value: 5 },
   { date: '2026-04-21', value: 12 },
   { date: '2026-04-22', value: 3 },
-  // ... 更多日期
+  { date: '2026-04-23', value: 8 },
+  { date: '2026-04-24', value: 15 },
+  { date: '2026-04-25', value: 2 },
 ];
 
 <Heatmap data={data} cellSize={16} cellGap={4} />`}
       >
-        <Heatmap data={shortData} cellSize={16} cellGap={4} startDate={new Date(Date.now() - 100 * 86400000)} endDate={new Date()} />
+        <Heatmap
+          data={shortData}
+          cellSize={16}
+          cellGap={4}
+          startDate={new Date(Date.now() - 100 * 86400000)}
+          endDate={new Date()}
+        />
       </DemoBlock>
 
       <DemoBlock
@@ -109,7 +123,7 @@ const data = [
         description="onCellClick 处理点击; tooltipFormatter 自定义悬停提示。"
         code={`<Heatmap
   data={yearData}
-  onCellClick={({ date, value }) => ...}
+  onCellClick={({ date, value }) => console.log(date, value)}
   tooltipFormatter={({ date, value }) => \`\${fmt(date)}: \${value} 条提交\`}
 />`}
       >
@@ -128,17 +142,42 @@ const data = [
       <ApiTable
         rows={[
           { prop: 'data', desc: '每日数据', type: '{ date, value }[]', default: '-' },
-          { prop: 'startDate / endDate', desc: '起止日期', type: 'string | Date', default: '最近一年' },
+          {
+            prop: 'startDate / endDate',
+            desc: '起止日期',
+            type: 'string | Date',
+            default: '最近一年',
+          },
           { prop: 'cellSize', desc: '单元大小 (px)', type: 'number', default: '12' },
           { prop: 'cellGap', desc: '单元间距 (px)', type: 'number', default: '3' },
           { prop: 'cellRadius', desc: '单元圆角', type: 'number', default: '2' },
-          { prop: 'colors', desc: '5 档颜色 (空 → 最高)', type: '[string, string, string, string, string]', default: '蓝色渐变' },
-          { prop: 'thresholds', desc: '4 个强度阈值 (默认按 max 自动算)', type: '[n, n, n, n]', default: '-' },
+          {
+            prop: 'colors',
+            desc: '5 档颜色 (空 → 最高)',
+            type: '[string, string, string, string, string]',
+            default: '蓝色渐变',
+          },
+          {
+            prop: 'thresholds',
+            desc: '4 个强度阈值 (默认按 max 自动算)',
+            type: '[n, n, n, n]',
+            default: '-',
+          },
           { prop: 'showMonthLabels', desc: '显示月份标签', type: 'boolean', default: 'true' },
           { prop: 'showWeekdayLabels', desc: '显示星期标签', type: 'boolean', default: 'true' },
           { prop: 'showLegend', desc: '显示图例', type: 'boolean', default: 'true' },
-          { prop: 'tooltipFormatter', desc: 'tooltip 内容', type: '({ date, value }) => ReactNode', default: '-' },
-          { prop: 'onCellClick', desc: '单元点击', type: '({ date, value }) => void', default: '-' },
+          {
+            prop: 'tooltipFormatter',
+            desc: 'tooltip 内容',
+            type: '({ date, value }) => ReactNode',
+            default: '-',
+          },
+          {
+            prop: 'onCellClick',
+            desc: '单元点击',
+            type: '({ date, value }) => void',
+            default: '-',
+          },
         ]}
       />
     </>

@@ -9,9 +9,9 @@ const TourDoc: React.FC = () => {
     <>
       <h1>Tour 引导</h1>
       <p>
-        新手引导 / 功能巡览 / 升级解读组件。把页面上的关键 DOM 串成一条
-        steps 轨迹, 高亮 + 气泡卡片配合 上一步 / 下一步 / 跳过 引导用户走完一遍。
-        portal 渲染、自动避开视口边界、键盘 ←/→/Esc、focus trap 内置, 默认尊重
+        新手引导 / 功能巡览 / 升级解读组件。把页面上的关键 DOM 串成一条 steps 轨迹, 高亮 +
+        气泡卡片配合 上一步 / 下一步 / 跳过 引导用户走完一遍。 portal 渲染、自动避开视口边界、键盘
+        ←/→/Esc、focus trap 内置, 默认尊重
         <code>prefers-reduced-motion</code>。
       </p>
 
@@ -58,7 +58,15 @@ const [open, setOpen] = useState(false);
       <DemoBlock
         title="primary 主题"
         description="type='primary' 让卡片用主色填充, 适合做产品营销引导。"
-        code={`<Tour type="primary" steps={[...]} />`}
+        code={`<Tour
+  type="primary"
+  open={open}
+  onClose={() => setOpen(false)}
+  steps={[
+    { target: () => ref1.current, title: '欢迎', description: '快速上手 Aurora UI' },
+    { target: () => ref2.current, title: '核心组件', description: '60+ 个开箱即用的组件' },
+  ]}
+/>`}
       >
         <PrimaryDemo />
       </DemoBlock>
@@ -81,9 +89,16 @@ const [open, setOpen] = useState(false);
       <DemoBlock
         title="不可关闭 / 单步隐藏遮罩"
         description="step.mask=false 让某一步不挡住目标(用户可以同时操作目标元素)。"
-        code={`steps={[
-  { ..., mask: false },  // 此步可点目标
-]}`}
+        code={`<Tour
+  steps={[
+    {
+      target: () => ref.current,
+      title: '可点击的目标',
+      description: '此步不挡住目标, 你可以直接操作它',
+      mask: false,
+    },
+  ]}
+/>`}
       >
         <MaskDemo />
       </DemoBlock>
@@ -128,8 +143,10 @@ steps={[
       </Space>
     ),
   },
-  // ... 步骤 1-2 = 新手分支
-  // ... 步骤 3-4 = 进阶分支
+  { target: () => beginnerRef1.current, title: '新手 - 1', description: '...' },
+  { target: () => beginnerRef2.current, title: '新手 - 2', description: '...' },
+  { target: () => advancedRef1.current, title: '进阶 - 1', description: '...' },
+  { target: () => advancedRef2.current, title: '进阶 - 2', description: '...' },
 ]}
 
 <Tour open={open} current={current} onChange={setCurrent} steps={steps} />`}
@@ -184,19 +201,59 @@ steps={[
           { prop: 'steps', desc: '步骤数组', type: 'TourStep[]', default: '-' },
           { prop: 'current', desc: '受控当前步索引', type: 'number', default: '-' },
           { prop: 'defaultCurrent', desc: '非受控初始步', type: 'number', default: '0' },
-          { prop: 'mask', desc: '全局遮罩 (单步可用 step.mask 覆盖)', type: 'boolean', default: 'true' },
+          {
+            prop: 'mask',
+            desc: '全局遮罩 (单步可用 step.mask 覆盖)',
+            type: 'boolean',
+            default: 'true',
+          },
           { prop: 'arrow', desc: '全局箭头', type: 'boolean', default: 'true' },
           { prop: 'type', desc: '主题', type: `'default' | 'primary'`, default: `'primary'` },
           { prop: 'onChange', desc: '步切换', type: '(current) => void', default: '-' },
-          { prop: 'onClose', desc: '关闭/跳过 (传当前 step 索引)', type: '(current) => void', default: '-' },
-          { prop: 'onFinish', desc: '走完最后一步触发(同时也会 onClose)', type: '() => void', default: '-' },
-          { prop: 'scrollIntoViewOptions', desc: '目标进入视口的滚动策略; false 关闭', type: 'boolean | ScrollIntoViewOptions', default: `{ block: 'center', behavior: 'smooth' }` },
+          {
+            prop: 'onClose',
+            desc: '关闭/跳过 (传当前 step 索引)',
+            type: '(current) => void',
+            default: '-',
+          },
+          {
+            prop: 'onFinish',
+            desc: '走完最后一步触发(同时也会 onClose)',
+            type: '() => void',
+            default: '-',
+          },
+          {
+            prop: 'scrollIntoViewOptions',
+            desc: '目标进入视口的滚动策略; false 关闭',
+            type: 'boolean | ScrollIntoViewOptions',
+            default: `{ block: 'center', behavior: 'smooth' }`,
+          },
           { prop: 'closeButtonText', desc: '关闭按钮文案', type: 'ReactNode', default: `'跳过'` },
           { prop: 'finishButtonText', desc: '完成按钮文案', type: 'ReactNode', default: `'完成'` },
-          { prop: 'prevButtonText', desc: '上一步默认文案', type: 'ReactNode', default: `'上一步'` },
-          { prop: 'nextButtonText', desc: '下一步默认文案', type: 'ReactNode', default: `'下一步'` },
-          { prop: 'zIndex', desc: '自定义 zIndex (默认走 token --au-z-modal)', type: 'number', default: '-' },
-          { prop: 'closable', desc: '是否显示关闭按钮 + Esc 关闭', type: 'boolean', default: 'true' },
+          {
+            prop: 'prevButtonText',
+            desc: '上一步默认文案',
+            type: 'ReactNode',
+            default: `'上一步'`,
+          },
+          {
+            prop: 'nextButtonText',
+            desc: '下一步默认文案',
+            type: 'ReactNode',
+            default: `'下一步'`,
+          },
+          {
+            prop: 'zIndex',
+            desc: '自定义 zIndex (默认走 token --au-z-modal)',
+            type: 'number',
+            default: '-',
+          },
+          {
+            prop: 'closable',
+            desc: '是否显示关闭按钮 + Esc 关闭',
+            type: 'boolean',
+            default: 'true',
+          },
           { prop: 'gap', desc: '卡片与目标的间距 (px)', type: 'number', default: '12' },
         ]}
       />
@@ -204,18 +261,48 @@ steps={[
       <h3>TourStep</h3>
       <ApiTable
         rows={[
-          { prop: 'target', desc: '目标 (DOM 节点 / CSS 选择器字符串 / 返回节点的函数; 不传 = 居中)', type: 'HTMLElement | string | () => HTMLElement | null', default: '-' },
+          {
+            prop: 'target',
+            desc: '目标 (DOM 节点 / CSS 选择器字符串 / 返回节点的函数; 不传 = 居中)',
+            type: 'HTMLElement | string | () => HTMLElement | null',
+            default: '-',
+          },
           { prop: 'title', desc: '标题', type: 'ReactNode', default: '-' },
           { prop: 'description', desc: '描述', type: 'ReactNode', default: '-' },
           { prop: 'cover', desc: '顶部封面 (图/视频/节点)', type: 'ReactNode', default: '-' },
-          { prop: 'placement', desc: '气泡方位; 没 target 时建议 center', type: `'top'|'topLeft'|'topRight'|'bottom'|'bottomLeft'|'bottomRight'|'left'|'right'|'center'`, default: `'bottom'` },
+          {
+            prop: 'placement',
+            desc: '气泡方位; 没 target 时建议 center',
+            type: `'top'|'topLeft'|'topRight'|'bottom'|'bottomLeft'|'bottomRight'|'left'|'right'|'center'`,
+            default: `'bottom'`,
+          },
           { prop: 'mask', desc: '该步是否遮罩 (覆盖 Tour 全局)', type: 'boolean', default: '继承' },
           { prop: 'arrow', desc: '该步是否箭头', type: 'boolean', default: '继承' },
-          { prop: 'spotlightPadding', desc: '高亮目标的额外内边距 (px)', type: 'number', default: '6' },
-          { prop: 'nextButtonText / prevButtonText', desc: '该步专属按钮文案', type: 'ReactNode', default: '-' },
+          {
+            prop: 'spotlightPadding',
+            desc: '高亮目标的额外内边距 (px)',
+            type: 'number',
+            default: '6',
+          },
+          {
+            prop: 'nextButtonText / prevButtonText',
+            desc: '该步专属按钮文案',
+            type: 'ReactNode',
+            default: '-',
+          },
           { prop: 'closable', desc: '该步是否可关闭', type: 'boolean', default: '继承' },
-          { prop: 'actions', desc: '完全自定义底部按钮区', type: '(ctx) => ReactNode', default: '-' },
-          { prop: 'onNext', desc: '点下一步前拦截,返回 false / Promise<false> 阻止前进', type: '() => boolean | Promise<boolean | void>', default: '-' },
+          {
+            prop: 'actions',
+            desc: '完全自定义底部按钮区',
+            type: '(ctx) => ReactNode',
+            default: '-',
+          },
+          {
+            prop: 'onNext',
+            desc: '点下一步前拦截,返回 false / Promise<false> 阻止前进',
+            type: '() => boolean | Promise<boolean | void>',
+            default: '-',
+          },
           { prop: 'onEnter / onLeave', desc: '步生命周期回调', type: '() => void', default: '-' },
         ]}
       />
@@ -310,8 +397,7 @@ const CoverDemo: React.FC = () => {
               <div
                 style={{
                   height: 140,
-                  background:
-                    'linear-gradient(135deg, #6366f1, #ec4899 60%, #f59e0b)',
+                  background: 'linear-gradient(135deg, #6366f1, #ec4899 60%, #f59e0b)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -331,7 +417,8 @@ const CoverDemo: React.FC = () => {
           },
           {
             title: '试试这些招牌组件',
-            description: 'AuroraBg / GlowCard / GradientText / Connector — 别人没有的, 才是 Aurora 的招牌。',
+            description:
+              'AuroraBg / GlowCard / GradientText / Connector — 别人没有的, 才是 Aurora 的招牌。',
             placement: 'center',
           },
         ]}
@@ -377,8 +464,8 @@ const FirstVisitDemo: React.FC = () => {
   const card1 = useRef<HTMLDivElement>(null);
   const card2 = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [seen, setSeen] = useState<boolean>(() =>
-    typeof window !== 'undefined' && !!window.localStorage.getItem(FIRST_VISIT_KEY),
+  const [seen, setSeen] = useState<boolean>(
+    () => typeof window !== 'undefined' && !!window.localStorage.getItem(FIRST_VISIT_KEY),
   );
   // 进入页面时若没看过 → 自动开
   useEffect(() => {
@@ -394,9 +481,7 @@ const FirstVisitDemo: React.FC = () => {
   return (
     <>
       <Space style={{ marginBottom: 12 }}>
-        <Tag color={seen ? 'success' : 'warning'}>
-          localStorage: {seen ? '已看过' : '未看过'}
-        </Tag>
+        <Tag color={seen ? 'success' : 'warning'}>localStorage: {seen ? '已看过' : '未看过'}</Tag>
         <Button
           size="small"
           onClick={() => {
@@ -525,7 +610,14 @@ const BranchDemo: React.FC = () => {
         >
           import {'{'} Button {'}'} from 'aurora-ux';
         </div>
-        <Button onClick={() => { setCurrent(0); setOpen(true); }}>开始引导</Button>
+        <Button
+          onClick={() => {
+            setCurrent(0);
+            setOpen(true);
+          }}
+        >
+          开始引导
+        </Button>
       </Space>
       <Tour
         open={open}
@@ -556,7 +648,12 @@ const GuardDemo: React.FC = () => {
         >
           {subscribed ? '✓ 已订阅' : '点我订阅'}
         </Button>
-        <Button onClick={() => { setSubscribed(false); setOpen(true); }}>
+        <Button
+          onClick={() => {
+            setSubscribed(false);
+            setOpen(true);
+          }}
+        >
           开始引导
         </Button>
       </Space>
@@ -595,9 +692,7 @@ const ForceDemo: React.FC = () => {
     <>
       <Space>
         <Card ref={card} title="合规公告" hoverable style={{ width: 240 }}>
-          <div style={{ color: 'var(--au-text-2)' }}>
-            重要:本月起请使用新版报表入口。
-          </div>
+          <div style={{ color: 'var(--au-text-2)' }}>重要:本月起请使用新版报表入口。</div>
         </Card>
         <Button type="primary" onClick={() => setOpen(true)}>
           查看变更说明
@@ -631,7 +726,8 @@ const SelectorDemo: React.FC = () => {
   return (
     <>
       <p style={{ marginBottom: 12, color: 'var(--au-text-3)', fontSize: 13 }}>
-        这个 demo 直接用 CSS 选择器锁定页面顶部 Navbar 的 logo 和文档链接 — 不用 ref 也能引导外部 DOM。
+        这个 demo 直接用 CSS 选择器锁定页面顶部 Navbar 的 logo 和文档链接 — 不用 ref 也能引导外部
+        DOM。
       </p>
       <Button type="primary" onClick={() => setOpen(true)}>
         开始页面级引导

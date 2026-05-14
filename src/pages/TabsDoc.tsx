@@ -5,7 +5,11 @@ import ApiTable from '../site-components/ApiTable';
 
 const baseItems = [
   { key: '1', label: '标签一', children: <p style={{ margin: 0 }}>这里是第一个标签的内容。</p> },
-  { key: '2', label: '标签二', children: <p style={{ margin: 0 }}>第二个标签的内容,可以放任意 ReactNode。</p> },
+  {
+    key: '2',
+    label: '标签二',
+    children: <p style={{ margin: 0 }}>第二个标签的内容,可以放任意 ReactNode。</p>,
+  },
   { key: '3', label: '标签三', children: <p style={{ margin: 0 }}>第三个标签。</p> },
 ];
 
@@ -14,8 +18,8 @@ const TabsDoc: React.FC = () => {
     <>
       <h1>Tabs 标签页</h1>
       <p>
-        切换视图内容。支持经典线条、卡片、分段 (Segment) 三种外观,
-        顶 / 底 / 左 / 右 四方向排布,尺寸与居中可选。切换带滑动 ink 动画。
+        切换视图内容。支持经典线条、卡片、分段 (Segment) 三种外观, 顶 / 底 / 左 / 右
+        四方向排布,尺寸与居中可选。切换带滑动 ink 动画。
       </p>
 
       <h2>代码演示</h2>
@@ -80,16 +84,32 @@ const TabsDoc: React.FC = () => {
         title="带图标 / 禁用"
         description="item.icon 放图标; item.disabled 禁用单项。"
         code={`<Tabs items={[
-  { key: 'dash', label: '仪表盘', icon: <Icon name="home" />, children: ... },
-  { key: 'list', label: '列表', icon: <Icon name="list" />, children: ... },
-  { key: 'lock', label: '已归档', icon: <Icon name="lock" />, disabled: true, children: ... },
+  { key: 'dash', label: '仪表盘', icon: <Icon name="home" />, children: <p>仪表盘内容</p> },
+  { key: 'list', label: '列表',   icon: <Icon name="list" />, children: <p>列表内容</p> },
+  { key: 'lock', label: '已归档', icon: <Icon name="lock" />, disabled: true, children: <p>该内容已归档</p> },
 ]} />`}
       >
         <Tabs
           items={[
-            { key: 'dash', label: '仪表盘', icon: <Icon name="home" />, children: <p style={{ margin: 0 }}>仪表盘内容</p> },
-            { key: 'list', label: '列表', icon: <Icon name="list" />, children: <p style={{ margin: 0 }}>列表内容</p> },
-            { key: 'lock', label: '已归档', icon: <Icon name="lock" />, disabled: true, children: <p style={{ margin: 0 }}>该内容已归档</p> },
+            {
+              key: 'dash',
+              label: '仪表盘',
+              icon: <Icon name="home" />,
+              children: <p style={{ margin: 0 }}>仪表盘内容</p>,
+            },
+            {
+              key: 'list',
+              label: '列表',
+              icon: <Icon name="list" />,
+              children: <p style={{ margin: 0 }}>列表内容</p>,
+            },
+            {
+              key: 'lock',
+              label: '已归档',
+              icon: <Icon name="lock" />,
+              disabled: true,
+              children: <p style={{ margin: 0 }}>该内容已归档</p>,
+            },
           ]}
         />
       </DemoBlock>
@@ -105,7 +125,9 @@ const TabsDoc: React.FC = () => {
       >
         <Tabs
           centered
-          tabBarExtraContent={<button className="au-btn au-btn--primary au-btn--small">新增</button>}
+          tabBarExtraContent={
+            <button className="au-btn au-btn--primary au-btn--small">新增</button>
+          }
           items={baseItems}
         />
       </DemoBlock>
@@ -129,14 +151,34 @@ const TabsDoc: React.FC = () => {
       <ApiTable
         rows={[
           { prop: 'items', desc: '标签配置', type: 'TabItem[]', default: '-' },
-          { prop: 'activeKey / defaultActiveKey', desc: '当前激活 key', type: 'string', default: '-' },
+          {
+            prop: 'activeKey / defaultActiveKey',
+            desc: '当前激活 key',
+            type: 'string',
+            default: '-',
+          },
           { prop: 'onChange', desc: '切换回调', type: '(key) => void', default: '-' },
-          { prop: 'type', desc: '外观类型', type: `'line' | 'card' | 'segment'`, default: `'line'` },
-          { prop: 'tabPosition', desc: '标签位置', type: `'top' | 'bottom' | 'left' | 'right'`, default: `'top'` },
+          {
+            prop: 'type',
+            desc: '外观类型',
+            type: `'line' | 'card' | 'segment'`,
+            default: `'line'`,
+          },
+          {
+            prop: 'tabPosition',
+            desc: '标签位置',
+            type: `'top' | 'bottom' | 'left' | 'right'`,
+            default: `'top'`,
+          },
           { prop: 'size', desc: '尺寸', type: `'small' | 'medium' | 'large'`, default: `'medium'` },
           { prop: 'centered', desc: '居中排列', type: 'boolean', default: 'false' },
           { prop: 'tabBarExtraContent', desc: '标签栏右侧附加', type: 'ReactNode', default: '-' },
-          { prop: 'destroyInactiveTabPane', desc: '未激活时卸载 (默认仅隐藏)', type: 'boolean', default: 'false' },
+          {
+            prop: 'destroyInactiveTabPane',
+            desc: '未激活时卸载 (默认仅隐藏)',
+            type: 'boolean',
+            default: 'false',
+          },
           { prop: 'animated', desc: '内容切换动画', type: 'boolean', default: 'true' },
         ]}
       />
