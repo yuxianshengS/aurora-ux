@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-05-14
+
+### 新增
+
+- **EChart 通用图表组件** — 对 ECharts 的最小封装. 不翻译 option, 直接传 ECharts DSL; 自动注入 Aurora 主题 (色板 + textStyle), 接 React 生命周期, 透传 onEvents / onChartReady / loading. 配套文档 `/docs/echart` 含双 x 轴 (月+季度) 和季度合计柱叠加等完整 inline option 示例, 复制改数据即可
+- **全站 ⌘K / Ctrl+K 搜索** — Navbar 加搜索按钮入口, 索引所有 nav 条目 + 顶级页面 (首页 / 示例 / Builder), 模糊匹配跳转
+
+### 文档
+
+- 修 ~16 个 demo 文件 code 模板里的 `[...]` / `{...}` / `// ...` 占位, 现在每个示例复制下来都是**完整可运行**的 (Sparkline / Tabs / Dropdown / AutoComplete / FloatButton / Table / Tour / ActivityFeed / Radio / Checkbox / Carousel / Mentions / Heatmap / Cascader / TopProgress / ScreenScale)
+
 ## [0.8.1] - 2026-04-29
 
 ### 修复
